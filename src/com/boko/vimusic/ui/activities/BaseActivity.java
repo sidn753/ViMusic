@@ -249,8 +249,8 @@ public abstract class BaseActivity extends FragmentActivity implements ServiceCo
         // Play and pause changes
         filter.addAction(MusicPlaybackService.EVENT_PLAYSTATE_CHANGED);
         // Shuffle and repeat changes
-        filter.addAction(MusicPlaybackService.SHUFFLEMODE_CHANGED);
-        filter.addAction(MusicPlaybackService.REPEATMODE_CHANGED);
+        filter.addAction(MusicPlaybackService.EVENT_SHUFFLEMODE_CHANGED);
+        filter.addAction(MusicPlaybackService.EVENT_REPEATMODE_CHANGED);
         // Track changes
         filter.addAction(MusicPlaybackService.EVENT_META_CHANGED);
         // Update a list, probably the playlist fragment's
@@ -423,8 +423,8 @@ public abstract class BaseActivity extends FragmentActivity implements ServiceCo
             } else if (action.equals(MusicPlaybackService.EVENT_PLAYSTATE_CHANGED)) {
                 // Set the play and pause image
                 mReference.get().mPlayPauseButton.updateState();
-            } else if (action.equals(MusicPlaybackService.REPEATMODE_CHANGED)
-                    || action.equals(MusicPlaybackService.SHUFFLEMODE_CHANGED)) {
+            } else if (action.equals(MusicPlaybackService.EVENT_REPEATMODE_CHANGED)
+                    || action.equals(MusicPlaybackService.EVENT_SHUFFLEMODE_CHANGED)) {
                 // Set the repeat image
                 mReference.get().mRepeatButton.updateRepeatState();
                 // Set the shuffle image

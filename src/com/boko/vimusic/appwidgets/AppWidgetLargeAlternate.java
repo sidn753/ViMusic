@@ -99,8 +99,8 @@ public class AppWidgetLargeAlternate extends AppWidgetBase {
         if (hasInstances(service)) {
             if (MusicPlaybackService.EVENT_META_CHANGED.equals(what)
                     || MusicPlaybackService.EVENT_PLAYSTATE_CHANGED.equals(what)
-                    || MusicPlaybackService.REPEATMODE_CHANGED.equals(what)
-                    || MusicPlaybackService.SHUFFLEMODE_CHANGED.equals(what)) {
+                    || MusicPlaybackService.EVENT_REPEATMODE_CHANGED.equals(what)
+                    || MusicPlaybackService.EVENT_SHUFFLEMODE_CHANGED.equals(what)) {
                 performUpdate(service, null);
             }
         }

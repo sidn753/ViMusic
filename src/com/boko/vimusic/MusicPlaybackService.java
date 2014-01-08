@@ -106,19 +106,19 @@ public class MusicPlaybackService extends Service {
 	/**
 	 * Indicates the queue has been updated
 	 */
-	public static final String QUEUE_CHANGED = APP_PACKAGE_NAME
+	public static final String EVENT_QUEUE_CHANGED = APP_PACKAGE_NAME
 			+ ".queuechanged";
 
 	/**
 	 * Indicates the repeat mode chaned
 	 */
-	public static final String REPEATMODE_CHANGED = APP_PACKAGE_NAME
+	public static final String EVENT_REPEATMODE_CHANGED = APP_PACKAGE_NAME
 			+ ".repeatmodechanged";
 
 	/**
 	 * Indicates the shuffle mode chaned
 	 */
-	public static final String SHUFFLEMODE_CHANGED = APP_PACKAGE_NAME
+	public static final String EVENT_SHUFFLEMODE_CHANGED = APP_PACKAGE_NAME
 			+ ".shufflemodechanged";
 
 	/*****************************************************************
@@ -617,7 +617,7 @@ public class MusicPlaybackService extends Service {
 
         // Bring the queue back
         reloadQueue();
-        notifyChange(QUEUE_CHANGED);
+        notifyChange(EVENT_QUEUE_CHANGED);
         notifyChange(EVENT_META_CHANGED);
     }
 
@@ -826,7 +826,7 @@ public class MusicPlaybackService extends Service {
      */
     public void closeExternalStorageFiles(final String storagePath) {
         stop(true);
-        notifyChange(QUEUE_CHANGED);
+        notifyChange(EVENT_QUEUE_CHANGED);
         notifyChange(EVENT_META_CHANGED);
     }
 
@@ -855,7 +855,7 @@ public class MusicPlaybackService extends Service {
                         mCardId = getCardId();
                         reloadQueue();
                         mQueueIsSaveable = true;
-                        notifyChange(QUEUE_CHANGED);
+                        notifyChange(EVENT_QUEUE_CHANGED);
                         notifyChange(EVENT_META_CHANGED);
                     }
                 }
@@ -1255,7 +1255,7 @@ public class MusicPlaybackService extends Service {
             notify = true;
         }
         if (notify) {
-            notifyChange(QUEUE_CHANGED);
+            notifyChange(EVENT_QUEUE_CHANGED);
         }
     }
 
@@ -1335,7 +1335,7 @@ public class MusicPlaybackService extends Service {
             mRecentsCache.addAlbum(String.valueOf(getAlbumId()), "", getAlbumName(), getArtistName(),
                     MusicUtils.getSongCountForAlbum(this, getAlbumId()),
                     MusicUtils.getReleaseDateForAlbum(this, getAlbumId()));
-        } else if (what.equals(QUEUE_CHANGED)) {
+        } else if (what.equals(EVENT_QUEUE_CHANGED)) {
             saveQueue(true);
             if (isPlaying()) {
                 setNextTrack();
@@ -1370,7 +1370,7 @@ public class MusicPlaybackService extends Service {
             mRemoteControlClient.setPlaybackState(playState, position(), 1.0f);
         } else if (what.equals(EVENT_PLAYSTATE_CHANGED)) {
             mRemoteControlClient.setPlaybackState(playState);
-        } else if (what.equals(EVENT_META_CHANGED) || what.equals(QUEUE_CHANGED)) {
+        } else if (what.equals(EVENT_META_CHANGED) || what.equals(EVENT_QUEUE_CHANGED)) {
             Bitmap albumArt = getAlbumArt();
             if (albumArt != null) {
                 // RemoteControlClient wants to recycle the bitmaps thrown at it, so we need
@@ -1683,7 +1683,7 @@ public class MusicPlaybackService extends Service {
             }
         }
         if (numremoved > 0) {
-            notifyChange(QUEUE_CHANGED);
+            notifyChange(EVENT_QUEUE_CHANGED);
         }
         return numremoved;
     }
@@ -1700,7 +1700,7 @@ public class MusicPlaybackService extends Service {
     public int removeTracks(final int first, final int last) {
         final int numremoved = removeTracksInternal(first, last);
         if (numremoved > 0) {
-            notifyChange(QUEUE_CHANGED);
+            notifyChange(EVENT_QUEUE_CHANGED);
         }
         return numremoved;
     }
@@ -1932,7 +1932,7 @@ public class MusicPlaybackService extends Service {
             }
             if (newlist) {
                 addToPlayList(list, -1);
-                notifyChange(QUEUE_CHANGED);
+                notifyChange(EVENT_QUEUE_CHANGED);
             }
             if (position >= 0) {
                 mPlayPos = position;
@@ -2124,7 +2124,7 @@ public class MusicPlaybackService extends Service {
                     mPlayPos++;
                 }
             }
-            notifyChange(QUEUE_CHANGED);
+            notifyChange(EVENT_QUEUE_CHANGED);
         }
     }
 
@@ -2138,7 +2138,7 @@ public class MusicPlaybackService extends Service {
             mRepeatMode = repeatmode;
             setNextTrack();
             saveQueue(false);
-            notifyChange(REPEATMODE_CHANGED);
+            notifyChange(EVENT_REPEATMODE_CHANGED);
         }
     }
 
@@ -2167,7 +2167,7 @@ public class MusicPlaybackService extends Service {
                 }
             }
             saveQueue(false);
-            notifyChange(SHUFFLEMODE_CHANGED);
+            notifyChange(EVENT_SHUFFLEMODE_CHANGED);
         }
     }
 
@@ -2199,10 +2199,10 @@ public class MusicPlaybackService extends Service {
         synchronized (this) {
             if (action == NEXT && mPlayPos + 1 < mPlayListLen) {
                 addToPlayList(list, mPlayPos + 1);
-                notifyChange(QUEUE_CHANGED);
+                notifyChange(EVENT_QUEUE_CHANGED);
             } else {
                 addToPlayList(list, Integer.MAX_VALUE);
-                notifyChange(QUEUE_CHANGED);
+                notifyChange(EVENT_QUEUE_CHANGED);
                 if (action == NOW) {
                     mPlayPos = mPlayListLen - list.length;
                     openCurrentAndNext();
