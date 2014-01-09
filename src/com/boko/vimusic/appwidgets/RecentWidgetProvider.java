@@ -40,7 +40,7 @@ import com.boko.vimusic.utils.MusicUtils;
  * @author Andrew Neal (andrewdneal@gmail.com)
  */
 @TargetApi(11)
-public class RecentWidgetProvider extends AppWidgetBase {
+public class RecentWidgetProvider extends AppWidget {
 
     public static final String SET_ACTION = "set_action";
 
@@ -99,8 +99,8 @@ public class RecentWidgetProvider extends AppWidgetBase {
             intent.setData(Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME)));
             compatSetRemoteAdapter(mViews, appWidgetId, intent);
 
-            final Intent updateIntent = new Intent(MusicPlaybackService.ACTION_COMMAND);
-            updateIntent.putExtra(MusicPlaybackService.CMDNAME,
+            final Intent updateIntent = new Intent(MusicPlaybackService.ACTION);
+            updateIntent.putExtra(MusicPlaybackService.EXTRA_COMMAND,
                     RecentWidgetProvider.CMDAPPWIDGETUPDATE);
             updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds);
             updateIntent.setFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
@@ -199,7 +199,7 @@ public class RecentWidgetProvider extends AppWidgetBase {
      */
     public void notifyChange(final MusicPlaybackService service, final String what) {
         if (hasInstances(service)) {
-            if (MusicPlaybackService.EVENT_PLAYSTATE_CHANGED.equals(what)) {
+            if (MusicPlaybackService.EVENT_PLAY_TOGGLED.equals(what)) {
                 performUpdate(service, null);
             } else if (MusicPlaybackService.EVENT_META_CHANGED.equals(what)) {
                 synchronized (service) {
@@ -268,15 +268,15 @@ public class RecentWidgetProvider extends AppWidgetBase {
         }
 
         // Previous track
-        pendingIntent = buildPendingIntent(context, MusicPlaybackService.ACTION_PREVIOUS, serviceName);
+        pendingIntent = buildPendingIntent(context, MusicPlaybackService.CMD_PREVIOUS, serviceName);
         views.setOnClickPendingIntent(R.id.app_widget_recents_previous, pendingIntent);
 
         // Play and pause
-        pendingIntent = buildPendingIntent(context, MusicPlaybackService.ACTION_TOGGLE_PAUSE, serviceName);
+        pendingIntent = buildPendingIntent(context, MusicPlaybackService.CMD_TOGGLE, serviceName);
         views.setOnClickPendingIntent(R.id.app_widget_recents_play, pendingIntent);
 
         // Next track
-        pendingIntent = buildPendingIntent(context, MusicPlaybackService.ACTION_NEXT, serviceName);
+        pendingIntent = buildPendingIntent(context, MusicPlaybackService.CMD_NEXT, serviceName);
         views.setOnClickPendingIntent(R.id.app_widget_recents_next, pendingIntent);
     }
 

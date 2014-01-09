@@ -1,14 +1,3 @@
-/*
- * Copyright (C) 2012 Andrew Neal Licensed under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with the
- * License. You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law
- * or agreed to in writing, software distributed under the License is
- * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language
- * governing permissions and limitations under the License.
- */
-
 package com.boko.vimusic.service;
 
 import java.io.IOException;
@@ -54,6 +43,7 @@ import android.util.Log;
 
 import com.boko.vimusic.MediaButtonIntentReceiver;
 import com.boko.vimusic.NotificationHelper;
+import com.boko.vimusic.appwidgets.AppWidget;
 import com.boko.vimusic.appwidgets.AppWidgetLarge;
 import com.boko.vimusic.appwidgets.AppWidgetLargeAlternate;
 import com.boko.vimusic.appwidgets.AppWidgetSmall;
@@ -75,26 +65,25 @@ public class MusicPlaybackService extends Service {
     private static final String TAG = MusicPlaybackService.class.getName();
     private static final boolean DEBUG = false;
     
+	/*****************************************************************
+	 * 
+	 * STATIC CONSTANTS
+	 * 
+	 *****************************************************************/
+    
     /**
      * For backwards compatibility reasons, also provide sticky
      * broadcasts under the music package
      */
     private static final String APP_PACKAGE_NAME = "com.boko.vimusic";
     private static final String ANDROID_PACKAGE_NAME = "com.android.music";
-
-	/*****************************************************************
-	 * 
-	 * EVENTS
-	 * 
-	 *****************************************************************/
-    
     private static final String EVENT_PACKAGE_NAME = APP_PACKAGE_NAME + ".event";
     
 	/**
 	 * Indicates that the music has paused or resumed
 	 */
-	public static final String EVENT_PLAYSTATE_CHANGED = EVENT_PACKAGE_NAME
-			+ ".playstatechanged";
+	public static final String EVENT_PLAY_TOGGLED = EVENT_PACKAGE_NAME
+			+ ".playtoggled";
 
 	/**
 	 * Indicates that music playback position within a title was changed
@@ -114,123 +103,93 @@ public class MusicPlaybackService extends Service {
 			+ ".queuechanged";
 
 	/**
-	 * Indicates the repeat mode chaned
+	 * Indicates the repeat mode changed
 	 */
-	public static final String EVENT_REPEATMODE_CHANGED = EVENT_PACKAGE_NAME
-			+ ".repeatmodechanged";
+	public static final String EVENT_REPEAT_TOGGLED = EVENT_PACKAGE_NAME
+			+ ".repeattoggled";
 
 	/**
-	 * Indicates the shuffle mode chaned
+	 * Indicates the shuffle mode changed
 	 */
-	public static final String EVENT_SHUFFLEMODE_CHANGED = EVENT_PACKAGE_NAME
-			+ ".shufflemodechanged";
+	public static final String EVENT_SHUFFLE_TOGGLED = EVENT_PACKAGE_NAME
+			+ ".shuffletoggled";
 	
     /**
      * Used to easily notify a list that it should refresh. i.e. A playlist
      * changes
      */
     public static final String EVENT_REFRESH_FORCED = EVENT_PACKAGE_NAME
-			+ ".refresh";
-
-	/*****************************************************************
-	 * 
-	 * ACTIONS
-	 * 
-	 *****************************************************************/
+			+ ".refreshforced";
 
 	/**
-	 * Called to indicate a general service commmand. Used in
-	 * {@link MediaButtonIntentReceiver}
+	 * Called to indicate a general service action.
 	 */
-	public static final String ACTION_COMMAND = APP_PACKAGE_NAME + ".command";
+	public static final String ACTION = APP_PACKAGE_NAME + ".action";
+	
+	/**
+	 * Indicate the foreground state of activities
+	 */
+    public static final String EXTRA_FOREGROUND = "foreground";
+
+	/**
+	 * Indicate action's command.
+	 */
+    public static final String EXTRA_COMMAND = "command";
 
 	/**
 	 * Called to go toggle between pausing and playing the music
 	 */
-	public static final String ACTION_TOGGLE_PAUSE = APP_PACKAGE_NAME
-			+ ".togglepause";
-
+    public static final String CMD_TOGGLE = "toggle";
+    
+	/**
+	 * Called to go to play the playback
+	 */
+    public static final String CMD_PLAY = "play";
+    
 	/**
 	 * Called to go to pause the playback
 	 */
-	public static final String ACTION_PAUSE = APP_PACKAGE_NAME + ".pause";
-
+    public static final String CMD_PAUSE = "pause";
+    
 	/**
 	 * Called to go to stop the playback
 	 */
-	public static final String ACTION_STOP = APP_PACKAGE_NAME + ".stop";
-
+    public static final String CMD_STOP = "stop";
+    
 	/**
 	 * Called to go to the previous track
 	 */
-	public static final String ACTION_PREVIOUS = APP_PACKAGE_NAME + ".previous";
-
+    public static final String CMD_PREVIOUS = "previous";
+    
 	/**
 	 * Called to go to the next track
 	 */
-	public static final String ACTION_NEXT = APP_PACKAGE_NAME + ".next";
-
+    public static final String CMD_NEXT = "next";
+    
 	/**
 	 * Called to change the repeat mode
 	 */
-	public static final String ACTION_REPEAT = APP_PACKAGE_NAME + ".repeat";
+    public static final String CMD_REPEAT = "repeat";
 
 	/**
 	 * Called to change the shuffle mode
 	 */
-	public static final String ACTION_SHUFFLE = APP_PACKAGE_NAME + ".shuffle";
-
-    /**
-     * Called to update the service about the foreground state of Apollo's activities
-     */
-    public static final String FOREGROUND_STATE_CHANGED = "com.boko.vimusic.fgstatechanged";
-
-    public static final String NOW_IN_FOREGROUND = "nowinforeground";
-
-
+    public static final String CMD_SHUFFLE = "shuffle";
 
     /**
      * Used by the alarm intent to shutdown the service after being idle
      */
-    private static final String SHUTDOWN = "com.boko.vimusic.shutdown";
-
-    /**
-     * Called to update the remote control client
-     */
-    public static final String UPDATE_LOCKSCREEN = "com.boko.vimusic.updatelockscreen";
-
-    public static final String CMDNAME = "command";
-
-    public static final String CMDTOGGLEPAUSE = "togglepause";
-
-    public static final String CMDSTOP = "stop";
-
-    public static final String CMDPAUSE = "pause";
-
-    public static final String CMDPLAY = "play";
-
-    public static final String CMDPREVIOUS = "previous";
-
-    public static final String CMDNEXT = "next";
-
-    public static final String CMDNOTIF = "buttonId";
-
-    private static final int IDCOLIDX = 0;
-
-    /**
-     * Moves a list to the front of the queue
-     */
-    public static final int NOW = 1;
+    public static final String CMD_SHUTDOWN = "shutdown";
 
     /**
      * Moves a list to the next position in the queue
      */
-    public static final int NEXT = 2;
+    public static final int QUEUE_NEXT = 1;
 
     /**
      * Moves a list to the last position in the queue
      */
-    public static final int LAST = 3;
+    public static final int QUEUE_LAST = 2;
 
     /**
      * Shuffles no songs, turns shuffling off
@@ -265,65 +224,109 @@ public class MusicPlaybackService extends Service {
     /**
      * Indicates when the track ends
      */
-    private static final int TRACK_ENDED = 1;
+    private static final int MSG_TRACK_ENDED = 1;
 
     /**
      * Indicates that the current track was changed the next track
      */
-    private static final int TRACK_WENT_TO_NEXT = 2;
+    private static final int MSG_TRACK_WENT_TO_NEXT = 2;
 
     /**
      * Indicates when the release the wake lock
      */
-    private static final int RELEASE_WAKELOCK = 3;
+    private static final int MSG_WAKELOCK_RELEASED = 3;
 
     /**
      * Indicates the player died
      */
-    private static final int SERVER_DIED = 4;
+    private static final int MSG_SERVER_DIED = 4;
 
     /**
      * Indicates some sort of focus change, maybe a phone call
      */
-    private static final int FOCUSCHANGE = 5;
+    private static final int MSG_AUDIO_FOCUS_CHANGED = 5;
 
     /**
      * Indicates to fade the volume down
      */
-    private static final int FADEDOWN = 6;
+    private static final int MSG_VOLUMN_FADED_DOWN = 6;
 
     /**
      * Indicates to fade the volume back up
      */
-    private static final int FADEUP = 7;
+    private static final int MSG_VOLUMN_FADED_UP = 7;
 
     /**
-     * Idle time before stopping the foreground notfication (1 minute)
+     * Idle time before stopping the foreground notification (1 minute)
      */
-    private static final int IDLE_DELAY = 60000;
+    private static final int SETTING_IDLE_LIMIT = 60000;
 
     /**
      * The max size allowed for the track history
      */
-    private static final int MAX_HISTORY_SIZE = 100;
+    private static final int SETTING_MAX_HISTORY_SIZE = 100;
+    
+	/*****************************************************************
+	 * 
+	 * SHARED VARIABLES
+	 * 
+	 *****************************************************************/
+    
+    /**
+     * Service stub
+     */
+    private final IBinder mBinder = new ServiceStub(this);
+    
+    /**
+     * The media player
+     */
+    private MultiPlayer mPlayer;
+    private MusicPlayerHandler mPlayerHandler;
+    
+    /**
+     * Monitors the audio state
+     */
+    private AudioManager mAudioManager;
+    
+    /**
+     * Keeps the service running when the screen is off
+     */
+    private WakeLock mWakeLock;
+    
+    /**
+     * Used to build the notification
+     */
+    private NotificationHelper mNotificationHelper;
+    
+    /**
+     * Lock screen controls
+     */
+    private RemoteControlClient mRemoteControlClient;
+    
+    /**
+     * Alarm intent for removing the notification when nothing is playing
+     * for some time
+     */
+    private AlarmManager mAlarmManager;
+    private PendingIntent mShutdownIntent;
+    private boolean mShutdownScheduled;
+    
+    private BroadcastReceiver mUnmountReceiver = null;
 
     /**
-     * The columns used to retrieve any info from the current track
+     * Recently listened database
      */
-    private static final String[] PROJECTION = new String[] {
-            "audio._id AS _id", MediaStore.Audio.Media.ARTIST, MediaStore.Audio.Media.ALBUM,
-            MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.DATA,
-            MediaStore.Audio.Media.MIME_TYPE, MediaStore.Audio.Media.ALBUM_ID,
-            MediaStore.Audio.Media.ARTIST_ID
-    };
+    private RecentStore mRecentsCache;
 
     /**
-     * The columns used to retrieve any info from the current album
+     * Favorites database
      */
-    private static final String[] ALBUM_PROJECTION = new String[] {
-            MediaStore.Audio.Albums.ALBUM, MediaStore.Audio.Albums.ARTIST,
-            MediaStore.Audio.Albums.LAST_YEAR
-    };
+    private FavoritesStore mFavoritesCache;
+    
+    /**
+     * Settings used to save and retrieve the queue and history
+     */
+    private SharedPreferences mPreferences;
 
     /**
      * Keeps a mapping of the track history
@@ -344,11 +347,8 @@ public class MusicPlaybackService extends Service {
     private static final char HEX_DIGITS[] = new char[] {
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
     };
-
-    /**
-     * Service stub
-     */
-    private final IBinder mBinder = new ServiceStub(this);
+    
+    
 
     /**
      * 4x1 widget
@@ -372,27 +372,13 @@ public class MusicPlaybackService extends Service {
     private final RecentWidgetProvider mRecentWidgetProvider = RecentWidgetProvider.getInstance();
 
     /**
-     * The media player
-     */
-    private MultiPlayer mPlayer;
-
-    /**
      * The path of the current file to play
      */
     private String mFileToPlay;
 
-    /**
-     * Keeps the service running when the screen is off
-     */
-    private WakeLock mWakeLock;
 
-    /**
-     * Alarm intent for removing the notification when nothing is playing
-     * for some time
-     */
-    private AlarmManager mAlarmManager;
-    private PendingIntent mShutdownIntent;
-    private boolean mShutdownScheduled;
+
+
 
     /**
      * The cursor used to retrieve info on the current track and run the
@@ -406,15 +392,9 @@ public class MusicPlaybackService extends Service {
      */
     private Cursor mAlbumCursor;
 
-    /**
-     * Monitors the audio state
-     */
-    private AudioManager mAudioManager;
 
-    /**
-     * Settings used to save and retrieve the queue and history
-     */
-    private SharedPreferences mPreferences;
+
+
 
     /**
      * Used to know when the service is active
@@ -441,10 +421,7 @@ public class MusicPlaybackService extends Service {
      */
     private boolean mAnyActivityInForeground = false;
 
-    /**
-     * Lock screen controls
-     */
-    private RemoteControlClient mRemoteControlClient;
+
 
     private ComponentName mMediaButtonReceiverComponent;
 
@@ -472,29 +449,16 @@ public class MusicPlaybackService extends Service {
 
     private long[] mAutoShuffleList = null;
 
-    private MusicPlayerHandler mPlayerHandler;
+    
 
-    private BroadcastReceiver mUnmountReceiver = null;
+    
 
     /**
      * Image cache
      */
     private ImageFetcher mImageFetcher;
 
-    /**
-     * Used to build the notification
-     */
-    private NotificationHelper mNotificationHelper;
 
-    /**
-     * Recently listened database
-     */
-    private RecentStore mRecentsCache;
-
-    /**
-     * Favorites database
-     */
-    private FavoritesStore mFavoritesCache;
 
     /**
      * {@inheritDoc}
@@ -526,7 +490,7 @@ public class MusicPlaybackService extends Service {
             // before stopping the service, so that pause/resume isn't slow.
             // Also delay stopping the service if we're transitioning between
             // tracks.
-        } else if (mPlayListLen > 0 || mPlayerHandler.hasMessages(TRACK_ENDED)) {
+        } else if (mPlayListLen > 0 || mPlayerHandler.hasMessages(MSG_TRACK_ENDED)) {
             scheduleDelayedShutdown();
             return true;
         }
@@ -596,14 +560,7 @@ public class MusicPlaybackService extends Service {
 
         // Initialize the intent filter and each action
         final IntentFilter filter = new IntentFilter();
-        filter.addAction(ACTION_COMMAND);
-        filter.addAction(ACTION_TOGGLE_PAUSE);
-        filter.addAction(ACTION_PAUSE);
-        filter.addAction(ACTION_STOP);
-        filter.addAction(ACTION_NEXT);
-        filter.addAction(ACTION_PREVIOUS);
-        filter.addAction(ACTION_REPEAT);
-        filter.addAction(ACTION_SHUFFLE);
+        filter.addAction(ACTION);
         // Attach the broadcast listener
         registerReceiver(mIntentReceiver, filter);
 
@@ -614,7 +571,8 @@ public class MusicPlaybackService extends Service {
 
         // Initialize the delayed shutdown intent
         final Intent shutdownIntent = new Intent(this, MusicPlaybackService.class);
-        shutdownIntent.setAction(SHUTDOWN);
+        shutdownIntent.setAction(ACTION);
+        shutdownIntent.putExtra(EXTRA_COMMAND, CMD_SHUTDOWN);
 
         mAlarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         mShutdownIntent = PendingIntent.getService(this, 0, shutdownIntent, 0);
@@ -721,13 +679,14 @@ public class MusicPlaybackService extends Service {
 
         if (intent != null) {
             final String action = intent.getAction();
+            final String command = ACTION.equals(action) ? intent.getStringExtra(EXTRA_COMMAND) : null;
 
-            if (intent.hasExtra(NOW_IN_FOREGROUND)) {
-                mAnyActivityInForeground = intent.getBooleanExtra(NOW_IN_FOREGROUND, false);
+            if (intent.hasExtra(EXTRA_FOREGROUND)) {
+                mAnyActivityInForeground = intent.getBooleanExtra(EXTRA_FOREGROUND, false);
                 updateNotification();
             }
 
-            if (SHUTDOWN.equals(action)) {
+            if (CMD_SHUTDOWN.equals(command)) {
                 mShutdownScheduled = false;
                 releaseServiceUiAndStop();
                 return START_NOT_STICKY;
@@ -745,7 +704,7 @@ public class MusicPlaybackService extends Service {
     private void releaseServiceUiAndStop() {
         if (isPlaying()
                 || mPausedByTransientLossOfFocus
-                || mPlayerHandler.hasMessages(TRACK_ENDED)) {
+                || mPlayerHandler.hasMessages(MSG_TRACK_ENDED)) {
             return;
         }
 
@@ -761,39 +720,39 @@ public class MusicPlaybackService extends Service {
 
     private void handleCommandIntent(Intent intent) {
         final String action = intent.getAction();
-        final String command = ACTION_COMMAND.equals(action) ? intent.getStringExtra(CMDNAME) : null;
+        final String command = ACTION.equals(action) ? intent.getStringExtra(EXTRA_COMMAND) : null;
 
         if (DEBUG) Log.d(TAG, "handleCommandIntent: action = " + action + ", command = " + command);
 
-        if (CMDNEXT.equals(command) || ACTION_NEXT.equals(action)) {
+        if (CMD_NEXT.equals(command)) {
             gotoNext(true);
-        } else if (CMDPREVIOUS.equals(command) || ACTION_PREVIOUS.equals(action)) {
+        } else if (CMD_PREVIOUS.equals(command)) {
             if (position() < 2000) {
                 prev();
             } else {
                 seek(0);
                 play();
             }
-        } else if (CMDTOGGLEPAUSE.equals(command) || ACTION_TOGGLE_PAUSE.equals(action)) {
+        } else if (CMD_TOGGLE.equals(command)) {
             if (isPlaying()) {
                 pause();
                 mPausedByTransientLossOfFocus = false;
             } else {
                 play();
             }
-        } else if (CMDPAUSE.equals(command) || ACTION_PAUSE.equals(action)) {
+        } else if (CMD_PAUSE.equals(command)) {
             pause();
             mPausedByTransientLossOfFocus = false;
-        } else if (CMDPLAY.equals(command)) {
+        } else if (CMD_PLAY.equals(command)) {
             play();
-        } else if (CMDSTOP.equals(command) || ACTION_STOP.equals(action)) {
+        } else if (CMD_STOP.equals(command)) {
             pause();
             mPausedByTransientLossOfFocus = false;
             seek(0);
             releaseServiceUiAndStop();
-        } else if (ACTION_REPEAT.equals(action)) {
+        } else if (CMD_REPEAT.equals(command)) {
             cycleRepeat();
-        } else if (ACTION_SHUFFLE.equals(action)) {
+        } else if (CMD_SHUFFLE.equals(command)) {
             cycleShuffle();
         }
     }
@@ -876,9 +835,9 @@ public class MusicPlaybackService extends Service {
     }
 
     private void scheduleDelayedShutdown() {
-        if (DEBUG) Log.v(TAG, "Scheduling shutdown in " + IDLE_DELAY + " ms");
+        if (DEBUG) Log.v(TAG, "Scheduling shutdown in " + SETTING_IDLE_LIMIT + " ms");
         mAlarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                SystemClock.elapsedRealtime() + IDLE_DELAY, mShutdownIntent);
+                SystemClock.elapsedRealtime() + SETTING_IDLE_LIMIT, mShutdownIntent);
         mShutdownScheduled = true;
     }
 
@@ -1010,13 +969,21 @@ public class MusicPlaybackService extends Service {
             closeCursor();
 
             mCursor = openCursorAndGoToFirst(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                    PROJECTION, selection, selectionArgs);
+            		new String[] {
+                    "audio._id AS _id", MediaStore.Audio.Media.ARTIST, MediaStore.Audio.Media.ALBUM,
+                    MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.DATA,
+                    MediaStore.Audio.Media.MIME_TYPE, MediaStore.Audio.Media.ALBUM_ID,
+                    MediaStore.Audio.Media.ARTIST_ID
+            }, selection, selectionArgs);
         }
 
         long albumId = getAlbumId();
         if (albumId >= 0) {
             mAlbumCursor = openCursorAndGoToFirst(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
-                    ALBUM_PROJECTION, "_id=" + albumId, null);
+            		new String[] {
+                    MediaStore.Audio.Albums.ALBUM, MediaStore.Audio.Albums.ARTIST,
+                    MediaStore.Audio.Albums.LAST_YEAR
+            }, "_id=" + albumId, null);
         } else {
             mAlbumCursor = null;
         }
@@ -1075,7 +1042,7 @@ public class MusicPlaybackService extends Service {
             while (true) {
                 if (mCursor != null
                         && openFile(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI + "/"
-                                + mCursor.getLong(IDCOLIDX))) {
+                                + mCursor.getLong(0))) {
                     break;
                 }
                 // if we get here then opening the file failed. We can close the
@@ -1088,7 +1055,7 @@ public class MusicPlaybackService extends Service {
                         scheduleDelayedShutdown();
                         if (mIsSupposedToBePlaying) {
                             mIsSupposedToBePlaying = false;
-                            notifyChange(EVENT_PLAYSTATE_CHANGED);
+                            notifyChange(EVENT_PLAY_TOGGLED);
                         }
                         return;
                     }
@@ -1102,7 +1069,7 @@ public class MusicPlaybackService extends Service {
                     scheduleDelayedShutdown();
                     if (mIsSupposedToBePlaying) {
                         mIsSupposedToBePlaying = false;
-                        notifyChange(EVENT_PLAYSTATE_CHANGED);
+                        notifyChange(EVENT_PLAY_TOGGLED);
                     }
                     return;
                 }
@@ -1128,7 +1095,7 @@ public class MusicPlaybackService extends Service {
             if (mPlayPos >= 0) {
                 mHistory.add(mPlayPos);
             }
-            if (mHistory.size() > MAX_HISTORY_SIZE) {
+            if (mHistory.size() > SETTING_MAX_HISTORY_SIZE) {
                 mHistory.remove(0);
             }
             final int numTracks = mPlayListLen;
@@ -1254,7 +1221,7 @@ public class MusicPlaybackService extends Service {
                 lookback /= 2;
             }
             mHistory.add(idx);
-            if (mHistory.size() > MAX_HISTORY_SIZE) {
+            if (mHistory.size() > SETTING_MAX_HISTORY_SIZE) {
                 mHistory.remove(0);
             }
             ensurePlayListCapacity(mPlayListLen + 1);
@@ -1351,7 +1318,7 @@ public class MusicPlaybackService extends Service {
             saveQueue(false);
         }
 
-        if (what.equals(EVENT_PLAYSTATE_CHANGED)) {
+        if (what.equals(EVENT_PLAY_TOGGLED)) {
             mNotificationHelper.updatePlayState(isPlaying());
         }
 
@@ -1373,9 +1340,9 @@ public class MusicPlaybackService extends Service {
                 : RemoteControlClient.PLAYSTATE_PAUSED;
 
         if (ApolloUtils.hasJellyBeanMR2()
-                && (what.equals(EVENT_PLAYSTATE_CHANGED) || what.equals(EVENT_POSITION_CHANGED))) {
+                && (what.equals(EVENT_PLAY_TOGGLED) || what.equals(EVENT_POSITION_CHANGED))) {
             mRemoteControlClient.setPlaybackState(playState, position(), 1.0f);
-        } else if (what.equals(EVENT_PLAYSTATE_CHANGED)) {
+        } else if (what.equals(EVENT_PLAY_TOGGLED)) {
             mRemoteControlClient.setPlaybackState(playState);
         } else if (what.equals(EVENT_META_CHANGED) || what.equals(EVENT_QUEUE_CHANGED)) {
             Bitmap albumArt = getAlbumArt();
@@ -1618,7 +1585,7 @@ public class MusicPlaybackService extends Service {
                     if (mCursor != null) {
                         ensurePlayListCapacity(1);
                         mPlayListLen = 1;
-                        mPlayList[0] = mCursor.getLong(IDCOLIDX);
+                        mPlayList[0] = mCursor.getLong(0);
                         mPlayPos = 0;
                     }
                 } catch (final UnsupportedOperationException ex) {
@@ -1985,12 +1952,12 @@ public class MusicPlaybackService extends Service {
             }
 
             mPlayer.start();
-            mPlayerHandler.removeMessages(FADEDOWN);
-            mPlayerHandler.sendEmptyMessage(FADEUP);
+            mPlayerHandler.removeMessages(MSG_VOLUMN_FADED_DOWN);
+            mPlayerHandler.sendEmptyMessage(MSG_VOLUMN_FADED_UP);
 
             if (!mIsSupposedToBePlaying) {
                 mIsSupposedToBePlaying = true;
-                notifyChange(EVENT_PLAYSTATE_CHANGED);
+                notifyChange(EVENT_PLAY_TOGGLED);
             }
 
             cancelShutdown();
@@ -2006,12 +1973,12 @@ public class MusicPlaybackService extends Service {
     public void pause() {
         if (DEBUG) Log.d(TAG, "Pausing playback");
         synchronized (this) {
-            mPlayerHandler.removeMessages(FADEUP);
+            mPlayerHandler.removeMessages(MSG_VOLUMN_FADED_UP);
             if (mIsSupposedToBePlaying) {
                 mPlayer.pause();
                 scheduleDelayedShutdown();
                 mIsSupposedToBePlaying = false;
-                notifyChange(EVENT_PLAYSTATE_CHANGED);
+                notifyChange(EVENT_PLAY_TOGGLED);
             }
         }
     }
@@ -2032,7 +1999,7 @@ public class MusicPlaybackService extends Service {
                 scheduleDelayedShutdown();
                 if (mIsSupposedToBePlaying) {
                     mIsSupposedToBePlaying = false;
-                    notifyChange(EVENT_PLAYSTATE_CHANGED);
+                    notifyChange(EVENT_PLAY_TOGGLED);
                 }
                 return;
             }
@@ -2145,7 +2112,7 @@ public class MusicPlaybackService extends Service {
             mRepeatMode = repeatmode;
             setNextTrack();
             saveQueue(false);
-            notifyChange(EVENT_REPEATMODE_CHANGED);
+            notifyChange(EVENT_REPEAT_TOGGLED);
         }
     }
 
@@ -2174,7 +2141,7 @@ public class MusicPlaybackService extends Service {
                 }
             }
             saveQueue(false);
-            notifyChange(EVENT_SHUFFLEMODE_CHANGED);
+            notifyChange(EVENT_SHUFFLE_TOGGLED);
         }
     }
 
@@ -2204,19 +2171,12 @@ public class MusicPlaybackService extends Service {
      */
     public void enqueue(final long[] list, final int action) {
         synchronized (this) {
-            if (action == NEXT && mPlayPos + 1 < mPlayListLen) {
+            if (action == QUEUE_NEXT && mPlayPos + 1 < mPlayListLen) {
                 addToPlayList(list, mPlayPos + 1);
                 notifyChange(EVENT_QUEUE_CHANGED);
             } else {
                 addToPlayList(list, Integer.MAX_VALUE);
                 notifyChange(EVENT_QUEUE_CHANGED);
-                if (action == NOW) {
-                    mPlayPos = mPlayListLen - list.length;
-                    openCurrentAndNext();
-                    play();
-                    notifyChange(EVENT_META_CHANGED);
-                    return;
-                }
             }
             if (mPlayPos < 0) {
                 mPlayPos = 0;
@@ -2280,8 +2240,13 @@ public class MusicPlaybackService extends Service {
          */
         @Override
         public void onReceive(final Context context, final Intent intent) {
-            final String command = intent.getStringExtra(CMDNAME);
+            final String command = intent.getStringExtra(EXTRA_COMMAND);
 
+            if (AppWidget.CMD_WIDGET_UPDATE.equals(command)) {
+            	final int[] widgetIds = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
+            	
+            }
+            
             if (AppWidgetSmall.CMDAPPWIDGETUPDATE.equals(command)) {
                 final int[] small = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
                 mAppWidgetSmall.performUpdate(MusicPlaybackService.this, small);
@@ -2307,7 +2272,7 @@ public class MusicPlaybackService extends Service {
          */
         @Override
         public void onAudioFocusChange(final int focusChange) {
-            mPlayerHandler.obtainMessage(FOCUSCHANGE, focusChange, 0).sendToTarget();
+            mPlayerHandler.obtainMessage(MSG_AUDIO_FOCUS_CHANGED, focusChange, 0).sendToTarget();
         }
     };
 
@@ -2337,32 +2302,32 @@ public class MusicPlaybackService extends Service {
             }
 
             switch (msg.what) {
-                case FADEDOWN:
+                case MSG_VOLUMN_FADED_DOWN:
                     mCurrentVolume -= .05f;
                     if (mCurrentVolume > .2f) {
-                        sendEmptyMessageDelayed(FADEDOWN, 10);
+                        sendEmptyMessageDelayed(MSG_VOLUMN_FADED_DOWN, 10);
                     } else {
                         mCurrentVolume = .2f;
                     }
                     service.mPlayer.setVolume(mCurrentVolume);
                     break;
-                case FADEUP:
+                case MSG_VOLUMN_FADED_UP:
                     mCurrentVolume += .01f;
                     if (mCurrentVolume < 1.0f) {
-                        sendEmptyMessageDelayed(FADEUP, 10);
+                        sendEmptyMessageDelayed(MSG_VOLUMN_FADED_UP, 10);
                     } else {
                         mCurrentVolume = 1.0f;
                     }
                     service.mPlayer.setVolume(mCurrentVolume);
                     break;
-                case SERVER_DIED:
+                case MSG_SERVER_DIED:
                     if (service.isPlaying()) {
                         service.gotoNext(true);
                     } else {
                         service.openCurrentAndNext();
                     }
                     break;
-                case TRACK_WENT_TO_NEXT:
+                case MSG_TRACK_WENT_TO_NEXT:
                     service.mPlayPos = service.mNextPlayPos;
                     if (service.mCursor != null) {
                         service.mCursor.close();
@@ -2372,7 +2337,7 @@ public class MusicPlaybackService extends Service {
                     service.updateNotification();
                     service.setNextTrack();
                     break;
-                case TRACK_ENDED:
+                case MSG_TRACK_ENDED:
                     if (service.mRepeatMode == REPEAT_CURRENT) {
                         service.seek(0);
                         service.play();
@@ -2380,10 +2345,10 @@ public class MusicPlaybackService extends Service {
                         service.gotoNext(false);
                     }
                     break;
-                case RELEASE_WAKELOCK:
+                case MSG_WAKELOCK_RELEASED:
                     service.mWakeLock.release();
                     break;
-                case FOCUSCHANGE:
+                case MSG_AUDIO_FOCUS_CHANGED:
                     if (DEBUG) Log.d(TAG, "Received audio focus change event " + msg.arg1);
                     switch (msg.arg1) {
                         case AudioManager.AUDIOFOCUS_LOSS:
@@ -2395,8 +2360,8 @@ public class MusicPlaybackService extends Service {
                             service.pause();
                             break;
                         case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
-                            removeMessages(FADEUP);
-                            sendEmptyMessage(FADEDOWN);
+                            removeMessages(MSG_VOLUMN_FADED_UP);
+                            sendEmptyMessage(MSG_VOLUMN_FADED_DOWN);
                             break;
                         case AudioManager.AUDIOFOCUS_GAIN:
                             if (!service.isPlaying()
@@ -2406,8 +2371,8 @@ public class MusicPlaybackService extends Service {
                                 service.mPlayer.setVolume(mCurrentVolume);
                                 service.play();
                             } else {
-                                removeMessages(FADEDOWN);
-                                sendEmptyMessage(FADEUP);
+                                removeMessages(MSG_VOLUMN_FADED_DOWN);
+                                sendEmptyMessage(MSG_VOLUMN_FADED_UP);
                             }
                             break;
                         default:
@@ -2458,8 +2423,8 @@ public class MusicPlaybackService extends Service {
          * to be added to the mapping
          */
         private void cleanUpHistory() {
-            if (!mHistoryOfNumbers.isEmpty() && mHistoryOfNumbers.size() >= MAX_HISTORY_SIZE) {
-                for (int i = 0; i < Math.max(1, MAX_HISTORY_SIZE / 2); i++) {
+            if (!mHistoryOfNumbers.isEmpty() && mHistoryOfNumbers.size() >= SETTING_MAX_HISTORY_SIZE) {
+                for (int i = 0; i < Math.max(1, SETTING_MAX_HISTORY_SIZE / 2); i++) {
                     mPreviousNumbers.remove(mHistoryOfNumbers.removeFirst());
                 }
             }
@@ -2680,7 +2645,7 @@ public class MusicPlaybackService extends Service {
                     mCurrentMediaPlayer.release();
                     mCurrentMediaPlayer = new MediaPlayer();
                     mCurrentMediaPlayer.setWakeMode(mService.get(), PowerManager.PARTIAL_WAKE_LOCK);
-                    mHandler.sendMessageDelayed(mHandler.obtainMessage(SERVER_DIED), 2000);
+                    mHandler.sendMessageDelayed(mHandler.obtainMessage(MSG_SERVER_DIED), 2000);
                     return true;
                 default:
                     break;
@@ -2697,11 +2662,11 @@ public class MusicPlaybackService extends Service {
                 mCurrentMediaPlayer.release();
                 mCurrentMediaPlayer = mNextMediaPlayer;
                 mNextMediaPlayer = null;
-                mHandler.sendEmptyMessage(TRACK_WENT_TO_NEXT);
+                mHandler.sendEmptyMessage(MSG_TRACK_WENT_TO_NEXT);
             } else {
                 mService.get().mWakeLock.acquire(30000);
-                mHandler.sendEmptyMessage(TRACK_ENDED);
-                mHandler.sendEmptyMessage(RELEASE_WAKELOCK);
+                mHandler.sendEmptyMessage(MSG_TRACK_ENDED);
+                mHandler.sendEmptyMessage(MSG_WAKELOCK_RELEASED);
             }
         }
     }

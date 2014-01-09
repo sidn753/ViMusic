@@ -425,10 +425,10 @@ public class AudioPlayerActivity extends FragmentActivity implements ServiceConn
         super.onStart();
         final IntentFilter filter = new IntentFilter();
         // Play and pause changes
-        filter.addAction(MusicPlaybackService.EVENT_PLAYSTATE_CHANGED);
+        filter.addAction(MusicPlaybackService.EVENT_PLAY_TOGGLED);
         // Shuffle and repeat changes
-        filter.addAction(MusicPlaybackService.EVENT_SHUFFLEMODE_CHANGED);
-        filter.addAction(MusicPlaybackService.EVENT_REPEATMODE_CHANGED);
+        filter.addAction(MusicPlaybackService.EVENT_SHUFFLE_TOGGLED);
+        filter.addAction(MusicPlaybackService.EVENT_REPEAT_TOGGLED);
         // Track changes
         filter.addAction(MusicPlaybackService.EVENT_META_CHANGED);
         // Update a list, probably the playlist fragment's
@@ -946,11 +946,11 @@ public class AudioPlayerActivity extends FragmentActivity implements ServiceConn
                 mReference.get().updateNowPlayingInfo();
                 // Update the favorites icon
                 mReference.get().invalidateOptionsMenu();
-            } else if (action.equals(MusicPlaybackService.EVENT_PLAYSTATE_CHANGED)) {
+            } else if (action.equals(MusicPlaybackService.EVENT_PLAY_TOGGLED)) {
                 // Set the play and pause image
                 mReference.get().mPlayPauseButton.updateState();
-            } else if (action.equals(MusicPlaybackService.EVENT_REPEATMODE_CHANGED)
-                    || action.equals(MusicPlaybackService.EVENT_SHUFFLEMODE_CHANGED)) {
+            } else if (action.equals(MusicPlaybackService.EVENT_REPEAT_TOGGLED)
+                    || action.equals(MusicPlaybackService.EVENT_SHUFFLE_TOGGLED)) {
                 // Set the repeat image
                 mReference.get().mRepeatButton.updateRepeatState();
                 // Set the shuffle image

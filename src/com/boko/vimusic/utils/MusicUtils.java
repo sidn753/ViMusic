@@ -225,7 +225,8 @@ public final class MusicUtils {
      */
     public static void previous(final Context context) {
         final Intent previous = new Intent(context, MusicPlaybackService.class);
-        previous.setAction(MusicPlaybackService.ACTION_PREVIOUS);
+        previous.setAction(MusicPlaybackService.ACTION);
+        previous.putExtra(MusicPlaybackService.EXTRA_COMMAND, MusicPlaybackService.CMD_PREVIOUS);
         context.startService(previous);
     }
 
@@ -634,7 +635,7 @@ public final class MusicUtils {
             return;
         }
         try {
-            mService.enqueue(list, MusicPlaybackService.NEXT);
+            mService.enqueue(list, MusicPlaybackService.QUEUE_NEXT);
         } catch (final RemoteException ignored) {
         }
     }
@@ -861,7 +862,7 @@ public final class MusicUtils {
             return;
         }
         try {
-            mService.enqueue(list, MusicPlaybackService.LAST);
+            mService.enqueue(list, MusicPlaybackService.QUEUE_LAST);
             final String message = makeLabel(context, R.plurals.NNNtrackstoqueue, list.length);
             AppMsg.makeText((Activity)context, message, AppMsg.STYLE_CONFIRM).show();
         } catch (final RemoteException ignored) {
@@ -1260,8 +1261,8 @@ public final class MusicUtils {
 
         if (old == 0 || sForegroundActivities == 0) {
             final Intent intent = new Intent(context, MusicPlaybackService.class);
-            intent.setAction(MusicPlaybackService.FOREGROUND_STATE_CHANGED);
-            intent.putExtra(MusicPlaybackService.NOW_IN_FOREGROUND, sForegroundActivities != 0);
+            intent.setAction(MusicPlaybackService.ACTION);
+            intent.putExtra(MusicPlaybackService.EXTRA_FOREGROUND, sForegroundActivities != 0);
             context.startService(intent);
         }
     }

@@ -32,7 +32,7 @@ import com.boko.vimusic.utils.ApolloUtils;
  * @author Andrew Neal (andrewdneal@gmail.com)
  */
 @SuppressLint("NewApi")
-public class AppWidgetLargeAlternate extends AppWidgetBase {
+public class AppWidgetLargeAlternate extends AppWidget {
 
     public static final String CMDAPPWIDGETUPDATE = "app_widget_large_alternate_update";
 
@@ -52,8 +52,8 @@ public class AppWidgetLargeAlternate extends AppWidgetBase {
     public void onUpdate(final Context context, final AppWidgetManager appWidgetManager,
             final int[] appWidgetIds) {
         defaultAppWidget(context, appWidgetIds);
-        final Intent updateIntent = new Intent(MusicPlaybackService.ACTION_COMMAND);
-        updateIntent.putExtra(MusicPlaybackService.CMDNAME,
+        final Intent updateIntent = new Intent(MusicPlaybackService.ACTION);
+        updateIntent.putExtra(MusicPlaybackService.EXTRA_COMMAND,
                 AppWidgetLargeAlternate.CMDAPPWIDGETUPDATE);
         updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds);
         updateIntent.setFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
@@ -98,9 +98,9 @@ public class AppWidgetLargeAlternate extends AppWidgetBase {
     public void notifyChange(final MusicPlaybackService service, final String what) {
         if (hasInstances(service)) {
             if (MusicPlaybackService.EVENT_META_CHANGED.equals(what)
-                    || MusicPlaybackService.EVENT_PLAYSTATE_CHANGED.equals(what)
-                    || MusicPlaybackService.EVENT_REPEATMODE_CHANGED.equals(what)
-                    || MusicPlaybackService.EVENT_SHUFFLEMODE_CHANGED.equals(what)) {
+                    || MusicPlaybackService.EVENT_PLAY_TOGGLED.equals(what)
+                    || MusicPlaybackService.EVENT_REPEAT_TOGGLED.equals(what)
+                    || MusicPlaybackService.EVENT_SHUFFLE_TOGGLED.equals(what)) {
                 performUpdate(service, null);
             }
         }
@@ -211,23 +211,23 @@ public class AppWidgetLargeAlternate extends AppWidgetBase {
             views.setOnClickPendingIntent(R.id.app_widget_large_alternate_image, pendingIntent);
         }
         // Shuffle modes
-        pendingIntent = buildPendingIntent(context, MusicPlaybackService.ACTION_SHUFFLE, serviceName);
+        pendingIntent = buildPendingIntent(context, MusicPlaybackService.CMD_SHUFFLE, serviceName);
         views.setOnClickPendingIntent(R.id.app_widget_large_alternate_shuffle, pendingIntent);
 
         // Previous track
-        pendingIntent = buildPendingIntent(context, MusicPlaybackService.ACTION_PREVIOUS, serviceName);
+        pendingIntent = buildPendingIntent(context, MusicPlaybackService.CMD_PREVIOUS, serviceName);
         views.setOnClickPendingIntent(R.id.app_widget_large_alternate_previous, pendingIntent);
 
         // Play and pause
-        pendingIntent = buildPendingIntent(context, MusicPlaybackService.ACTION_TOGGLE_PAUSE, serviceName);
+        pendingIntent = buildPendingIntent(context, MusicPlaybackService.CMD_TOGGLE, serviceName);
         views.setOnClickPendingIntent(R.id.app_widget_large_alternate_play, pendingIntent);
 
         // Next track
-        pendingIntent = buildPendingIntent(context, MusicPlaybackService.ACTION_NEXT, serviceName);
+        pendingIntent = buildPendingIntent(context, MusicPlaybackService.CMD_NEXT, serviceName);
         views.setOnClickPendingIntent(R.id.app_widget_large_alternate_next, pendingIntent);
 
         // Repeat modes
-        pendingIntent = buildPendingIntent(context, MusicPlaybackService.ACTION_REPEAT, serviceName);
+        pendingIntent = buildPendingIntent(context, MusicPlaybackService.CMD_REPEAT, serviceName);
         views.setOnClickPendingIntent(R.id.app_widget_large_alternate_repeat, pendingIntent);
     }
 
