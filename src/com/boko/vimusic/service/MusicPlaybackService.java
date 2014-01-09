@@ -2241,25 +2241,16 @@ public class MusicPlaybackService extends Service {
         @Override
         public void onReceive(final Context context, final Intent intent) {
             final String command = intent.getStringExtra(EXTRA_COMMAND);
-
-            if (AppWidget.CMD_WIDGET_UPDATE.equals(command)) {
-            	final int[] widgetIds = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
-            	
-            }
+            final int[] widgetIds = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
             
             if (AppWidgetSmall.CMDAPPWIDGETUPDATE.equals(command)) {
-                final int[] small = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
-                mAppWidgetSmall.performUpdate(MusicPlaybackService.this, small);
+                mAppWidgetSmall.performUpdate(MusicPlaybackService.this, widgetIds);
             } else if (AppWidgetLarge.CMDAPPWIDGETUPDATE.equals(command)) {
-                final int[] large = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
-                mAppWidgetLarge.performUpdate(MusicPlaybackService.this, large);
+                mAppWidgetLarge.performUpdate(MusicPlaybackService.this, widgetIds);
             } else if (AppWidgetLargeAlternate.CMDAPPWIDGETUPDATE.equals(command)) {
-                final int[] largeAlt = intent
-                        .getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
-                mAppWidgetLargeAlternate.performUpdate(MusicPlaybackService.this, largeAlt);
+                mAppWidgetLargeAlternate.performUpdate(MusicPlaybackService.this, widgetIds);
             } else if (RecentWidgetProvider.CMDAPPWIDGETUPDATE.equals(command)) {
-                final int[] recent = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
-                mRecentWidgetProvider.performUpdate(MusicPlaybackService.this, recent);
+                mRecentWidgetProvider.performUpdate(MusicPlaybackService.this, widgetIds);
             } else {
                 handleCommandIntent(intent);
             }
