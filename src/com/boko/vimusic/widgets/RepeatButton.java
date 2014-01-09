@@ -19,8 +19,8 @@ import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.widget.ImageButton;
 
-import com.boko.vimusic.MusicPlaybackService;
 import com.boko.vimusic.R;
+import com.boko.vimusic.service.MusicPlaybackService;
 import com.boko.vimusic.utils.ApolloUtils;
 import com.boko.vimusic.utils.MusicUtils;
 import com.boko.vimusic.utils.ThemeUtils;

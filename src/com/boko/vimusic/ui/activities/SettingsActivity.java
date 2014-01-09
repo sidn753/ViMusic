@@ -25,9 +25,9 @@ import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.view.MenuItem;
 
-import com.boko.vimusic.MusicPlaybackService;
 import com.boko.vimusic.R;
 import com.boko.vimusic.cache.ImageCache;
+import com.boko.vimusic.service.MusicPlaybackService;
 import com.boko.vimusic.ui.fragments.ThemeFragment;
 import com.boko.vimusic.utils.ApolloUtils;
 import com.boko.vimusic.utils.MusicUtils;

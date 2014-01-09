@@ -3,6 +3,8 @@ package com.boko.vimusic.loaders;
 
 import static com.boko.vimusic.utils.MusicUtils.mService;
 
+import java.util.Arrays;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.AbstractCursor;
@@ -12,10 +14,7 @@ import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Audio.AudioColumns;
 
-import com.boko.vimusic.utils.ApolloUtils;
 import com.boko.vimusic.utils.MusicUtils;
-
-import java.util.Arrays;
 
 /**
  * A custom {@link Cursor} used to return the queue and allow for easy dragging

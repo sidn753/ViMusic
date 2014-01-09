@@ -23,6 +23,7 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+import com.boko.vimusic.service.MusicPlaybackService;
 import com.boko.vimusic.utils.ApolloUtils;
 
 /**

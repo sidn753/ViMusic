@@ -17,7 +17,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 
-import com.boko.vimusic.MusicPlaybackService;
+import com.boko.vimusic.service.MusicPlaybackService;
 
 public abstract class AppWidgetBase extends AppWidgetProvider {
 

@@ -13,6 +13,8 @@ package com.boko.vimusic.ui.activities;
 
 import static com.boko.vimusic.utils.MusicUtils.mService;
 
+import java.lang.ref.WeakReference;
+
 import android.animation.ObjectAnimator;
 import android.app.ActionBar;
 import android.app.SearchManager;
@@ -48,13 +50,13 @@ import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
-import com.boko.vimusic.IService;
-import com.boko.vimusic.MusicPlaybackService;
 import com.boko.vimusic.R;
 import com.boko.vimusic.adapters.PagerAdapter;
 import com.boko.vimusic.cache.ImageFetcher;
-import com.boko.vimusic.ui.fragments.QueueFragment;
 import com.boko.vimusic.menu.DeleteDialog;
+import com.boko.vimusic.service.IService;
+import com.boko.vimusic.service.MusicPlaybackService;
+import com.boko.vimusic.ui.fragments.QueueFragment;
 import com.boko.vimusic.utils.ApolloUtils;
 import com.boko.vimusic.utils.MusicUtils;
 import com.boko.vimusic.utils.MusicUtils.ServiceToken;
@@ -64,8 +66,6 @@ import com.boko.vimusic.widgets.PlayPauseButton;
 import com.boko.vimusic.widgets.RepeatButton;
 import com.boko.vimusic.widgets.RepeatingImageButton;
 import com.boko.vimusic.widgets.ShuffleButton;
-
-import java.lang.ref.WeakReference;
 
 /**
  * Apollo's "now playing" interface.
@@ -432,7 +432,7 @@ public class AudioPlayerActivity extends FragmentActivity implements ServiceConn
         // Track changes
         filter.addAction(MusicPlaybackService.EVENT_META_CHANGED);
         // Update a list, probably the playlist fragment's
-        filter.addAction(MusicPlaybackService.REFRESH);
+        filter.addAction(MusicPlaybackService.EVENT_REFRESH_FORCED);
         registerReceiver(mPlaybackStatus, filter);
         // Refresh the current time
         final long next = refreshCurrentTime();

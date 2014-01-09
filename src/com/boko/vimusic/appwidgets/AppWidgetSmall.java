@@ -22,8 +22,8 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.RemoteViews;
 
-import com.boko.vimusic.MusicPlaybackService;
 import com.boko.vimusic.R;
+import com.boko.vimusic.service.MusicPlaybackService;
 import com.boko.vimusic.ui.activities.AudioPlayerActivity;
 import com.boko.vimusic.ui.activities.HomeActivity;
 import com.boko.vimusic.utils.ApolloUtils;

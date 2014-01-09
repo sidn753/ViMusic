@@ -14,6 +14,9 @@ package com.boko.vimusic.ui.activities;
 import static com.boko.vimusic.Config.MIME_TYPE;
 import static com.boko.vimusic.utils.MusicUtils.mService;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.app.SearchManager;
 import android.content.ComponentName;
 import android.content.Intent;
@@ -27,19 +30,16 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 
 import com.boko.vimusic.Config;
-import com.boko.vimusic.IService;
 import com.boko.vimusic.R;
 import com.boko.vimusic.format.Capitalize;
 import com.boko.vimusic.loaders.AsyncHandler;
 import com.boko.vimusic.loaders.LastAddedLoader;
 import com.boko.vimusic.loaders.SearchLoader;
 import com.boko.vimusic.model.Song;
+import com.boko.vimusic.service.IService;
 import com.boko.vimusic.utils.Lists;
 import com.boko.vimusic.utils.MusicUtils;
 import com.boko.vimusic.utils.MusicUtils.ServiceToken;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * This class is opened when the user touches a Home screen shortcut or album

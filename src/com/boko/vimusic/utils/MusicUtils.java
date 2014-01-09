@@ -11,6 +11,10 @@
 
 package com.boko.vimusic.utils;
 
+import java.io.File;
+import java.util.Arrays;
+import java.util.WeakHashMap;
+
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -37,8 +41,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.SubMenu;
 
-import com.boko.vimusic.IService;
-import com.boko.vimusic.MusicPlaybackService;
 import com.boko.vimusic.R;
 import com.boko.vimusic.loaders.FavoritesLoader;
 import com.boko.vimusic.loaders.LastAddedLoader;
@@ -48,13 +50,9 @@ import com.boko.vimusic.menu.FragmentMenuItems;
 import com.boko.vimusic.provider.FavoritesStore;
 import com.boko.vimusic.provider.FavoritesStore.FavoritesTable;
 import com.boko.vimusic.provider.RecentStore;
+import com.boko.vimusic.service.IService;
+import com.boko.vimusic.service.MusicPlaybackService;
 import com.devspark.appmsg.AppMsg;
-
-import java.io.File;
-import java.util.Arrays;
-import java.util.Formatter;
-import java.util.Locale;
-import java.util.WeakHashMap;
 
 /**
  * A collection of helpers directly related to music or Apollo's service.

@@ -9,7 +9,7 @@
  * governing permissions and limitations under the License.
  */
 
-package com.boko.vimusic;
+package com.boko.vimusic.service;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -52,6 +52,8 @@ import android.provider.MediaStore.Audio.AlbumColumns;
 import android.provider.MediaStore.Audio.AudioColumns;
 import android.util.Log;
 
+import com.boko.vimusic.MediaButtonIntentReceiver;
+import com.boko.vimusic.NotificationHelper;
 import com.boko.vimusic.appwidgets.AppWidgetLarge;
 import com.boko.vimusic.appwidgets.AppWidgetLargeAlternate;
 import com.boko.vimusic.appwidgets.AppWidgetSmall;
@@ -66,7 +68,7 @@ import com.boko.vimusic.utils.MusicUtils;
 
 /**
  * A background {@link Service} used to keep music playing between activities
- * and when the user moves Apollo into the background.
+ * and when the user moves application into the background.
  */
 @SuppressLint("NewApi")
 public class MusicPlaybackService extends Service {
@@ -77,8 +79,8 @@ public class MusicPlaybackService extends Service {
      * For backwards compatibility reasons, also provide sticky
      * broadcasts under the music package
      */
-    public static final String APP_PACKAGE_NAME = "com.boko.vimusic";
-    public static final String ANDROID_PACKAGE_NAME = "com.android.music";
+    private static final String APP_PACKAGE_NAME = "com.boko.vimusic";
+    private static final String ANDROID_PACKAGE_NAME = "com.android.music";
 
 	/*****************************************************************
 	 * 
@@ -86,40 +88,49 @@ public class MusicPlaybackService extends Service {
 	 * 
 	 *****************************************************************/
     
+    private static final String EVENT_PACKAGE_NAME = APP_PACKAGE_NAME + ".event";
+    
 	/**
 	 * Indicates that the music has paused or resumed
 	 */
-	public static final String EVENT_PLAYSTATE_CHANGED = APP_PACKAGE_NAME
+	public static final String EVENT_PLAYSTATE_CHANGED = EVENT_PACKAGE_NAME
 			+ ".playstatechanged";
 
 	/**
 	 * Indicates that music playback position within a title was changed
 	 */
-	public static final String EVENT_POSITION_CHANGED = APP_PACKAGE_NAME
+	public static final String EVENT_POSITION_CHANGED = EVENT_PACKAGE_NAME
 			+ ".positionchanged";
 
 	/**
 	 * Indicates the meta data has changed in some way, like a track change
 	 */
-	public static final String EVENT_META_CHANGED = APP_PACKAGE_NAME + ".metachanged";
+	public static final String EVENT_META_CHANGED = EVENT_PACKAGE_NAME + ".metachanged";
 
 	/**
 	 * Indicates the queue has been updated
 	 */
-	public static final String EVENT_QUEUE_CHANGED = APP_PACKAGE_NAME
+	public static final String EVENT_QUEUE_CHANGED = EVENT_PACKAGE_NAME
 			+ ".queuechanged";
 
 	/**
 	 * Indicates the repeat mode chaned
 	 */
-	public static final String EVENT_REPEATMODE_CHANGED = APP_PACKAGE_NAME
+	public static final String EVENT_REPEATMODE_CHANGED = EVENT_PACKAGE_NAME
 			+ ".repeatmodechanged";
 
 	/**
 	 * Indicates the shuffle mode chaned
 	 */
-	public static final String EVENT_SHUFFLEMODE_CHANGED = APP_PACKAGE_NAME
+	public static final String EVENT_SHUFFLEMODE_CHANGED = EVENT_PACKAGE_NAME
 			+ ".shufflemodechanged";
+	
+    /**
+     * Used to easily notify a list that it should refresh. i.e. A playlist
+     * changes
+     */
+    public static final String EVENT_REFRESH_FORCED = EVENT_PACKAGE_NAME
+			+ ".refresh";
 
 	/*****************************************************************
 	 * 
@@ -176,11 +187,7 @@ public class MusicPlaybackService extends Service {
 
     public static final String NOW_IN_FOREGROUND = "nowinforeground";
 
-    /**
-     * Used to easily notify a list that it should refresh. i.e. A playlist
-     * changes
-     */
-    public static final String REFRESH = "com.boko.vimusic.refresh";
+
 
     /**
      * Used by the alarm intent to shutdown the service after being idle
@@ -2264,7 +2271,7 @@ public class MusicPlaybackService extends Service {
      * Called when one of the lists should refresh or requery.
      */
     public void refresh() {
-        notifyChange(REFRESH);
+        notifyChange(EVENT_REFRESH_FORCED);
     }
 
     private final BroadcastReceiver mIntentReceiver = new BroadcastReceiver() {

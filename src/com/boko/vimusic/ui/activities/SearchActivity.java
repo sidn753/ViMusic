@@ -13,14 +13,16 @@ package com.boko.vimusic.ui.activities;
 
 import static com.boko.vimusic.utils.MusicUtils.mService;
 
-import android.app.Activity;
+import java.util.Locale;
+
 import android.app.ActionBar;
+import android.app.Activity;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.app.SearchManager;
 import android.app.SearchableInfo;
 import android.content.ComponentName;
-import android.content.CursorLoader;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.ServiceConnection;
@@ -36,7 +38,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
@@ -50,19 +51,17 @@ import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
 import android.widget.TextView;
 
-import com.boko.vimusic.IService;
 import com.boko.vimusic.R;
 import com.boko.vimusic.cache.ImageFetcher;
 import com.boko.vimusic.format.PrefixHighlighter;
 import com.boko.vimusic.recycler.RecycleHolder;
+import com.boko.vimusic.service.IService;
 import com.boko.vimusic.ui.MusicHolder;
 import com.boko.vimusic.utils.ApolloUtils;
 import com.boko.vimusic.utils.MusicUtils;
 import com.boko.vimusic.utils.MusicUtils.ServiceToken;
 import com.boko.vimusic.utils.NavUtils;
 import com.boko.vimusic.utils.ThemeUtils;
-
-import java.util.Locale;
 
 /**
  * Provides the search interface for Apollo.

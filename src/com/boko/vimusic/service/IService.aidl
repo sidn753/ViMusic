@@ -1,4 +1,4 @@
-package com.boko.vimusic;
+package com.boko.vimusic.service;
 
 import android.graphics.Bitmap;
 

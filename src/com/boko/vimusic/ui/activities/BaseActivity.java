@@ -13,6 +13,9 @@ package com.boko.vimusic.ui.activities;
 
 import static com.boko.vimusic.utils.MusicUtils.mService;
 
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+
 import android.app.SearchManager;
 import android.app.SearchableInfo;
 import android.content.BroadcastReceiver;
@@ -28,17 +31,16 @@ import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
 import android.widget.TextView;
 
-import com.boko.vimusic.IService;
-import com.boko.vimusic.MusicPlaybackService;
 import com.boko.vimusic.MusicStateListener;
 import com.boko.vimusic.R;
+import com.boko.vimusic.service.IService;
+import com.boko.vimusic.service.MusicPlaybackService;
 import com.boko.vimusic.utils.ApolloUtils;
 import com.boko.vimusic.utils.Lists;
 import com.boko.vimusic.utils.MusicUtils;
@@ -48,9 +50,6 @@ import com.boko.vimusic.utils.ThemeUtils;
 import com.boko.vimusic.widgets.PlayPauseButton;
 import com.boko.vimusic.widgets.RepeatButton;
 import com.boko.vimusic.widgets.ShuffleButton;
-
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 
 /**
  * A base {@link FragmentActivity} used to update the bottom bar and
@@ -254,7 +253,7 @@ public abstract class BaseActivity extends FragmentActivity implements ServiceCo
         // Track changes
         filter.addAction(MusicPlaybackService.EVENT_META_CHANGED);
         // Update a list, probably the playlist fragment's
-        filter.addAction(MusicPlaybackService.REFRESH);
+        filter.addAction(MusicPlaybackService.EVENT_REFRESH_FORCED);
         registerReceiver(mPlaybackStatus, filter);
         MusicUtils.notifyForegroundStateChanged(this, true);
     }
@@ -429,7 +428,7 @@ public abstract class BaseActivity extends FragmentActivity implements ServiceCo
                 mReference.get().mRepeatButton.updateRepeatState();
                 // Set the shuffle image
                 mReference.get().mShuffleButton.updateShuffleState();
-            } else if (action.equals(MusicPlaybackService.REFRESH)) {
+            } else if (action.equals(MusicPlaybackService.EVENT_REFRESH_FORCED)) {
                 // Let the listener know to update a list
                 for (final MusicStateListener listener : mReference.get().mMusicStateListener) {
                     if (listener != null) {
