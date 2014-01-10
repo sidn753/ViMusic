@@ -14,7 +14,6 @@ package com.boko.vimusic.ui.fragments.zing;
 import java.util.List;
 
 import android.app.Activity;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.app.Fragment;

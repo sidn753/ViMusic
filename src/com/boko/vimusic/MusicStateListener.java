@@ -9,12 +9,12 @@ import com.boko.vimusic.service.MusicPlaybackService;
 public interface MusicStateListener {
 
     /**
-     * Called when {@link MusicPlaybackService#EVENT_REFRESH_FORCED} is invoked
+     * Called when {@link MusicPlaybackService#REFRESH} is invoked
      */
     public void restartLoader();
 
     /**
-     * Called when {@link MusicPlaybackService#EVENT_META_CHANGED} is invoked
+     * Called when {@link MusicPlaybackService#META_CHANGED} is invoked
      */
     public void onMetaChanged();
 

@@ -23,7 +23,6 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import com.boko.vimusic.appwidgets.AppWidgetLargeAlternate;
 import com.boko.vimusic.service.MusicPlaybackService;
 import com.boko.vimusic.utils.ApolloUtils;
 
@@ -212,29 +211,25 @@ public class NotificationHelper {
         switch (which) {
             case 1:
                 // Play and pause
-                action = new Intent(MusicPlaybackService.ACTION);
-                action.putExtra(MusicPlaybackService.EXTRA_COMMAND, MusicPlaybackService.CMD_TOGGLE);
+                action = new Intent(MusicPlaybackService.TOGGLEPAUSE_ACTION);
                 action.setComponent(serviceName);
                 pendingIntent = PendingIntent.getService(mService, 1, action, 0);
                 return pendingIntent;
             case 2:
                 // Skip tracks
-                action = new Intent(MusicPlaybackService.ACTION);
-                action.putExtra(MusicPlaybackService.EXTRA_COMMAND, MusicPlaybackService.CMD_NEXT);
+                action = new Intent(MusicPlaybackService.NEXT_ACTION);
                 action.setComponent(serviceName);
                 pendingIntent = PendingIntent.getService(mService, 2, action, 0);
                 return pendingIntent;
             case 3:
                 // Previous tracks
-                action = new Intent(MusicPlaybackService.ACTION);
-                action.putExtra(MusicPlaybackService.EXTRA_COMMAND, MusicPlaybackService.CMD_PREVIOUS);
+                action = new Intent(MusicPlaybackService.PREVIOUS_ACTION);
                 action.setComponent(serviceName);
                 pendingIntent = PendingIntent.getService(mService, 3, action, 0);
                 return pendingIntent;
             case 4:
                 // Stop and collapse the notification
-                action = new Intent(MusicPlaybackService.ACTION);
-                action.putExtra(MusicPlaybackService.EXTRA_COMMAND, MusicPlaybackService.CMD_STOP);
+                action = new Intent(MusicPlaybackService.STOP_ACTION);
                 action.setComponent(serviceName);
                 pendingIntent = PendingIntent.getService(mService, 4, action, 0);
                 return pendingIntent;
