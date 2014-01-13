@@ -241,7 +241,7 @@ public class ArtistFragment extends Fragment implements LoaderCallbacks<List<Art
                     return true;
                 case FragmentMenuItems.DELETE:
                     mShouldRefresh = true;
-                    final String artist = mArtist.mArtistName;
+                    final String artist = mArtist.getName();
                     DeleteDialog.newInstance(artist, mArtistList, artist).show(
                             getFragmentManager(), "DeleteDialog");
                     return true;
@@ -274,7 +274,7 @@ public class ArtistFragment extends Fragment implements LoaderCallbacks<List<Art
     public void onItemClick(final AdapterView<?> parent, final View view, final int position,
             final long id) {
         mArtist = mAdapter.getItem(position);
-        NavUtils.openArtistProfile(getActivity(), mArtist.mArtistName);
+        NavUtils.openArtistProfile(getActivity(), mArtist.getName());
     }
 
     /**

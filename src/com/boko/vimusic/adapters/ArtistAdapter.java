@@ -154,7 +154,7 @@ public class ArtistAdapter extends ArrayAdapter<Artist> {
             // Artist Id
             mData[i].mItemId = artist.mArtistId;
             // Artist names (line one)
-            mData[i].mLineOne = artist.mArtistName;
+            mData[i].mLineOne = artist.getName();
             // Number of albums (line two)
             mData[i].mLineTwo = MusicUtils.makeLabel(getContext(),
                     R.plurals.Nalbums, artist.mAlbumNumber);
@@ -205,7 +205,7 @@ public class ArtistAdapter extends ArrayAdapter<Artist> {
      */
     public void removeFromCache(final Artist artist) {
         if (mImageFetcher != null) {
-            mImageFetcher.removeFromCache(artist.mArtistName);
+            mImageFetcher.removeFromCache(artist.getName());
         }
     }
 

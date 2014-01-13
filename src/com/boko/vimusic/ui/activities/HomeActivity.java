@@ -17,7 +17,7 @@ import android.support.v4.view.ViewPager;
 
 import com.boko.vimusic.R;
 import com.boko.vimusic.ui.fragments.SlideMenuFragment;
-import com.boko.vimusic.ui.fragments.zing.MusicBrowserZingFragment;
+import com.boko.vimusic.ui.fragments.phone.MusicBrowserPhoneFragment;
 import com.boko.vimusic.widgets.theme.ThemeableSlideMenuFragment;
 import com.jeremyfeinstein.slidingmenu.SlidingMenu;
 
@@ -59,7 +59,7 @@ public class HomeActivity extends BaseActivity {
     		fragment.setListAdapter(adapter);
     		
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.activity_base_content, new MusicBrowserZingFragment()).commit();
+                    .replace(R.id.activity_base_content, new MusicBrowserPhoneFragment()).commit();
         }
     }
 

@@ -185,7 +185,7 @@ public class GenreFragment extends Fragment implements LoaderCallbacks<List<Genr
         final Bundle bundle = new Bundle();
         bundle.putLong(Config.ID, mGenre.mGenreId);
         bundle.putString(Config.MIME_TYPE, MediaStore.Audio.Genres.CONTENT_TYPE);
-        bundle.putString(Config.NAME, mGenre.mGenreName);
+        bundle.putString(Config.NAME, mGenre.getName());
 
         // Create the intent to launch the profile activity
         final Intent intent = new Intent(getActivity(), ProfileActivity.class);

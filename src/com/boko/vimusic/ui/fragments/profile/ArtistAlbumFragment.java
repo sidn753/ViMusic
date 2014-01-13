@@ -235,7 +235,7 @@ public class ArtistAlbumFragment extends Fragment implements LoaderCallbacks<Lis
                     MusicUtils.addToPlaylist(getActivity(), mAlbumList, id);
                     return true;
                 case FragmentMenuItems.DELETE:
-                    DeleteDialog.newInstance(mAlbum.mAlbumName, mAlbumList, null).show(
+                    DeleteDialog.newInstance(mAlbum.getName(), mAlbumList, null).show(
                             getFragmentManager(), "DeleteDialog");
                     refresh();
                     return true;
@@ -256,7 +256,7 @@ public class ArtistAlbumFragment extends Fragment implements LoaderCallbacks<Lis
             return;
         }
         mAlbum = mAdapter.getItem(position - 1);
-        NavUtils.openAlbumProfile(getActivity(), mAlbum.mAlbumName,
+        NavUtils.openAlbumProfile(getActivity(), mAlbum.getName(),
                 mAlbum.mArtistName, mAlbum.mAlbumId);
         getActivity().finish();
     }

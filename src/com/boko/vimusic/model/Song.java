@@ -18,7 +18,7 @@ import android.text.TextUtils;
  * 
  * @author Andrew Neal (andrewdneal@gmail.com)
  */
-public class Song extends ImageHolder {
+public class Song extends Media {
 
     /**
      * The unique Id of the song

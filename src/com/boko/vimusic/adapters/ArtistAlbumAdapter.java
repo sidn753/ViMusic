@@ -123,7 +123,7 @@ public class ArtistAlbumAdapter extends ArrayAdapter<Album> {
 
         // Retrieve the album
         final Album album = getItem(position - 1);
-        final String albumName = album.mAlbumName;
+        final String albumName = album.getName();
 
         // Set each album name (line one)
         holder.mLineOne.get().setText(albumName);
@@ -227,7 +227,7 @@ public class ArtistAlbumAdapter extends ArrayAdapter<Album> {
     public void removeFromCache(final Album album) {
         if (mImageFetcher != null) {
             mImageFetcher.removeFromCache(
-                     ImageFetcher.generateAlbumCacheKey(album.mAlbumName, album.mArtistName));
+                     ImageFetcher.generateAlbumCacheKey(album.getName(), album.mArtistName));
         }
     }
 

@@ -235,7 +235,7 @@ public class PlaylistFragment extends Fragment implements LoaderCallbacks<List<P
             bundle.putString(Config.MIME_TYPE, getString(R.string.playlist_last_added));
         } else {
             // User created
-            playlistName = mPlaylist.mPlaylistName;
+            playlistName = mPlaylist.getName();
             bundle.putString(Config.MIME_TYPE, MediaStore.Audio.Playlists.CONTENT_TYPE);
             bundle.putLong(Config.ID, mPlaylist.mPlaylistId);
         }
@@ -312,7 +312,7 @@ public class PlaylistFragment extends Fragment implements LoaderCallbacks<List<P
      */
     private final AlertDialog buildDeleteDialog() {
         return new AlertDialog.Builder(getActivity())
-                .setTitle(getString(R.string.delete_dialog_title, mPlaylist.mPlaylistName))
+                .setTitle(getString(R.string.delete_dialog_title, mPlaylist.getName()))
                 .setPositiveButton(R.string.context_menu_delete, new OnClickListener() {
 
                     @Override

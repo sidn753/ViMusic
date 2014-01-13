@@ -120,7 +120,7 @@ public class PlaylistAdapter extends ArrayAdapter<Playlist> {
             // Playlist Id
             mData[i].mItemId = playlist.mPlaylistId;
             // Playlist names (line one)
-            mData[i].mLineOne = playlist.mPlaylistName;
+            mData[i].mLineOne = playlist.getName();
         }
     }
 

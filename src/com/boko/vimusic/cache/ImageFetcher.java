@@ -31,7 +31,7 @@ import com.boko.vimusic.Config;
 import com.boko.vimusic.api.lastfm.Album;
 import com.boko.vimusic.api.lastfm.Artist;
 import com.boko.vimusic.api.lastfm.ImageSize;
-import com.boko.vimusic.model.ImageHolder;
+import com.boko.vimusic.model.Media;
 import com.boko.vimusic.service.MusicPlaybackService;
 import com.boko.vimusic.utils.MusicUtils;
 import com.boko.vimusic.utils.PreferenceUtils;
@@ -104,8 +104,8 @@ public class ImageFetcher extends ImageWorker {
                 if (!TextUtils.isEmpty(artistName)) {
                     if (PreferenceUtils.getInstance(mContext).downloadMissingArtistImages()) {
                         final Artist artist = Artist.getInfo(mContext, artistName);
-                        if (artist != null && artist.getImageUrl() != null && artist.getImageUrl().length() > 0) {
-                            return artist.getImageUrl();
+                        if (artist != null && artist.getAvatarUrl() != null && artist.getAvatarUrl().length() > 0) {
+                            return artist.getAvatarUrl();
                         }
                     }
                 }
@@ -115,10 +115,10 @@ public class ImageFetcher extends ImageWorker {
                     if (PreferenceUtils.getInstance(mContext).downloadMissingArtwork()) {
                         final Artist correction = Artist.getCorrection(mContext, artistName);
                         if (correction != null) {
-                            final Album album = Album.getInfo(mContext, correction.mArtistName,
+                            final Album album = Album.getInfo(mContext, correction.getName(),
                                     albumName);
-                            if (album != null && album.getImageUrl() != null && album.getImageUrl().length() > 0) {
-                                return album.getImageUrl();
+                            if (album != null && album.getAvatarUrl() != null && album.getAvatarUrl().length() > 0) {
+                                return album.getAvatarUrl();
                             }
                         }
                     }

@@ -102,7 +102,7 @@ public class Album extends com.boko.vimusic.model.Album {
                 }
             }
             if (size == ImageSize.EXTRALARGE) {
-            	album.setImageUrl(image.getText());
+            	album.setAvatarUrl(image.getText());
             }
         }
         

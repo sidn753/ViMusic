@@ -164,7 +164,7 @@ public class AlbumAdapter extends ArrayAdapter<Album> {
             // Album Id
             mData[i].mItemId = album.mAlbumId;
             // Album names (line one)
-            mData[i].mLineOne = album.mAlbumName;
+            mData[i].mLineOne = album.getName();
             // Album artist names (line two)
             mData[i].mLineTwo = album.mArtistName;
             // Number of songs for each album (line three)
@@ -214,7 +214,7 @@ public class AlbumAdapter extends ArrayAdapter<Album> {
     public void removeFromCache(final Album album) {
         if (mImageFetcher != null) {
             mImageFetcher.removeFromCache(
-                    ImageFetcher.generateAlbumCacheKey(album.mAlbumName, album.mArtistName));
+                    ImageFetcher.generateAlbumCacheKey(album.getName(), album.mArtistName));
         }
     }
 

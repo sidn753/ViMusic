@@ -252,7 +252,7 @@ public class RecentFragment extends Fragment implements LoaderCallbacks<List<Alb
                     return true;
                 case FragmentMenuItems.DELETE:
                     mShouldRefresh = true;
-                    final String album = mAlbum.mAlbumName;
+                    final String album = mAlbum.getName();
                     DeleteDialog.newInstance(album, mAlbumList,
                             ImageFetcher.generateAlbumCacheKey(album, mAlbum.mArtistName))
                             .show(getFragmentManager(), "DeleteDialog");
@@ -286,7 +286,7 @@ public class RecentFragment extends Fragment implements LoaderCallbacks<List<Alb
     public void onItemClick(final AdapterView<?> parent, final View view, final int position,
             final long id) {
         mAlbum = mAdapter.getItem(position);
-        NavUtils.openAlbumProfile(getActivity(), mAlbum.mAlbumName, mAlbum.mArtistName, mAlbum.mAlbumId);
+        NavUtils.openAlbumProfile(getActivity(), mAlbum.getName(), mAlbum.mArtistName, mAlbum.mAlbumId);
     }
 
     /**

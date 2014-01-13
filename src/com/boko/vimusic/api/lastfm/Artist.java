@@ -129,7 +129,7 @@ public class Artist extends com.boko.vimusic.model.Artist {
                 }
             }
             if (size == ImageSize.EXTRALARGE) {
-            	artist.setImageUrl(image.getText());
+            	artist.setAvatarUrl(image.getText());
             }
         }
         return artist;

@@ -120,7 +120,7 @@ public class GenreAdapter extends ArrayAdapter<Genre> {
             // Genre Id
             mData[i].mItemId = genre.mGenreId;
             // Genre names (line one)
-            mData[i].mLineOne = genre.mGenreName;
+            mData[i].mLineOne = genre.getName();
         }
     }
 
