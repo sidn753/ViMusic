@@ -261,7 +261,7 @@ public class ShortcutActivity extends FragmentActivity implements ServiceConnect
             // this. It allows the user to perform very specific queries. i.e.
             // "Listen to Ethio
 
-            final String song = mSong.get(0).mSongName;
+            final String song = mSong.get(0).getName();
             final String album = mSong.get(0).mAlbumName;
             final String artist = mSong.get(0).mArtistName;
             // This tripes as the song, album, and artist Id

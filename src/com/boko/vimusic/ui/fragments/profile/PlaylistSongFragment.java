@@ -211,7 +211,7 @@ public class PlaylistSongFragment extends Fragment implements LoaderCallbacks<Li
         // Creat a new song
         mSong = mAdapter.getItem(mSelectedPosition);
         mSelectedId = mSong.mSongId;
-        mSongName = mSong.mSongName;
+        mSongName = mSong.getName();
         mAlbumName = mSong.mAlbumName;
         mArtistName = mSong.mArtistName;
 
@@ -290,7 +290,7 @@ public class PlaylistSongFragment extends Fragment implements LoaderCallbacks<Li
                     MusicUtils.setRingtone(getActivity(), mSelectedId);
                     return true;
                 case FragmentMenuItems.DELETE:
-                    DeleteDialog.newInstance(mSong.mSongName, new long[] {
+                    DeleteDialog.newInstance(mSong.getName(), new long[] {
                         mSelectedId
                     }, null).show(getFragmentManager(), "DeleteDialog");
                     SystemClock.sleep(10);

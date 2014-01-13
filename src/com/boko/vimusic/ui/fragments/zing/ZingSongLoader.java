@@ -76,7 +76,7 @@ public class ZingSongLoader extends WrappedAsyncTaskLoader<List<Song>> {
 			for (DomElement link : links) {
 				Song song = new Song();
 				song.mArtistName = link.getChild("h4").removeChild("span").getText().trim();
-				song.mSongName = link.getChildText("h3").trim();
+				song.setName(link.getChildText("h3").trim());
 				mSongList.add(song);
 			}
 		} catch (Exception e) {

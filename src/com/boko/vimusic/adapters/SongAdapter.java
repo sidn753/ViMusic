@@ -118,7 +118,7 @@ public class SongAdapter extends ArrayAdapter<Song> {
             // Song Id
             mData[i].mItemId = song.mSongId;
             // Song names (line one)
-            mData[i].mLineOne = song.mSongName;
+            mData[i].mLineOne = song.getName();
             // Album names (line two)
             mData[i].mLineTwo = song.mAlbumName;
         }

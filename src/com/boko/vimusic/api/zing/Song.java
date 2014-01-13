@@ -37,7 +37,7 @@ public class Song extends com.boko.vimusic.model.Song {
         	if (url.startsWith(XML_URL) && song.mLinkPlay == null) {
         		final Result rs = Caller.getInstance(context).call(url.replace("&amp;", "&"));
         		DomElement element = rs.getContentElement();
-        		song.mSongName = element.getChildText("title");
+        		song.setName(element.getChildText("title"));
         		song.mArtistName = element.getChildText("performer");
         		song.mLinkPlay = element.getChildText("source");
         	}

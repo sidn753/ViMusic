@@ -157,7 +157,7 @@ public class ProfileSongAdapter extends ArrayAdapter<Song> {
         final Song song = getItem(position - 1);
 
         // Set each track name (line one)
-        holder.mLineOne.get().setText(song.mSongName);
+        holder.mLineOne.get().setText(song.getName());
         // Set the line two
         switch (mDisplaySetting) {
             // show duration if on album fragment

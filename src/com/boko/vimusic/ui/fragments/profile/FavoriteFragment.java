@@ -265,7 +265,7 @@ public class FavoriteFragment extends Fragment implements LoaderCallbacks<List<S
                     getLoaderManager().restartLoader(LOADER, null, this);
                     return true;
                 case FragmentMenuItems.DELETE:
-                    DeleteDialog.newInstance(mSong.mSongName, new long[] {
+                    DeleteDialog.newInstance(mSong.getName(), new long[] {
                         mSelectedId
                     }, null).show(getFragmentManager(), "DeleteDialog");
                     SystemClock.sleep(10);
