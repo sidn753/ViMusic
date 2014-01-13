@@ -60,7 +60,7 @@ public class FavoritesLoader extends WrappedAsyncTaskLoader<List<Song>> {
             do {
 
                 // Copy the song Id
-                final long id = mCursor.getLong(mCursor
+                final String id = mCursor.getString(mCursor
                         .getColumnIndexOrThrow(FavoritesTable.SID));
 
                 // Copy the song name

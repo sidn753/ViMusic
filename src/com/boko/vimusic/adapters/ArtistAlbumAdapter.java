@@ -198,8 +198,8 @@ public class ArtistAlbumAdapter extends ArrayAdapter<Album> {
 
             @Override
             public void onClick(final View v) {
-                final long id = getItem(position - 1).mAlbumId;
-                final long[] list = MusicUtils.getSongListForAlbum(getContext(), id);
+                final String id = getItem(position - 1).mAlbumId;
+                final String[] list = MusicUtils.getSongListForAlbum(getContext(), id);
                 MusicUtils.playAll(getContext(), list, 0, false);
             }
         });

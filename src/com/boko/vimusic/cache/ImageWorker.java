@@ -181,7 +181,7 @@ public abstract class ImageWorker {
         /**
          * The album ID used to find the corresponding artwork
          */
-        private long mAlbumId;
+        private String mAlbumId;
 
         /**
          * The URL of an image to download
@@ -219,10 +219,10 @@ public abstract class ImageWorker {
             }
 
             // Define the album id now
-            mAlbumId = Long.valueOf(params[3]);
+            mAlbumId = params[3];
 
             // Second, if we're fetching artwork, check the device for the image
-            if (bitmap == null && mImageType.equals(ImageType.ALBUM) && mAlbumId >= 0
+            if (bitmap == null && mImageType.equals(ImageType.ALBUM) && mAlbumId != null
                     && mKey != null && !isCancelled() && getAttachedImageView() != null
                     && mImageCache != null) {
                 bitmap = mImageCache.getCachedArtwork(mContext, mKey, mAlbumId);
@@ -380,7 +380,7 @@ public abstract class ImageWorker {
      * @param imageType The type of image URL to fetch for.
      */
     protected void loadImage(final String key, final String artistName, final String albumName,
-            final long albumId, final ImageView imageView, final ImageType imageType) {
+            final String albumId, final ImageView imageView, final ImageType imageType) {
         if (key == null || mImageCache == null || imageView == null) {
             return;
         }

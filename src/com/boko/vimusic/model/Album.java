@@ -21,7 +21,7 @@ public class Album extends Media {
     /**
      * The unique Id of the album
      */
-    public long mAlbumId;
+    public String mAlbumId;
 
     /**
      * The album artist
@@ -47,7 +47,7 @@ public class Album extends Media {
      * @param songNumber The number of songs in the album
      * @param albumYear The year the album was released
      */
-    public Album(final long albumId, final String albumName, final String artistName,
+    public Album(final String albumId, final String albumName, final String artistName,
             final int songNumber, final String albumYear) {
         super();
         mAlbumId = albumId;

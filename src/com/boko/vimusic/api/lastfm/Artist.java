@@ -49,7 +49,7 @@ public class Artist extends com.boko.vimusic.model.Artist {
 	 * @param songNumber
 	 * @param albumNumber
 	 */
-	public Artist(long artistId, String artistName, int songNumber,
+	public Artist(String artistId, String artistName, int songNumber,
 			int albumNumber) {
 		super(artistId, artistName, songNumber, albumNumber);
 	}
@@ -101,7 +101,7 @@ public class Artist extends com.boko.vimusic.model.Artist {
                     Config.LASTFM_API_KEY, "artist", artist);
             final DomElement correctionElement = result.getContentElement().getChild("correction");
             if (correctionElement == null) {
-                return new Artist(0, artist, 0, 0);
+                return new Artist(null, artist, 0, 0);
             }
             final DomElement artistElem = correctionElement.getChild("artist");
             return createItemFromElement(artistElem);
@@ -114,7 +114,7 @@ public class Artist extends com.boko.vimusic.model.Artist {
         if (element == null) {
             return null;
         }
-        final Artist artist = new Artist(0, null, 0, 0);
+        final Artist artist = new Artist(null, null, 0, 0);
         final Collection<DomElement> images = element.getChildren("image");
         for (final DomElement image : images) {
             final String attribute = image.getAttribute("size");

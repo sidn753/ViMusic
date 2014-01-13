@@ -5,13 +5,13 @@ import android.graphics.Bitmap;
 interface IService
 {
     void openFile(String path);
-    void open(in long [] list, int position);
+    void open(in String [] list, int position);
     void stop();
     void pause();
     void play();
     void prev();
     void next();
-    void enqueue(in long [] list, int action);
+    void enqueue(in String [] list, int action);
     void setQueuePosition(int index);
     void setShuffleMode(int shufflemode);
     void setRepeatMode(int repeatmode);
@@ -20,13 +20,13 @@ interface IService
     void refresh();
     boolean isFavorite();
     boolean isPlaying();
-    long [] getQueue();
+    String [] getQueue();
     long duration();
     long position();
     long seek(long pos);
-    long getAudioId();
-    long getArtistId();
-    long getAlbumId();
+    String getAudioId();
+    String getArtistId();
+    String getAlbumId();
     String getArtistName();
     String getTrackName();
     String getAlbumName();
@@ -34,7 +34,7 @@ interface IService
     int getQueuePosition();
     int getShuffleMode();
     int removeTracks(int first, int last);
-    int removeTrack(long id); 
+    int removeTrack(String id); 
     int getRepeatMode();
     int getMediaMountedCount();
     int getAudioSessionId();

@@ -10,7 +10,7 @@ public class Genre extends Media {
     /**
      * The unique Id of the genre
      */
-    public long mGenreId;
+    public String mGenreId;
 
     /**
      * Constructor of <code>Genre</code>
@@ -18,7 +18,7 @@ public class Genre extends Media {
      * @param genreId The Id of the genre
      * @param genreName The genre name
      */
-    public Genre(final long genreId, final String genreName) {
+    public Genre(final String genreId, final String genreName) {
         super();
         mGenreId = genreId;
         setName(genreName);

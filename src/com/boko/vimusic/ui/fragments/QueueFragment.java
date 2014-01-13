@@ -90,7 +90,7 @@ public class QueueFragment extends Fragment implements LoaderCallbacks<List<Song
     /**
      * Id of a context menu item
      */
-    private long mSelectedId;
+    private String mSelectedId;
 
     /**
      * Song, album, and artist name used in the context menu
@@ -241,7 +241,7 @@ public class QueueFragment extends Fragment implements LoaderCallbacks<List<Song
                     queue.removeItem(mSelectedPosition);
                     queue.close();
                     queue = null;
-                    MusicUtils.playNext(new long[] {
+                    MusicUtils.playNext(new String[] {
                         mSelectedId
                     });
                     refreshQueue();
@@ -255,13 +255,13 @@ public class QueueFragment extends Fragment implements LoaderCallbacks<List<Song
                             String.valueOf(mSelectedId), "", mSongName, mAlbumName, mArtistName);
                     return true;
                 case FragmentMenuItems.NEW_PLAYLIST:
-                    CreateNewPlaylist.getInstance(new long[] {
+                    CreateNewPlaylist.getInstance(new String[] {
                         mSelectedId
                     }).show(getFragmentManager(), "CreatePlaylist");
                     return true;
                 case FragmentMenuItems.PLAYLIST_SELECTED:
-                    final long mPlaylistId = item.getIntent().getLongExtra("playlist", 0);
-                    MusicUtils.addToPlaylist(getActivity(), new long[] {
+                    final String mPlaylistId = item.getIntent().getStringExtra("playlist");
+                    MusicUtils.addToPlaylist(getActivity(), new String[] {
                         mSelectedId
                     }, mPlaylistId);
                     return true;
@@ -272,7 +272,7 @@ public class QueueFragment extends Fragment implements LoaderCallbacks<List<Song
                     MusicUtils.setRingtone(getActivity(), mSelectedId);
                     return true;
                 case FragmentMenuItems.DELETE:
-                    DeleteDialog.newInstance(mSong.getName(), new long[] {
+                    DeleteDialog.newInstance(mSong.getName(), new String[] {
                         mSelectedId
                     }, null).show(getFragmentManager(), "DeleteDialog");
                     return true;
@@ -388,12 +388,12 @@ public class QueueFragment extends Fragment implements LoaderCallbacks<List<Song
      *         currently playing song.
      */
     private int getItemPositionBySong() {
-        final long trackId = MusicUtils.getCurrentAudioId();
+        final String trackId = MusicUtils.getCurrentAudioId();
         if (mAdapter == null) {
             return 0;
         }
         for (int i = 0; i < mAdapter.getCount(); i++) {
-            if (mAdapter.getItem(i).mSongId == trackId) {
+            if (mAdapter.getItem(i).mSongId.equals(trackId)) {
                 return i;
             }
         }

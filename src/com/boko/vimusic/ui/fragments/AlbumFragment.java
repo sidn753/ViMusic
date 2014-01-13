@@ -103,7 +103,7 @@ public class AlbumFragment extends Fragment implements LoaderCallbacks<List<Albu
     /**
      * Album song list
      */
-    private long[] mAlbumList;
+    private String[] mAlbumList;
 
     /**
      * Represents an album
@@ -239,7 +239,7 @@ public class AlbumFragment extends Fragment implements LoaderCallbacks<List<Albu
                     NavUtils.openArtistProfile(getActivity(), mAlbum.mArtistName);
                     return true;
                 case FragmentMenuItems.PLAYLIST_SELECTED:
-                    final long id = item.getIntent().getLongExtra("playlist", 0);
+                    final String id = item.getIntent().getStringExtra("playlist");
                     MusicUtils.addToPlaylist(getActivity(), mAlbumList, id);
                     return true;
                 case FragmentMenuItems.DELETE:
@@ -347,12 +347,12 @@ public class AlbumFragment extends Fragment implements LoaderCallbacks<List<Albu
      *         the currently playing album.
      */
     private int getItemPositionByAlbum() {
-        final long albumId = MusicUtils.getCurrentAlbumId();
+        final String albumId = MusicUtils.getCurrentAlbumId();
         if (mAdapter == null) {
             return 0;
         }
         for (int i = 0; i < mAdapter.getCount(); i++) {
-            if (mAdapter.getItem(i).mAlbumId == albumId) {
+            if (mAdapter.getItem(i).mAlbumId.equals(albumId)) {
                 return i;
             }
         }

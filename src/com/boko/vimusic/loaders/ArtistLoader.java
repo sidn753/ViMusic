@@ -63,7 +63,7 @@ public class ArtistLoader extends WrappedAsyncTaskLoader<List<Artist>> {
         if (mCursor != null && mCursor.moveToFirst()) {
             do {
                 // Copy the artist id
-                final long id = mCursor.getLong(0);
+                final String id = mCursor.getString(0);
 
                 // Copy the artist name
                 final String artistName = mCursor.getString(1);

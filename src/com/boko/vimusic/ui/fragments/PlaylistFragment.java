@@ -191,7 +191,7 @@ public class PlaylistFragment extends Fragment implements LoaderCallbacks<List<P
                     }
                     return true;
                 case FragmentMenuItems.ADD_TO_QUEUE:
-                    long[] list = null;
+                	String[] list = null;
                     if (info.position == 0) {
                         list = MusicUtils.getSongListForFavorites(getActivity());
                     } else if (info.position == 1) {
@@ -237,7 +237,7 @@ public class PlaylistFragment extends Fragment implements LoaderCallbacks<List<P
             // User created
             playlistName = mPlaylist.getName();
             bundle.putString(Config.MIME_TYPE, MediaStore.Audio.Playlists.CONTENT_TYPE);
-            bundle.putLong(Config.ID, mPlaylist.mPlaylistId);
+            bundle.putString(Config.ID, mPlaylist.mPlaylistId);
         }
 
         bundle.putString(Config.NAME, playlistName);
@@ -319,7 +319,7 @@ public class PlaylistFragment extends Fragment implements LoaderCallbacks<List<P
                     public void onClick(final DialogInterface dialog, final int which) {
                         final Uri mUri = ContentUris.withAppendedId(
                                 MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI,
-                                mPlaylist.mPlaylistId);
+                                Long.valueOf(mPlaylist.mPlaylistId));
                         getActivity().getContentResolver().delete(mUri, null, null);
                         MusicUtils.refresh();
                     }

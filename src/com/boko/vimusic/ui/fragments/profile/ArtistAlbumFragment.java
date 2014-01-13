@@ -79,7 +79,7 @@ public class ArtistAlbumFragment extends Fragment implements LoaderCallbacks<Lis
     /**
      * Album song list
      */
-    private long[] mAlbumList;
+    private String[] mAlbumList;
 
     /**
      * Represents an album
@@ -231,7 +231,7 @@ public class ArtistAlbumFragment extends Fragment implements LoaderCallbacks<Lis
                             "CreatePlaylist");
                     return true;
                 case FragmentMenuItems.PLAYLIST_SELECTED:
-                    final long id = item.getIntent().getLongExtra("playlist", 0);
+                    final String id = item.getIntent().getStringExtra("playlist");
                     MusicUtils.addToPlaylist(getActivity(), mAlbumList, id);
                     return true;
                 case FragmentMenuItems.DELETE:

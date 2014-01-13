@@ -61,7 +61,7 @@ public class LastAddedLoader extends WrappedAsyncTaskLoader<List<Song>> {
         if (mCursor != null && mCursor.moveToFirst()) {
             do {
                 // Copy the song Id
-                final long id = mCursor.getLong(0);
+                final String id = mCursor.getString(0);
 
                 // Copy the song name
                 final String songName = mCursor.getString(1);

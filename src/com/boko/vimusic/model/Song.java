@@ -10,7 +10,7 @@ public class Song extends Media {
     /**
      * The unique Id of the song
      */
-    public long mSongId;
+    public String mSongId;
 
     /**
      * The song artist
@@ -43,7 +43,7 @@ public class Song extends Media {
      * @param albumName The song album
      * @param duration The duration of a song in seconds
      */
-    public Song(final long songId, final String songName, final String artistName,
+    public Song(final String songId, final String songName, final String artistName,
             final String albumName, final int duration) {
         mSongId = songId;
         setName(songName);

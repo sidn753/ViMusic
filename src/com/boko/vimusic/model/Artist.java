@@ -10,7 +10,7 @@ public class Artist extends Media {
     /**
      * The unique Id of the artist
      */
-    public long mArtistId;
+    public String mArtistId;
 
     /**
      * The number of albums for the artist
@@ -30,7 +30,7 @@ public class Artist extends Media {
      * @param songNumber The number of songs for the artist
      * @param albumNumber The number of albums for the artist
      */
-    public Artist(final long artistId, final String artistName, final int songNumber,
+    public Artist(final String artistId, final String artistName, final int songNumber,
             final int albumNumber) {
         super();
         mArtistId = artistId;

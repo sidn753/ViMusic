@@ -43,7 +43,7 @@ public class PlaylistSongLoader extends WrappedAsyncTaskLoader<List<Song>> {
     /**
      * The Id of the playlist the songs belong to.
      */
-    private final Long mPlaylistID;
+    private final String mPlaylistID;
 
     /**
      * Constructor of <code>SongLoader</code>
@@ -51,7 +51,7 @@ public class PlaylistSongLoader extends WrappedAsyncTaskLoader<List<Song>> {
      * @param context The {@link Context} to use
      * @param playlistID The Id of the playlist the songs belong to.
      */
-    public PlaylistSongLoader(final Context context, final Long playlistId) {
+    public PlaylistSongLoader(final Context context, final String playlistId) {
         super(context);
         mPlaylistID = playlistId;
     }
@@ -67,7 +67,7 @@ public class PlaylistSongLoader extends WrappedAsyncTaskLoader<List<Song>> {
         if (mCursor != null && mCursor.moveToFirst()) {
             do {
                 // Copy the song Id
-                final long id = mCursor.getLong(mCursor
+                final String id = mCursor.getString(mCursor
                         .getColumnIndexOrThrow(MediaStore.Audio.Playlists.Members.AUDIO_ID));
 
                 // Copy the song name
@@ -104,12 +104,12 @@ public class PlaylistSongLoader extends WrappedAsyncTaskLoader<List<Song>> {
      * @param playlistID The playlist the songs belong to.
      * @return The {@link Cursor} used to run the song query.
      */
-    public static final Cursor makePlaylistSongCursor(final Context context, final Long playlistID) {
+    public static final Cursor makePlaylistSongCursor(final Context context, final String playlistID) {
         final StringBuilder mSelection = new StringBuilder();
         mSelection.append(AudioColumns.IS_MUSIC + "=1");
         mSelection.append(" AND " + AudioColumns.TITLE + " != ''"); //$NON-NLS-2$
         return context.getContentResolver().query(
-                MediaStore.Audio.Playlists.Members.getContentUri("external", playlistID),
+                MediaStore.Audio.Playlists.Members.getContentUri("external", Long.valueOf(playlistID)),
                 new String[] {
                         /* 0 */
                         MediaStore.Audio.Playlists.Members._ID,

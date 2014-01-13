@@ -376,7 +376,7 @@ public class AudioPlayerActivity extends FragmentActivity implements ServiceConn
                 return true;
             case R.id.menu_audio_player_delete:
                 // Delete current song
-                DeleteDialog.newInstance(MusicUtils.getTrackName(), new long[] {
+                DeleteDialog.newInstance(MusicUtils.getTrackName(), new String[] {
                     MusicUtils.getCurrentAudioId()
                 }, null).show(getSupportFragmentManager(), "DeleteDialog");
                 return true;
@@ -387,7 +387,7 @@ public class AudioPlayerActivity extends FragmentActivity implements ServiceConn
     }
 
     @Override
-    public void onDelete(long[] ids) {
+    public void onDelete(String[] ids) {
         ((QueueFragment)mPagerAdapter.getFragment(0)).refreshQueue();
         if (MusicUtils.getQueue().length == 0) {
             NavUtils.goHome(this);
@@ -578,18 +578,18 @@ public class AudioPlayerActivity extends FragmentActivity implements ServiceConn
             MusicUtils.playFile(this, uri);
             handled = true;
         } else if (Playlists.CONTENT_TYPE.equals(mimeType)) {
-            long id = intent.getLongExtra("playlistId", -1);
-            if (id < 0) {
+        	String id = intent.getStringExtra("playlistId");
+            if (id == null) {
                 String idString = intent.getStringExtra("playlist");
                 if (idString != null) {
                     try {
-                        id = Long.parseLong(idString);
+                        id = idString;
                     } catch (NumberFormatException e) {
                         // ignore
                     }
                 }
             }
-            if (id >= 0) {
+            if (id != null) {
                 MusicUtils.playPlaylist(this, id);
                 handled = true;
             }

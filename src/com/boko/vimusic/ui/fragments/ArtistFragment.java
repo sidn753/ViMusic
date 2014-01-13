@@ -100,7 +100,7 @@ public class ArtistFragment extends Fragment implements LoaderCallbacks<List<Art
     /**
      * Artist song list
      */
-    private long[] mArtistList;
+    private String[] mArtistList;
 
     /**
      * Represents an artist
@@ -236,7 +236,7 @@ public class ArtistFragment extends Fragment implements LoaderCallbacks<List<Art
                             "CreatePlaylist");
                     return true;
                 case FragmentMenuItems.PLAYLIST_SELECTED:
-                    final long id = item.getIntent().getLongExtra("playlist", 0);
+                    final String id = item.getIntent().getStringExtra("playlist");
                     MusicUtils.addToPlaylist(getActivity(), mArtistList, id);
                     return true;
                 case FragmentMenuItems.DELETE:
@@ -343,12 +343,12 @@ public class ArtistFragment extends Fragment implements LoaderCallbacks<List<Art
      *         the currently playing artist.
      */
     private int getItemPositionByArtist() {
-        final long artistId = MusicUtils.getCurrentArtistId();
+        final String artistId = MusicUtils.getCurrentArtistId();
         if (mAdapter == null) {
             return 0;
         }
         for (int i = 0; i < mAdapter.getCount(); i++) {
-            if (mAdapter.getItem(i).mArtistId == artistId) {
+            if (mAdapter.getItem(i).mArtistId.equals(artistId)) {
                 return i;
             }
         }

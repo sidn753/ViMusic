@@ -127,11 +127,11 @@ public class RecentWidgetProvider extends AppWidgetBase {
         final String action = intent.getAction();
 
         if (CLICK_ACTION.equals(action)) {
-            final long albumId = intent.getLongExtra(Config.ID, -1);
+            final String albumId = intent.getStringExtra(Config.ID);
 
             if (intent.getStringExtra(SET_ACTION).equals(PLAY_ALBUM)) {
                 // Play the selected album
-                if (albumId != -1) {
+                if (albumId != null) {
                     final Intent shortcutIntent = new Intent(context, ShortcutActivity.class);
                     shortcutIntent.setAction(Intent.ACTION_VIEW);
                     shortcutIntent.putExtra(Config.ID, albumId);
@@ -150,14 +150,14 @@ public class RecentWidgetProvider extends AppWidgetBase {
                 bundle.putString(Config.ARTIST_NAME, intent.getStringExtra(Config.ARTIST_NAME));
                 bundle.putString(Config.ALBUM_YEAR,
                         MusicUtils.getReleaseDateForAlbum(context, albumId));
-                bundle.putLong(Config.ID, albumId);
+                bundle.putString(Config.ID, albumId);
 
                 // Open the album profile
                 final Intent profileIntent = new Intent(context, ProfileActivity.class);
                 profileIntent.putExtras(bundle);
                 profileIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 profileIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                if (albumId != -1) {
+                if (albumId != null) {
                     context.startActivity(profileIntent);
                 }
             }

@@ -102,7 +102,7 @@ public class RecentFragment extends Fragment implements LoaderCallbacks<List<Alb
     /**
      * Album song list
      */
-    private long[] mAlbumList;
+    private String[] mAlbumList;
 
     /**
      * Represents an album
@@ -242,7 +242,7 @@ public class RecentFragment extends Fragment implements LoaderCallbacks<List<Alb
                     NavUtils.openArtistProfile(getActivity(), mAlbum.mArtistName);
                     return true;
                 case FragmentMenuItems.PLAYLIST_SELECTED:
-                    final long id = item.getIntent().getLongExtra("playlist", 0);
+                    final String id = item.getIntent().getStringExtra("playlist");
                     MusicUtils.addToPlaylist(getActivity(), mAlbumList, id);
                     return true;
                 case FragmentMenuItems.REMOVE_FROM_RECENT:

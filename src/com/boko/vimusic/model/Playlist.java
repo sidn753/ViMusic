@@ -9,7 +9,7 @@ public class Playlist extends Media {
 	/**
 	 * The unique Id of the playlist
 	 */
-	public long mPlaylistId;
+	public String mPlaylistId;
 
 	/**
 	 * Constructor of <code>Genre</code>
@@ -19,7 +19,7 @@ public class Playlist extends Media {
 	 * @param playlistName
 	 *            The playlist name
 	 */
-	public Playlist(final long playlistId, final String playlistName) {
+	public Playlist(final String playlistId, final String playlistName) {
 		super();
 		mPlaylistId = playlistId;
 		setName(playlistName);

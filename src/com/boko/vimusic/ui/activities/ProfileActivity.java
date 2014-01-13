@@ -317,8 +317,8 @@ public class ProfileActivity extends BaseActivity implements OnPageChangeListene
                 return true;
             }
             case R.id.menu_shuffle: {
-                final long id = mArguments.getLong(Config.ID);
-                long[] list = null;
+                final String id = mArguments.getString(Config.ID);
+                String[] list = null;
                 if (isArtist()) {
                     list = MusicUtils.getSongListForArtist(this, id);
                 } else if (isAlbum()) {

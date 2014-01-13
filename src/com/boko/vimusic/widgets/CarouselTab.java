@@ -150,7 +150,7 @@ public class CarouselTab extends FrameLayoutWithOverlay {
     public void fetchAlbumPhoto(final Activity context, final String album, final String artist) {
         if (!TextUtils.isEmpty(album)) {
             mFetcher.removeFromCache(ImageFetcher.generateAlbumCacheKey(album, artist));
-            mFetcher.loadAlbumImage(artist, album, -1, mAlbumArt);
+            mFetcher.loadAlbumImage(artist, album, null, mAlbumArt);
         } else {
             setDefault(context);
         }
@@ -173,7 +173,7 @@ public class CarouselTab extends FrameLayoutWithOverlay {
 
                 @Override
                 public void onClick(final View v) {
-                    final long[] albumList = MusicUtils.getSongListForAlbum(getContext(),
+                    final String[] albumList = MusicUtils.getSongListForAlbum(getContext(),
                             MusicUtils.getIdForAlbum(context, lastAlbum, artist));
                     MusicUtils.playAll(getContext(), albumList, 0, false);
                 }

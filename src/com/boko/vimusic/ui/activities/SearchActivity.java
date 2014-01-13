@@ -369,11 +369,11 @@ public class SearchActivity extends Activity implements LoaderCallbacks<Cursor>,
             NavUtils.openAlbumProfile(this,
                     cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.ALBUM)),
                     cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.ARTIST)),
-                    cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums._ID)));
+                    cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums._ID)));
         } else if (position >= 0 && id >= 0) {
             // If it's a song, play it and leave
-            final long[] list = new long[] {
-                id
+            final String[] list = new String[] {
+                String.valueOf(id)
             };
             MusicUtils.playAll(this, list, 0, false);
         }
@@ -482,7 +482,7 @@ public class SearchActivity extends Activity implements LoaderCallbacks<Cursor>,
                 holder.mImage.get().setScaleType(ScaleType.FIT_XY);
 
                 // Get the Id of the album
-                final long id = cursor.getLong(cursor
+                final String id = cursor.getString(cursor
                         .getColumnIndexOrThrow(MediaStore.Audio.Albums._ID));
 
                 // Get the album name

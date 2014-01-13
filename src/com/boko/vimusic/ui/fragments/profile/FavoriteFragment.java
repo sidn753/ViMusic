@@ -94,7 +94,7 @@ public class FavoriteFragment extends Fragment implements LoaderCallbacks<List<S
     /**
      * Id of a context menu item
      */
-    private long mSelectedId;
+    private String mSelectedId;
 
     /**
      * Artist name used in the context menu
@@ -229,28 +229,28 @@ public class FavoriteFragment extends Fragment implements LoaderCallbacks<List<S
         if (item.getGroupId() == GROUP_ID) {
             switch (item.getItemId()) {
                 case FragmentMenuItems.PLAY_SELECTION:
-                    MusicUtils.playAll(getActivity(), new long[] {
+                    MusicUtils.playAll(getActivity(), new String[] {
                         mSelectedId
                     }, 0, false);
                     return true;
                 case FragmentMenuItems.PLAY_NEXT:
-                    MusicUtils.playNext(new long[] {
+                    MusicUtils.playNext(new String[] {
                         mSelectedId
                     });
                     return true;
                 case FragmentMenuItems.ADD_TO_QUEUE:
-                    MusicUtils.addToQueue(getActivity(), new long[] {
+                    MusicUtils.addToQueue(getActivity(), new String[] {
                         mSelectedId
                     });
                     return true;
                 case FragmentMenuItems.NEW_PLAYLIST:
-                    CreateNewPlaylist.getInstance(new long[] {
+                    CreateNewPlaylist.getInstance(new String[] {
                         mSelectedId
                     }).show(getFragmentManager(), "CreatePlaylist");
                     return true;
                 case FragmentMenuItems.PLAYLIST_SELECTED:
-                    final long mPlaylistId = item.getIntent().getLongExtra("playlist", 0);
-                    MusicUtils.addToPlaylist(getActivity(), new long[] {
+                    final String mPlaylistId = item.getIntent().getStringExtra("playlist");
+                    MusicUtils.addToPlaylist(getActivity(), new String[] {
                         mSelectedId
                     }, mPlaylistId);
                     return true;
@@ -265,7 +265,7 @@ public class FavoriteFragment extends Fragment implements LoaderCallbacks<List<S
                     getLoaderManager().restartLoader(LOADER, null, this);
                     return true;
                 case FragmentMenuItems.DELETE:
-                    DeleteDialog.newInstance(mSong.getName(), new long[] {
+                    DeleteDialog.newInstance(mSong.getName(), new String[] {
                         mSelectedId
                     }, null).show(getFragmentManager(), "DeleteDialog");
                     SystemClock.sleep(10);
@@ -289,7 +289,7 @@ public class FavoriteFragment extends Fragment implements LoaderCallbacks<List<S
             return;
         }
         Cursor cursor = FavoritesLoader.makeFavoritesCursor(getActivity());
-        final long[] list = MusicUtils.getSongListForCursor(cursor);
+        final String[] list = MusicUtils.getSongListForCursor(cursor);
         MusicUtils.playAll(getActivity(), list, position - 1, false);
         cursor.close();
         cursor = null;

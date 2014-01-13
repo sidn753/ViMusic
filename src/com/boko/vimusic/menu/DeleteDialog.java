@@ -34,13 +34,13 @@ import com.boko.vimusic.utils.MusicUtils;
 public class DeleteDialog extends DialogFragment {
 
     public interface DeleteDialogCallback {
-        public void onDelete(long[] id);
+        public void onDelete(String[] id);
     }
 
     /**
      * The item(s) to delete
      */
-    private long[] mItemList;
+    private String[] mItemList;
 
     /**
      * The image cache
@@ -59,11 +59,11 @@ public class DeleteDialog extends DialogFragment {
      * @param key The key used to remove items from the cache.
      * @return A new instance of the dialog
      */
-    public static DeleteDialog newInstance(final String title, final long[] items, final String key) {
+    public static DeleteDialog newInstance(final String title, final String[] items, final String key) {
         final DeleteDialog frag = new DeleteDialog();
         final Bundle args = new Bundle();
         args.putString(Config.NAME, title);
-        args.putLongArray("items", items);
+        args.putStringArray("items", items);
         args.putString("cachekey", key);
         frag.setArguments(args);
         return frag;
@@ -79,7 +79,7 @@ public class DeleteDialog extends DialogFragment {
         // Get the image cache key
         final String key = arguments.getString("cachekey");
         // Get the track(s) to delete
-        mItemList = arguments.getLongArray("items");
+        mItemList = arguments.getStringArray("items");
         // Get the dialog title
         final String title = arguments.getString(Config.NAME);
         final String dialogTitle = getString(R.string.delete_dialog_title, title);

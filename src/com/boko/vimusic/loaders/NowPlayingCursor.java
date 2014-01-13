@@ -36,9 +36,9 @@ public class NowPlayingCursor extends AbstractCursor {
 
     private final Context mContext;
 
-    private long[] mNowPlaying;
+    private String[] mNowPlaying;
 
-    private long[] mCursorIndexes;
+    private String[] mCursorIndexes;
 
     private int mSize;
 
@@ -77,7 +77,7 @@ public class NowPlayingCursor extends AbstractCursor {
             return false;
         }
 
-        final long id = mNowPlaying[newPosition];
+        final String id = mNowPlaying[newPosition];
         final int cursorIndex = Arrays.binarySearch(mCursorIndexes, id);
         mQueueCursor.moveToPosition(cursorIndex);
         mCurPos = newPosition;
@@ -237,11 +237,11 @@ public class NowPlayingCursor extends AbstractCursor {
         }
 
         final int playlistSize = mQueueCursor.getCount();
-        mCursorIndexes = new long[playlistSize];
+        mCursorIndexes = new String[playlistSize];
         mQueueCursor.moveToFirst();
         final int columnIndex = mQueueCursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID);
         for (int i = 0; i < playlistSize; i++) {
-            mCursorIndexes[i] = mQueueCursor.getLong(columnIndex);
+            mCursorIndexes[i] = mQueueCursor.getString(columnIndex);
             mQueueCursor.moveToNext();
         }
         mQueueCursor.moveToFirst();
@@ -249,7 +249,7 @@ public class NowPlayingCursor extends AbstractCursor {
 
         int removed = 0;
         for (int i = mNowPlaying.length - 1; i >= 0; i--) {
-            final long trackId = mNowPlaying[i];
+            final String trackId = mNowPlaying[i];
             final int cursorIndex = Arrays.binarySearch(mCursorIndexes, trackId);
             if (cursorIndex < 0) {
                 removed += MusicUtils.removeTrack(trackId);

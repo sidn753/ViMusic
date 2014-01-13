@@ -95,7 +95,7 @@ public class SongFragment extends Fragment implements LoaderCallbacks<List<Song>
     /**
      * Id of a context menu item
      */
-    private long mSelectedId;
+    private String mSelectedId;
 
     /**
      * Song, album, and artist name used in the context menu
@@ -218,17 +218,17 @@ public class SongFragment extends Fragment implements LoaderCallbacks<List<Song>
         if (item.getGroupId() == GROUP_ID) {
             switch (item.getItemId()) {
                 case FragmentMenuItems.PLAY_SELECTION:
-                    MusicUtils.playAll(getActivity(), new long[] {
+                    MusicUtils.playAll(getActivity(), new String[] {
                         mSelectedId
                     }, 0, false);
                     return true;
                 case FragmentMenuItems.PLAY_NEXT:
-                    MusicUtils.playNext(new long[] {
+                    MusicUtils.playNext(new String[] {
                         mSelectedId
                     });
                     return true;
                 case FragmentMenuItems.ADD_TO_QUEUE:
-                    MusicUtils.addToQueue(getActivity(), new long[] {
+                    MusicUtils.addToQueue(getActivity(), new String[] {
                         mSelectedId
                     });
                     return true;
@@ -237,13 +237,13 @@ public class SongFragment extends Fragment implements LoaderCallbacks<List<Song>
                     		String.valueOf(mSelectedId), "", mSongName, mAlbumName, mArtistName);
                     return true;
                 case FragmentMenuItems.NEW_PLAYLIST:
-                    CreateNewPlaylist.getInstance(new long[] {
+                    CreateNewPlaylist.getInstance(new String[] {
                         mSelectedId
                     }).show(getFragmentManager(), "CreatePlaylist");
                     return true;
                 case FragmentMenuItems.PLAYLIST_SELECTED:
-                    final long mPlaylistId = item.getIntent().getLongExtra("playlist", 0);
-                    MusicUtils.addToPlaylist(getActivity(), new long[] {
+                    final String mPlaylistId = item.getIntent().getStringExtra("playlist");
+                    MusicUtils.addToPlaylist(getActivity(), new String[] {
                         mSelectedId
                     }, mPlaylistId);
                     return true;
@@ -255,7 +255,7 @@ public class SongFragment extends Fragment implements LoaderCallbacks<List<Song>
                     return true;
                 case FragmentMenuItems.DELETE:
                     mShouldRefresh = true;
-                    DeleteDialog.newInstance(mSong.getName(), new long[] {
+                    DeleteDialog.newInstance(mSong.getName(), new String[] {
                         mSelectedId
                     }, null).show(getFragmentManager(), "DeleteDialog");
                     return true;
@@ -273,7 +273,7 @@ public class SongFragment extends Fragment implements LoaderCallbacks<List<Song>
     public void onItemClick(final AdapterView<?> parent, final View view, final int position,
             final long id) {
         Cursor cursor = SongLoader.makeSongCursor(getActivity());
-        final long[] list = MusicUtils.getSongListForCursor(cursor);
+        final String[] list = MusicUtils.getSongListForCursor(cursor);
         MusicUtils.playAll(getActivity(), list, position, false);
         cursor.close();
         cursor = null;
@@ -337,12 +337,12 @@ public class SongFragment extends Fragment implements LoaderCallbacks<List<Song>
      *         currently playing song.
      */
     private int getItemPositionBySong() {
-        final long trackId = MusicUtils.getCurrentAudioId();
+        final String trackId = MusicUtils.getCurrentAudioId();
         if (mAdapter == null) {
             return 0;
         }
         for (int i = 0; i < mAdapter.getCount(); i++) {
-            if (mAdapter.getItem(i).mSongId == trackId) {
+            if (mAdapter.getItem(i).mSongId.equals(trackId)) {
                 return i;
             }
         }

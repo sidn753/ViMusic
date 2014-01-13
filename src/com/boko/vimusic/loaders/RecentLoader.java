@@ -59,7 +59,7 @@ public class RecentLoader extends WrappedAsyncTaskLoader<List<Album>> {
         if (mCursor != null && mCursor.moveToFirst()) {
             do {
                 // Copy the album id
-                final long id = mCursor.getLong(mCursor
+                final String id = mCursor.getString(mCursor
                         .getColumnIndexOrThrow(RecentTable.AID));
 
                 // Copy the album name

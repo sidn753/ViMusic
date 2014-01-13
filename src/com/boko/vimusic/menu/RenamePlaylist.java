@@ -38,10 +38,10 @@ public class RenamePlaylist extends BasePlaylistDialog {
      * @param id The Id of the playlist to rename
      * @return A new instance of this dialog.
      */
-    public static RenamePlaylist getInstance(final Long id) {
+    public static RenamePlaylist getInstance(final String id) {
         final RenamePlaylist frag = new RenamePlaylist();
         final Bundle args = new Bundle();
-        args.putLong("rename", id);
+        args.putString("rename", id);
         frag.setArguments(args);
         return frag;
     }
@@ -103,7 +103,7 @@ public class RenamePlaylist extends BasePlaylistDialog {
             mSaveButton.setEnabled(false);
         } else {
             mSaveButton.setEnabled(true);
-            if (MusicUtils.getIdForPlaylist(getActivity(), playlistName) >= 0) {
+            if (MusicUtils.getIdForPlaylist(getActivity(), playlistName) != null) {
                 mSaveButton.setText(R.string.overwrite);
             } else {
                 mSaveButton.setText(R.string.save);

@@ -358,7 +358,7 @@ public abstract class BaseActivity extends FragmentActivity implements ServiceCo
          */
         @Override
         public void onClick(final View v) {
-            if (MusicUtils.getCurrentAudioId() != -1) {
+            if (MusicUtils.getCurrentAudioId() != null) {
                 NavUtils.openAlbumProfile(BaseActivity.this, MusicUtils.getAlbumName(),
                         MusicUtils.getArtistName(), MusicUtils.getCurrentAlbumId());
             } else {
@@ -380,7 +380,7 @@ public abstract class BaseActivity extends FragmentActivity implements ServiceCo
          */
         @Override
         public void onClick(final View v) {
-            if (MusicUtils.getCurrentAudioId() != -1) {
+            if (MusicUtils.getCurrentAudioId() != null) {
                 NavUtils.openAudioPlayer(BaseActivity.this);
             } else {
                 MusicUtils.shuffleAll(BaseActivity.this);

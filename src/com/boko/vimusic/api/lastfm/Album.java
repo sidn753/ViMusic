@@ -40,7 +40,7 @@ import com.boko.vimusic.api.Result;
  */
 public class Album extends com.boko.vimusic.model.Album {
 
-    public Album(long albumId, String albumName, String artistName,
+    public Album(String albumId, String albumName, String artistName,
 			int songNumber, String albumYear) {
 		super(albumId, albumName, artistName, songNumber, albumYear);
 	}
@@ -86,7 +86,7 @@ public class Album extends com.boko.vimusic.model.Album {
         if (element == null) {
             return null;
         }
-        final Album album = new Album(0, null, null, 0, null);
+        final Album album = new Album(null, null, null, 0, null);
         
         final Collection<DomElement> images = element.getChildren("image");
         for (final DomElement image : images) {

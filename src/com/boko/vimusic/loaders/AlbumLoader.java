@@ -63,7 +63,7 @@ public class AlbumLoader extends WrappedAsyncTaskLoader<List<Album>> {
         if (mCursor != null && mCursor.moveToFirst()) {
             do {
                 // Copy the album id
-                final long id = mCursor.getLong(0);
+                final String id = mCursor.getString(0);
 
                 // Copy the album name
                 final String albumName = mCursor.getString(1);

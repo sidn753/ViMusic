@@ -176,8 +176,8 @@ public class ArtistAdapter extends ArrayAdapter<Artist> {
 
             @Override
             public void onClick(final View v) {
-                final long id = getItem(position).mArtistId;
-                final long[] list = MusicUtils.getSongListForArtist(getContext(), id);
+                final String id = getItem(position).mArtistId;
+                final String[] list = MusicUtils.getSongListForArtist(getContext(), id);
                 MusicUtils.playAll(getContext(), list, 0, false);
             }
         });

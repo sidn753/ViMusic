@@ -30,16 +30,16 @@ import com.boko.vimusic.utils.MusicUtils;
 public class CreateNewPlaylist extends BasePlaylistDialog {
 
     // The playlist list
-    private long[] mPlaylistList = new long[] {};
+    private String[] mPlaylistList = new String[] {};
 
     /**
      * @param list The list of tracks to add to the playlist
      * @return A new instance of this dialog.
      */
-    public static CreateNewPlaylist getInstance(final long[] list) {
+    public static CreateNewPlaylist getInstance(final String[] list) {
         final CreateNewPlaylist frag = new CreateNewPlaylist();
         final Bundle args = new Bundle();
-        args.putLongArray("playlist_list", list);
+        args.putStringArray("playlist_list", list);
         frag.setArguments(args);
         return frag;
     }
@@ -57,7 +57,7 @@ public class CreateNewPlaylist extends BasePlaylistDialog {
      */
     @Override
     public void initObjects(final Bundle savedInstanceState) {
-        mPlaylistList = getArguments().getLongArray("playlist_list");
+        mPlaylistList = getArguments().getStringArray("playlist_list");
         mDefaultname = savedInstanceState != null ? savedInstanceState.getString("defaultname")
                 : makePlaylistName();
         if (mDefaultname == null) {
@@ -72,13 +72,13 @@ public class CreateNewPlaylist extends BasePlaylistDialog {
     public void onSaveClick() {
         final String playlistName = mPlaylist.getText().toString();
         if (playlistName != null && playlistName.length() > 0) {
-            final int playlistId = (int)MusicUtils.getIdForPlaylist(getActivity(),
+            final String playlistId = MusicUtils.getIdForPlaylist(getActivity(),
                     playlistName);
-            if (playlistId >= 0) {
+            if (playlistId != null) {
                 MusicUtils.clearPlaylist(getActivity(), playlistId);
                 MusicUtils.addToPlaylist(getActivity(), mPlaylistList, playlistId);
             } else {
-                final long newId = MusicUtils.createPlaylist(getActivity(),
+                final String newId = MusicUtils.createPlaylist(getActivity(),
                         Capitalize.capitalize(playlistName));
                 MusicUtils.addToPlaylist(getActivity(), mPlaylistList, newId);
             }
@@ -101,7 +101,7 @@ public class CreateNewPlaylist extends BasePlaylistDialog {
             mSaveButton.setEnabled(false);
         } else {
             mSaveButton.setEnabled(true);
-            if (MusicUtils.getIdForPlaylist(getActivity(), playlistName) >= 0) {
+            if (MusicUtils.getIdForPlaylist(getActivity(), playlistName) != null) {
                 mSaveButton.setText(R.string.overwrite);
             } else {
                 mSaveButton.setText(R.string.save);
