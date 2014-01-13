@@ -47,7 +47,10 @@ public final class NavUtils {
 
         // Create a new bundle to transfer the artist info
         final Bundle bundle = new Bundle();
-        bundle.putLong(Config.ID, MusicUtils.getIdForArtist(context, artistName));
+        String artistId = MusicUtils.getIdForArtist(context, artistName);
+        if (artistId != null) {
+        	bundle.putString(Config.ID, artistId);
+        }
         bundle.putString(Config.MIME_TYPE, MediaStore.Audio.Artists.CONTENT_TYPE);
         bundle.putString(Config.ARTIST_NAME, artistName);
 
@@ -73,7 +76,9 @@ public final class NavUtils {
         bundle.putString(Config.ALBUM_YEAR, MusicUtils.getReleaseDateForAlbum(context, albumId));
         bundle.putString(Config.ARTIST_NAME, artistName);
         bundle.putString(Config.MIME_TYPE, MediaStore.Audio.Albums.CONTENT_TYPE);
-        bundle.putString(Config.ID, albumId);
+        if (albumId != null) {
+        	bundle.putString(Config.ID, albumId);
+        }
         bundle.putString(Config.NAME, albumName);
 
         // Create the intent to launch the profile activity

@@ -266,7 +266,7 @@ public class ArtistAlbumFragment extends Fragment implements LoaderCallbacks<Lis
      */
     @Override
     public Loader<List<Album>> onCreateLoader(final int id, final Bundle args) {
-        return new ArtistAlbumLoader(getActivity(), args.getLong(Config.ID));
+        return new ArtistAlbumLoader(getActivity(), args.getString(Config.ID));
     }
 
     /**

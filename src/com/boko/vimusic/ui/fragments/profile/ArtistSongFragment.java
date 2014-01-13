@@ -279,7 +279,7 @@ public class ArtistSongFragment extends Fragment implements LoaderCallbacks<List
             return;
         }
         Cursor cursor = ArtistSongLoader.makeArtistSongCursor(getActivity(), getArguments()
-                .getLong(Config.ID));
+                .getString(Config.ID));
         final String[] list = MusicUtils.getSongListForCursor(cursor);
         MusicUtils.playAll(getActivity(), list, position - 1, false);
         cursor.close();
@@ -291,7 +291,7 @@ public class ArtistSongFragment extends Fragment implements LoaderCallbacks<List
      */
     @Override
     public Loader<List<Song>> onCreateLoader(final int id, final Bundle args) {
-        return new ArtistSongLoader(getActivity(), args.getLong(Config.ID));
+        return new ArtistSongLoader(getActivity(), args.getString(Config.ID));
     }
 
     /**

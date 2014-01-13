@@ -152,7 +152,9 @@ public class RecentWidgetService extends RemoteViewsService {
             // Open the profile of the touched album
             final Intent profileIntent = new Intent();
             final Bundle profileExtras = new Bundle();
-            profileExtras.putString(Config.ID, id);
+            if (id != null) {
+            	profileExtras.putString(Config.ID, id);
+            }
             profileExtras.putString(Config.NAME, albumName);
             profileExtras.putString(Config.ARTIST_NAME, artist);
             profileExtras.putString(RecentWidgetProvider.SET_ACTION,
@@ -163,7 +165,9 @@ public class RecentWidgetService extends RemoteViewsService {
             // Play the album when the artwork is touched
             final Intent playAlbum = new Intent();
             final Bundle playAlbumExtras = new Bundle();
-            playAlbumExtras.putString(Config.ID, id);
+            if (id != null) {
+            	playAlbumExtras.putString(Config.ID, id);
+            }
             playAlbumExtras.putString(RecentWidgetProvider.SET_ACTION,
                     RecentWidgetProvider.PLAY_ALBUM);
             playAlbum.putExtras(playAlbumExtras);

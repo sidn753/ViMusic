@@ -312,7 +312,7 @@ public class ProfileActivity extends BaseActivity implements OnPageChangeListene
                 // Place the artist, album, genre, or playlist onto the Home
                 // screen. Definitely one of my favorite features.
                 final String name = isArtist() ? mArtistName : mProfileName;
-                final Long id = mArguments.getLong(Config.ID);
+                final String id = mArguments.getString(Config.ID);
                 ApolloUtils.createShortcutIntent(name, mArtistName, id, mType, this);
                 return true;
             }

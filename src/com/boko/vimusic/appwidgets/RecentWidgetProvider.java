@@ -150,7 +150,9 @@ public class RecentWidgetProvider extends AppWidgetBase {
                 bundle.putString(Config.ARTIST_NAME, intent.getStringExtra(Config.ARTIST_NAME));
                 bundle.putString(Config.ALBUM_YEAR,
                         MusicUtils.getReleaseDateForAlbum(context, albumId));
-                bundle.putString(Config.ID, albumId);
+                if (albumId != null) {
+                	bundle.putString(Config.ID, albumId);
+                }
 
                 // Open the album profile
                 final Intent profileIntent = new Intent(context, ProfileActivity.class);

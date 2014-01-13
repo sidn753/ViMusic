@@ -42,7 +42,7 @@ public class GenreSongLoader extends WrappedAsyncTaskLoader<List<Song>> {
     /**
      * The Id of the genre the songs belong to.
      */
-    private final Long mGenreID;
+    private final String mGenreID;
 
     /**
      * Constructor of <code>GenreSongHandler</code>
@@ -50,7 +50,7 @@ public class GenreSongLoader extends WrappedAsyncTaskLoader<List<Song>> {
      * @param context The {@link Context} to use.
      * @param genreID The Id of the genre the songs belong to.
      */
-    public GenreSongLoader(final Context context, final Long genreId) {
+    public GenreSongLoader(final Context context, final String genreId) {
         super(context);
         mGenreID = genreId;
     }
@@ -97,13 +97,13 @@ public class GenreSongLoader extends WrappedAsyncTaskLoader<List<Song>> {
      * @param genreId The Id of the genre the songs belong to.
      * @return The {@link Cursor} used to run the query.
      */
-    public static final Cursor makeGenreSongCursor(final Context context, final Long genreId) {
+    public static final Cursor makeGenreSongCursor(final Context context, final String genreId) {
         // Match the songs up with the genre
         final StringBuilder selection = new StringBuilder();
         selection.append(MediaStore.Audio.Genres.Members.IS_MUSIC + "=1");
         selection.append(" AND " + MediaStore.Audio.Genres.Members.TITLE + "!=''"); //$NON-NLS-2$
         return context.getContentResolver().query(
-                MediaStore.Audio.Genres.Members.getContentUri("external", genreId), new String[] {
+                MediaStore.Audio.Genres.Members.getContentUri("external", Long.valueOf(genreId)), new String[] {
                         /* 0 */
                         MediaStore.Audio.Genres.Members._ID,
                         /* 1 */

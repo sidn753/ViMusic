@@ -702,18 +702,18 @@ public final class MusicUtils {
      * @param name The name of the artist.
      * @return The ID for an artist.
      */
-    public static final long getIdForArtist(final Context context, final String name) {
+    public static final String getIdForArtist(final Context context, final String name) {
         Cursor cursor = context.getContentResolver().query(
                 MediaStore.Audio.Artists.EXTERNAL_CONTENT_URI, new String[] {
                     BaseColumns._ID
                 }, ArtistColumns.ARTIST + "=?", new String[] {
                     name
                 }, ArtistColumns.ARTIST);
-        int id = -1;
+        String id = null;
         if (cursor != null) {
             cursor.moveToFirst();
             if (!cursor.isAfterLast()) {
-                id = cursor.getInt(0);
+                id = cursor.getString(0);
             }
             cursor.close();
             cursor = null;

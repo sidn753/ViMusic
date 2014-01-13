@@ -46,7 +46,7 @@ public class ArtistAlbumLoader extends WrappedAsyncTaskLoader<List<Album>> {
     /**
      * The Id of the artist the albums belong to.
      */
-    private final Long mArtistID;
+    private final String mArtistID;
 
     /**
      * Constructor of <code>ArtistAlbumHandler</code>
@@ -54,7 +54,7 @@ public class ArtistAlbumLoader extends WrappedAsyncTaskLoader<List<Album>> {
      * @param context The {@link Context} to use.
      * @param artistId The Id of the artist the albums belong to.
      */
-    public ArtistAlbumLoader(final Context context, final Long artistId) {
+    public ArtistAlbumLoader(final Context context, final String artistId) {
         super(context);
         mArtistID = artistId;
     }
@@ -103,9 +103,9 @@ public class ArtistAlbumLoader extends WrappedAsyncTaskLoader<List<Album>> {
      * @param context The {@link Context} to use.
      * @param artistId The Id of the artist the albums belong to.
      */
-    public static final Cursor makeArtistAlbumCursor(final Context context, final Long artistId) {
+    public static final Cursor makeArtistAlbumCursor(final Context context, final String artistId) {
         return context.getContentResolver().query(
-                MediaStore.Audio.Artists.Albums.getContentUri("external", artistId), new String[] {
+                MediaStore.Audio.Artists.Albums.getContentUri("external", Long.valueOf(artistId)), new String[] {
                         /* 0 */
                         BaseColumns._ID,
                         /* 1 */

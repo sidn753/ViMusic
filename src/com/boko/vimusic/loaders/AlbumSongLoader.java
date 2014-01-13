@@ -45,7 +45,7 @@ public class AlbumSongLoader extends WrappedAsyncTaskLoader<List<Song>> {
     /**
      * The Id of the album the songs belong to.
      */
-    private final Long mAlbumID;
+    private final String mAlbumID;
 
     /**
      * Constructor of <code>AlbumSongHandler</code>
@@ -53,7 +53,7 @@ public class AlbumSongLoader extends WrappedAsyncTaskLoader<List<Song>> {
      * @param context The {@link Context} to use.
      * @param albumId The Id of the album the songs belong to.
      */
-    public AlbumSongLoader(final Context context, final Long albumId) {
+    public AlbumSongLoader(final Context context, final String albumId) {
         super(context);
         mAlbumID = albumId;
     }
@@ -106,7 +106,7 @@ public class AlbumSongLoader extends WrappedAsyncTaskLoader<List<Song>> {
      * @param albumId The Id of the album the songs belong to.
      * @return The {@link Cursor} used to run the query.
      */
-    public static final Cursor makeAlbumSongCursor(final Context context, final Long albumId) {
+    public static final Cursor makeAlbumSongCursor(final Context context, final String albumId) {
         // Match the songs up with the artist
         final StringBuilder selection = new StringBuilder();
         selection.append(AudioColumns.IS_MUSIC + "=1");

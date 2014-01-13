@@ -288,7 +288,7 @@ public final class ApolloUtils {
      * @param context The {@link Context} to use to
      */
     public static void createShortcutIntent(final String displayName, final String artistName,
-            final Long id, final String mimeType, final Activity context) {
+            final String id, final String mimeType, final Activity context) {
         try {
             final ImageFetcher fetcher = getImageFetcher(context);
             Bitmap bitmap = null;
@@ -308,7 +308,9 @@ public final class ApolloUtils {
             shortcutIntent.setAction(Intent.ACTION_VIEW);
             shortcutIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             shortcutIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            shortcutIntent.putExtra(Config.ID, id);
+            if (id != null) {
+            	shortcutIntent.putExtra(Config.ID, id);
+            }
             shortcutIntent.putExtra(Config.NAME, displayName);
             shortcutIntent.putExtra(Config.MIME_TYPE, mimeType);
 

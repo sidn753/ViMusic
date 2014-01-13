@@ -237,7 +237,9 @@ public class PlaylistFragment extends Fragment implements LoaderCallbacks<List<P
             // User created
             playlistName = mPlaylist.getName();
             bundle.putString(Config.MIME_TYPE, MediaStore.Audio.Playlists.CONTENT_TYPE);
-            bundle.putString(Config.ID, mPlaylist.mPlaylistId);
+            if (mPlaylist.mPlaylistId != null) {
+            	bundle.putString(Config.ID, mPlaylist.mPlaylistId);	
+            }
         }
 
         bundle.putString(Config.NAME, playlistName);
