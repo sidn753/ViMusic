@@ -247,7 +247,7 @@ public class RecentFragment extends Fragment implements LoaderCallbacks<List<Alb
                     return true;
                 case FragmentMenuItems.REMOVE_FROM_RECENT:
                     mShouldRefresh = true;
-                    RecentStore.getInstance(getActivity()).removeAlbum(String.valueOf(mAlbum.mAlbumId), "");
+                    RecentStore.getInstance(getActivity()).removeAlbum(mAlbum.mAlbumId, "");
                     MusicUtils.refresh();
                     return true;
                 case FragmentMenuItems.DELETE:

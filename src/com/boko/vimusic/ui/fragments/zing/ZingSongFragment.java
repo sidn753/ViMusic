@@ -231,7 +231,7 @@ public class ZingSongFragment extends Fragment implements LoaderCallbacks<List<S
                     return true;
                 case FragmentMenuItems.ADD_TO_FAVORITES:
                     FavoritesStore.getInstance(getActivity()).addSong(
-                    		String.valueOf( mSelectedId), "", mSongName, mAlbumName, mArtistName);
+                    		mSelectedId, "", mSongName, mAlbumName, mArtistName);
                     return true;
                 case FragmentMenuItems.NEW_PLAYLIST:
                     CreateNewPlaylist.getInstance(new String[] {

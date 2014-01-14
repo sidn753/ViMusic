@@ -32,7 +32,7 @@ public class RenamePlaylist extends BasePlaylistDialog {
 
     private String mOriginalName;
 
-    private long mRenameId;
+    private String mRenameId;
 
     /**
      * @param id The Id of the playlist to rename
@@ -52,7 +52,7 @@ public class RenamePlaylist extends BasePlaylistDialog {
     @Override
     public void onSaveInstanceState(final Bundle outcicle) {
         outcicle.putString("defaultname", mPlaylist.getText().toString());
-        outcicle.putLong("rename", mRenameId);
+        outcicle.putString("rename", mRenameId);
     }
 
     /**
@@ -60,12 +60,12 @@ public class RenamePlaylist extends BasePlaylistDialog {
      */
     @Override
     public void initObjects(final Bundle savedInstanceState) {
-        mRenameId = savedInstanceState != null ? savedInstanceState.getLong("rename")
-                : getArguments().getLong("rename", -1);
+        mRenameId = savedInstanceState != null ? savedInstanceState.getString("rename")
+                : getArguments().getString("rename");
         mOriginalName = getPlaylistNameFromId(mRenameId);
         mDefaultname = savedInstanceState != null ? savedInstanceState.getString("defaultname")
                 : mOriginalName;
-        if (mRenameId < 0 || mOriginalName == null || mDefaultname == null) {
+        if (mRenameId != null || mOriginalName == null || mDefaultname == null) {
             getDialog().dismiss();
             return;
         }
@@ -85,7 +85,7 @@ public class RenamePlaylist extends BasePlaylistDialog {
             values.put(Audio.Playlists.NAME, Capitalize.capitalize(playlistName));
             resolver.update(Audio.Playlists.EXTERNAL_CONTENT_URI, values,
                     MediaStore.Audio.Playlists._ID + "=?", new String[] {
-                        String.valueOf(mRenameId)
+                        mRenameId
                     });
             closeKeyboard();
             getDialog().dismiss();
@@ -115,12 +115,12 @@ public class RenamePlaylist extends BasePlaylistDialog {
      * @param id The Id of the playlist
      * @return The name of the playlist
      */
-    private String getPlaylistNameFromId(final long id) {
+    private String getPlaylistNameFromId(final String id) {
         Cursor cursor = getActivity().getContentResolver().query(
                 MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI, new String[] {
                     MediaStore.Audio.Playlists.NAME
                 }, MediaStore.Audio.Playlists._ID + "=?", new String[] {
-                    String.valueOf(id)
+                    id
                 }, MediaStore.Audio.Playlists.NAME);
         String playlistName = null;
         if (cursor != null) {

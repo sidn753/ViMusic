@@ -397,7 +397,7 @@ public abstract class ImageWorker {
                     bitmapWorkerTask);
             imageView.setImageDrawable(asyncDrawable);
             ApolloUtils.execute(false, bitmapWorkerTask, key,
-                    artistName, albumName, String.valueOf(albumId));
+            		artistName, albumName, albumId);
         }
     }
 

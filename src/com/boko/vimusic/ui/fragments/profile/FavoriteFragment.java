@@ -261,7 +261,7 @@ public class FavoriteFragment extends Fragment implements LoaderCallbacks<List<S
                     MusicUtils.setRingtone(getActivity(), mSelectedId);
                     return true;
                 case FragmentMenuItems.REMOVE_FROM_FAVORITES:
-                    FavoritesStore.getInstance(getActivity()).removeSong(String.valueOf(mSelectedId), "");
+                    FavoritesStore.getInstance(getActivity()).removeSong(mSelectedId, "");
                     getLoaderManager().restartLoader(LOADER, null, this);
                     return true;
                 case FragmentMenuItems.DELETE:

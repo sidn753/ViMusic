@@ -249,18 +249,13 @@ public class Caller {
             IOException {
     	StringBuilder inputStringBuilder = new StringBuilder();
     	
-    	try {
-    		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
-            String line = bufferedReader.readLine();
-            while(line != null){
-            	inputStringBuilder.append(line);
-            	inputStringBuilder.append('\n');
-                line = bufferedReader.readLine();
-            }	
-    	} catch (NullPointerException e) {
-    		
-    	}
-        
+		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+        String line = bufferedReader.readLine();
+        while(line != null){
+        	inputStringBuilder.append(line);
+        	inputStringBuilder.append('\n');
+            line = bufferedReader.readLine();
+        }
     	
     	return new Result(inputStringBuilder.toString());
     }

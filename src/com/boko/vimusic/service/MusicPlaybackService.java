@@ -1312,12 +1312,12 @@ public class MusicPlaybackService extends Service {
 
         if (what.equals(META_CHANGED)) {
             // Increase the play count for favorite songs.
-            if (!mFavoritesCache.isFavoriteSong(String.valueOf(getAudioId()), "")) {
-                mFavoritesCache.addSong(String.valueOf(getAudioId()), "", getTrackName(), getAlbumName(),
+            if (!mFavoritesCache.isFavoriteSong(getAudioId(), "")) {
+                mFavoritesCache.addSong(getAudioId(), "", getTrackName(), getAlbumName(),
                         getArtistName());
             }
             // Add the track to the recently played list.
-            mRecentsCache.addAlbum(String.valueOf(getAlbumId()), "", getAlbumName(), getArtistName(),
+            mRecentsCache.addAlbum(getAlbumId(), "", getAlbumName(), getArtistName(),
                     MusicUtils.getSongCountForAlbum(this, getAlbumId()),
                     MusicUtils.getReleaseDateForAlbum(this, getAlbumId()));
         } else if (what.equals(QUEUE_CHANGED)) {
@@ -1861,7 +1861,7 @@ public class MusicPlaybackService extends Service {
     public boolean isFavorite() {
         if (mFavoritesCache != null) {
             synchronized (this) {
-            	return mFavoritesCache.isFavoriteSong(String.valueOf(getAudioId()), "");
+            	return mFavoritesCache.isFavoriteSong(getAudioId(), "");
             }
         }
         return false;
@@ -2041,7 +2041,7 @@ public class MusicPlaybackService extends Service {
     public void toggleFavorite() {
         if (mFavoritesCache != null) {
             synchronized (this) {
-                mFavoritesCache.toggleSong(String.valueOf(getAudioId()), "", getTrackName(), getAlbumName(),
+                mFavoritesCache.toggleSong(getAudioId(), "", getTrackName(), getAlbumName(),
                         getArtistName());
             }
         }

@@ -1297,9 +1297,9 @@ public final class MusicUtils {
                 final String id = c.getString(0);
                 removeTrack(id);
                 // Remove from the favorites playlist
-                FavoritesStore.getInstance(context).removeSong(String.valueOf(id), "");
+                FavoritesStore.getInstance(context).removeSong(id, "");
                 // Remove any items in the recents database
-                RecentStore.getInstance(context).removeAlbum(String.valueOf(c.getLong(2)), "");
+                RecentStore.getInstance(context).removeAlbum(c.getString(2), "");
                 c.moveToNext();
             }
 
