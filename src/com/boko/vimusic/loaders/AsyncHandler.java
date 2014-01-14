@@ -20,24 +20,26 @@ import android.os.HandlerThread;
  */
 public final class AsyncHandler {
 
-    private static final HandlerThread sHandlerThread = new HandlerThread("AsyncHandler");
+	private static final HandlerThread sHandlerThread = new HandlerThread(
+			"AsyncHandler");
 
-    private static final Handler sHandler;
+	private static final Handler sHandler;
 
-    static {
-        sHandlerThread.start();
-        sHandler = new Handler(sHandlerThread.getLooper());
-    }
+	static {
+		sHandlerThread.start();
+		sHandler = new Handler(sHandlerThread.getLooper());
+	}
 
-    /* This class is never initiated */
-    private AsyncHandler() {
-    }
+	/* This class is never initiated */
+	private AsyncHandler() {
+	}
 
-    /**
-     * @param r The {@link Runnable} to execute.
-     */
-    public static void post(final Runnable r) {
-        sHandler.post(r);
-    }
+	/**
+	 * @param r
+	 *            The {@link Runnable} to execute.
+	 */
+	public static void post(final Runnable r) {
+		sHandler.post(r);
+	}
 
 }

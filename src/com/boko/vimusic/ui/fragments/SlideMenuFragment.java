@@ -15,7 +15,7 @@ import android.widget.TextView;
 import com.boko.vimusic.R;
 
 public class SlideMenuFragment extends ListFragment {
-	
+
 	private int itemHeaderColor;
 	private ListAdapter adapter;
 
@@ -38,7 +38,7 @@ public class SlideMenuFragment extends ListFragment {
 		public static final int TYPE_GROUP = 1;
 		public static final int TYPE_ITEM = 2;
 		public static final int TYPE_BUTTON_ITEM = 3;
-		
+
 		public MenuItem(String text, String buttonText, int iconRes, int type) {
 			super();
 			this.text = text;
@@ -46,17 +46,20 @@ public class SlideMenuFragment extends ListFragment {
 			this.iconRes = iconRes;
 			this.type = type;
 		}
+
 		public MenuItem(String text, int iconRes, int type) {
 			super();
 			this.text = text;
 			this.iconRes = iconRes;
 			this.type = type;
 		}
+
 		public MenuItem(String text, int type) {
 			super();
 			this.text = text;
 			this.type = type;
 		}
+
 		public MenuItem(int iconRes, int type) {
 			super();
 			this.iconRes = iconRes;
@@ -76,7 +79,7 @@ public class SlideMenuFragment extends ListFragment {
 						R.layout.slidingmenu_row, null);
 			}
 			MenuItem item = getItem(position);
-			
+
 			ImageView header = (ImageView) convertView
 					.findViewById(R.id.slidingmenu_row_header);
 			ImageView icon = (ImageView) convertView
@@ -85,7 +88,7 @@ public class SlideMenuFragment extends ListFragment {
 					.findViewById(R.id.slidingmenu_row_title);
 			Button button = (Button) convertView
 					.findViewById(R.id.slidingmenu_row_button);
-			
+
 			switch (item.type) {
 			case MenuItem.TYPE_HEADER:
 				header.setVisibility(View.GONE);
@@ -121,7 +124,7 @@ public class SlideMenuFragment extends ListFragment {
 	public void setItemHeaderColor(int itemHeaderColor) {
 		this.itemHeaderColor = itemHeaderColor;
 	}
-	
+
 	public void setListAdapter(ListAdapter adapter) {
 		this.adapter = adapter;
 	}

@@ -29,80 +29,82 @@ import java.util.List;
  */
 public class FavoritesLoader extends WrappedAsyncTaskLoader<List<Song>> {
 
-    /**
-     * The result
-     */
-    private final ArrayList<Song> mSongList = Lists.newArrayList();
+	/**
+	 * The result
+	 */
+	private final ArrayList<Song> mSongList = Lists.newArrayList();
 
-    /**
-     * The {@link Cursor} used to run the query.
-     */
-    private Cursor mCursor;
+	/**
+	 * The {@link Cursor} used to run the query.
+	 */
+	private Cursor mCursor;
 
-    /**
-     * Constructor of <code>FavoritesHandler</code>
-     * 
-     * @param context The {@link Context} to use.
-     */
-    public FavoritesLoader(final Context context) {
-        super(context);
-    }
+	/**
+	 * Constructor of <code>FavoritesHandler</code>
+	 * 
+	 * @param context
+	 *            The {@link Context} to use.
+	 */
+	public FavoritesLoader(final Context context) {
+		super(context);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<Song> loadInBackground() {
-        // Create the Cursor
-        mCursor = makeFavoritesCursor(getContext());
-        // Gather the data
-        if (mCursor != null && mCursor.moveToFirst()) {
-            do {
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Song> loadInBackground() {
+		// Create the Cursor
+		mCursor = makeFavoritesCursor(getContext());
+		// Gather the data
+		if (mCursor != null && mCursor.moveToFirst()) {
+			do {
 
-                // Copy the song Id
-                final String id = mCursor.getString(mCursor
-                        .getColumnIndexOrThrow(FavoritesTable.SID));
+				// Copy the song Id
+				final String id = mCursor.getString(mCursor
+						.getColumnIndexOrThrow(FavoritesTable.SID));
 
-                // Copy the song name
-                final String songName = mCursor.getString(mCursor
-                        .getColumnIndexOrThrow(FavoritesTable.NAME));
+				// Copy the song name
+				final String songName = mCursor.getString(mCursor
+						.getColumnIndexOrThrow(FavoritesTable.NAME));
 
-                // Copy the artist name
-                final String artist = mCursor.getString(mCursor
-                        .getColumnIndexOrThrow(FavoritesTable.ARTIST));
+				// Copy the artist name
+				final String artist = mCursor.getString(mCursor
+						.getColumnIndexOrThrow(FavoritesTable.ARTIST));
 
-                // Copy the album name
-                final String album = mCursor.getString(mCursor
-                        .getColumnIndexOrThrow(FavoritesTable.ALBUM));
+				// Copy the album name
+				final String album = mCursor.getString(mCursor
+						.getColumnIndexOrThrow(FavoritesTable.ALBUM));
 
-                // Create a new song
-                final Song song = new Song(id, songName, artist, album, -1);
+				// Create a new song
+				final Song song = new Song(id, songName, artist, album, -1);
 
-                // Add everything up
-                mSongList.add(song);
-            } while (mCursor.moveToNext());
-        }
-        // Close the cursor
-        if (mCursor != null) {
-            mCursor.close();
-            mCursor = null;
-        }
-        return mSongList;
-    }
+				// Add everything up
+				mSongList.add(song);
+			} while (mCursor.moveToNext());
+		}
+		// Close the cursor
+		if (mCursor != null) {
+			mCursor.close();
+			mCursor = null;
+		}
+		return mSongList;
+	}
 
-    /**
-     * @param context The {@link Context} to use.
-     * @return The {@link Cursor} used to run the favorites query.
-     */
-    public static final Cursor makeFavoritesCursor(final Context context) {
-        return FavoritesStore
-                .getInstance(context)
-                .getReadableDatabase()
-                .query(FavoritesTable.TABLE_NAME,
-                        new String[] {
-                		FavoritesTable.SID + " as _id", FavoritesTable.SID,
-                		FavoritesTable.NAME, FavoritesTable.ALBUM,
-                		FavoritesTable.ARTIST, FavoritesTable.PLAY_COUNT
-                        }, null, null, null, null, FavoritesTable.PLAY_COUNT + " DESC");
-    }
+	/**
+	 * @param context
+	 *            The {@link Context} to use.
+	 * @return The {@link Cursor} used to run the favorites query.
+	 */
+	public static final Cursor makeFavoritesCursor(final Context context) {
+		return FavoritesStore
+				.getInstance(context)
+				.getReadableDatabase()
+				.query(FavoritesTable.TABLE_NAME,
+						new String[] { FavoritesTable.SID + " as _id",
+								FavoritesTable.SID, FavoritesTable.NAME,
+								FavoritesTable.ALBUM, FavoritesTable.ARTIST,
+								FavoritesTable.PLAY_COUNT }, null, null, null,
+						null, FavoritesTable.PLAY_COUNT + " DESC");
+	}
 }

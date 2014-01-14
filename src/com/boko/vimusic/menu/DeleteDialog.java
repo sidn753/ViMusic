@@ -35,80 +35,88 @@ import com.boko.vimusic.utils.MusicUtils;
  */
 public class DeleteDialog extends DialogFragment {
 
-    public interface DeleteDialogCallback {
-        public void onDelete(Song[] id);
-    }
+	public interface DeleteDialogCallback {
+		public void onDelete(Song[] id);
+	}
 
-    /**
-     * The item(s) to delete
-     */
-    private Song[] mItemList;
+	/**
+	 * The item(s) to delete
+	 */
+	private Song[] mItemList;
 
-    /**
-     * The image cache
-     */
-    private ImageFetcher mFetcher;
+	/**
+	 * The image cache
+	 */
+	private ImageFetcher mFetcher;
 
-    /**
-     * Empty constructor as per the {@link Fragment} documentation
-     */
-    public DeleteDialog() {
-    }
+	/**
+	 * Empty constructor as per the {@link Fragment} documentation
+	 */
+	public DeleteDialog() {
+	}
 
-    /**
-     * @param title The title of the artist, album, or song to delete
-     * @param items The item(s) to delete
-     * @param key The key used to remove items from the cache.
-     * @return A new instance of the dialog
-     */
-    public static DeleteDialog newInstance(final String title, final Song[] items, final String key) {
-        final DeleteDialog frag = new DeleteDialog();
-        final Bundle args = new Bundle();
-        args.putString(Config.NAME, title);
-        args.putSerializable("items", items);
-        args.putString("cachekey", key);
-        frag.setArguments(args);
-        return frag;
-    }
+	/**
+	 * @param title
+	 *            The title of the artist, album, or song to delete
+	 * @param items
+	 *            The item(s) to delete
+	 * @param key
+	 *            The key used to remove items from the cache.
+	 * @return A new instance of the dialog
+	 */
+	public static DeleteDialog newInstance(final String title,
+			final Song[] items, final String key) {
+		final DeleteDialog frag = new DeleteDialog();
+		final Bundle args = new Bundle();
+		args.putString(Config.NAME, title);
+		args.putSerializable("items", items);
+		args.putString("cachekey", key);
+		frag.setArguments(args);
+		return frag;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        final String delete = getString(R.string.context_menu_delete);
-        final Bundle arguments = getArguments();
-        // Get the image cache key
-        final String key = arguments.getString("cachekey");
-        // Get the track(s) to delete
-        mItemList = (Song[]) arguments.getSerializable("items");
-        // Get the dialog title
-        final String title = arguments.getString(Config.NAME);
-        final String dialogTitle = getString(R.string.delete_dialog_title, title);
-        // Initialize the image cache
-        mFetcher = ApolloUtils.getImageFetcher(getActivity());
-        // Build the dialog
-        return new AlertDialog.Builder(getActivity()).setTitle(dialogTitle)
-                .setMessage(R.string.cannot_be_undone)
-                .setPositiveButton(delete, new OnClickListener() {
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Dialog onCreateDialog(final Bundle savedInstanceState) {
+		final String delete = getString(R.string.context_menu_delete);
+		final Bundle arguments = getArguments();
+		// Get the image cache key
+		final String key = arguments.getString("cachekey");
+		// Get the track(s) to delete
+		mItemList = (Song[]) arguments.getSerializable("items");
+		// Get the dialog title
+		final String title = arguments.getString(Config.NAME);
+		final String dialogTitle = getString(R.string.delete_dialog_title,
+				title);
+		// Initialize the image cache
+		mFetcher = ApolloUtils.getImageFetcher(getActivity());
+		// Build the dialog
+		return new AlertDialog.Builder(getActivity()).setTitle(dialogTitle)
+				.setMessage(R.string.cannot_be_undone)
+				.setPositiveButton(delete, new OnClickListener() {
 
-                    @Override
-                    public void onClick(final DialogInterface dialog, final int which) {
-                        // Remove the items from the image cache
-                        mFetcher.removeFromCache(key);
-                        // Delete the selected item(s)
-                        MusicUtils.deleteTracks(getActivity(), mItemList);
-                        if (getActivity() instanceof DeleteDialogCallback) {
-                            ((DeleteDialogCallback)getActivity()).onDelete(mItemList);
-                        }
-                        dialog.dismiss();
-                    }
-                }).setNegativeButton(R.string.cancel, new OnClickListener() {
+					@Override
+					public void onClick(final DialogInterface dialog,
+							final int which) {
+						// Remove the items from the image cache
+						mFetcher.removeFromCache(key);
+						// Delete the selected item(s)
+						MusicUtils.deleteTracks(getActivity(), mItemList);
+						if (getActivity() instanceof DeleteDialogCallback) {
+							((DeleteDialogCallback) getActivity())
+									.onDelete(mItemList);
+						}
+						dialog.dismiss();
+					}
+				}).setNegativeButton(R.string.cancel, new OnClickListener() {
 
-                    @Override
-                    public void onClick(final DialogInterface dialog, final int which) {
-                        dialog.dismiss();
-                    }
-                }).create();
-    }
+					@Override
+					public void onClick(final DialogInterface dialog,
+							final int which) {
+						dialog.dismiss();
+					}
+				}).create();
+	}
 }

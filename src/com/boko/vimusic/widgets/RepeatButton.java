@@ -31,86 +31,92 @@ import com.boko.vimusic.widgets.theme.HoloSelector;
  * 
  * @author Andrew Neal (andrewdneal@gmail.com)
  */
-public class RepeatButton extends ImageButton implements OnClickListener, OnLongClickListener {
+public class RepeatButton extends ImageButton implements OnClickListener,
+		OnLongClickListener {
 
-    /**
-     * Repeat one theme resource
-     */
-    private static final String REPEAT_ALL = "btn_playback_repeat_all";
+	/**
+	 * Repeat one theme resource
+	 */
+	private static final String REPEAT_ALL = "btn_playback_repeat_all";
 
-    /**
-     * Repeat one theme resource
-     */
-    private static final String REPEAT_CURRENT = "btn_playback_repeat_one";
+	/**
+	 * Repeat one theme resource
+	 */
+	private static final String REPEAT_CURRENT = "btn_playback_repeat_one";
 
-    /**
-     * Repeat one theme resource
-     */
-    private static final String REPEAT_NONE = "btn_playback_repeat";
+	/**
+	 * Repeat one theme resource
+	 */
+	private static final String REPEAT_NONE = "btn_playback_repeat";
 
-    /**
-     * The resources to use.
-     */
-    private final ThemeUtils mResources;
+	/**
+	 * The resources to use.
+	 */
+	private final ThemeUtils mResources;
 
-    /**
-     * @param context The {@link Context} to use
-     * @param attrs The attributes of the XML tag that is inflating the view.
-     */
-    @SuppressWarnings("deprecation")
-    public RepeatButton(final Context context, final AttributeSet attrs) {
-        super(context, attrs);
-        // Initialze the theme resources
-        mResources = new ThemeUtils(context);
-        // Set the selector
-        setBackgroundDrawable(new HoloSelector(context));
-        // Control playback (cycle repeat modes)
-        setOnClickListener(this);
-        // Show the cheat sheet
-        setOnLongClickListener(this);
-    }
+	/**
+	 * @param context
+	 *            The {@link Context} to use
+	 * @param attrs
+	 *            The attributes of the XML tag that is inflating the view.
+	 */
+	@SuppressWarnings("deprecation")
+	public RepeatButton(final Context context, final AttributeSet attrs) {
+		super(context, attrs);
+		// Initialze the theme resources
+		mResources = new ThemeUtils(context);
+		// Set the selector
+		setBackgroundDrawable(new HoloSelector(context));
+		// Control playback (cycle repeat modes)
+		setOnClickListener(this);
+		// Show the cheat sheet
+		setOnLongClickListener(this);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onClick(final View v) {
-        MusicUtils.cycleRepeat();
-        updateRepeatState();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void onClick(final View v) {
+		MusicUtils.cycleRepeat();
+		updateRepeatState();
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean onLongClick(final View view) {
-        if (TextUtils.isEmpty(view.getContentDescription())) {
-            return false;
-        } else {
-            ApolloUtils.showCheatSheet(view);
-            return true;
-        }
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean onLongClick(final View view) {
+		if (TextUtils.isEmpty(view.getContentDescription())) {
+			return false;
+		} else {
+			ApolloUtils.showCheatSheet(view);
+			return true;
+		}
+	}
 
-    /**
-     * Sets the correct drawable for the repeat state.
-     */
-    public void updateRepeatState() {
-        switch (MusicUtils.getRepeatMode()) {
-            case MusicPlaybackService.REPEAT_ALL:
-                setContentDescription(getResources().getString(R.string.accessibility_repeat_all));
-                setImageDrawable(mResources.getDrawable(REPEAT_ALL));
-                break;
-            case MusicPlaybackService.REPEAT_CURRENT:
-                setContentDescription(getResources().getString(R.string.accessibility_repeat_one));
-                setImageDrawable(mResources.getDrawable(REPEAT_CURRENT));
-                break;
-            case MusicPlaybackService.REPEAT_NONE:
-                setContentDescription(getResources().getString(R.string.accessibility_repeat));
-                setImageDrawable(mResources.getDrawable(REPEAT_NONE));
-                break;
-            default:
-                break;
-        }
-    }
+	/**
+	 * Sets the correct drawable for the repeat state.
+	 */
+	public void updateRepeatState() {
+		switch (MusicUtils.getRepeatMode()) {
+		case MusicPlaybackService.REPEAT_ALL:
+			setContentDescription(getResources().getString(
+					R.string.accessibility_repeat_all));
+			setImageDrawable(mResources.getDrawable(REPEAT_ALL));
+			break;
+		case MusicPlaybackService.REPEAT_CURRENT:
+			setContentDescription(getResources().getString(
+					R.string.accessibility_repeat_one));
+			setImageDrawable(mResources.getDrawable(REPEAT_CURRENT));
+			break;
+		case MusicPlaybackService.REPEAT_NONE:
+			setContentDescription(getResources().getString(
+					R.string.accessibility_repeat));
+			setImageDrawable(mResources.getDrawable(REPEAT_NONE));
+			break;
+		default:
+			break;
+		}
+	}
 }

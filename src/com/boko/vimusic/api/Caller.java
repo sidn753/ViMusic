@@ -58,240 +58,252 @@ import android.content.Context;
  */
 public class Caller {
 
-    private static Caller mInstance = null;
+	private static Caller mInstance = null;
 
-    private Result lastResult;
+	private Result lastResult;
 
-    /**
-     * @param context The {@link Context} to use
-     */
-    private Caller(final Context context) {
-    }
+	/**
+	 * @param context
+	 *            The {@link Context} to use
+	 */
+	private Caller(final Context context) {
+	}
 
-    /**
-     * @param context The {@link Context} to use
-     * @return A new instance of this class
-     */
-    public final static synchronized Caller getInstance(final Context context) {
-        if (mInstance == null) {
-            mInstance = new Caller(context.getApplicationContext());
-        }
-        return mInstance;
-    }
-    
-    /**
-     * @param method
-     * @param apiKey
-     * @param params
-     * @return
-     * @throws CallException
-     */
-    public Result call(final String apiUrl) {
-        InputStream inputStream = null;
+	/**
+	 * @param context
+	 *            The {@link Context} to use
+	 * @return A new instance of this class
+	 */
+	public final static synchronized Caller getInstance(final Context context) {
+		if (mInstance == null) {
+			mInstance = new Caller(context.getApplicationContext());
+		}
+		return mInstance;
+	}
 
-        // no entry in cache, load from web
-        if (inputStream == null) {
-            try {
-                final HttpURLConnection urlConnection = openGetConnection(apiUrl);
-                inputStream = getInputStreamFromConnection(urlConnection);
-                
-                if ("gzip".equals(urlConnection.getContentEncoding())) {
-                	inputStream = new GZIPInputStream(inputStream);
-                }
-                if (inputStream == null) {
-                    lastResult = new Result(null);
-                    return lastResult;
-                }
-            } catch (final IOException ignored) {
-            }
-        }
+	/**
+	 * @param method
+	 * @param apiKey
+	 * @param params
+	 * @return
+	 * @throws CallException
+	 */
+	public Result call(final String apiUrl) {
+		InputStream inputStream = null;
 
-        try {
-            final Result result = createResultFromInputStream(inputStream);
-            lastResult = result;
-            return result;
-        } catch (final IOException ignored) {
-        } catch (final SAXException ignored) {
-        }
-        return null;
-    }
+		// no entry in cache, load from web
+		if (inputStream == null) {
+			try {
+				final HttpURLConnection urlConnection = openGetConnection(apiUrl);
+				inputStream = getInputStreamFromConnection(urlConnection);
 
-    /**
-     * @param method
-     * @param apiKey
-     * @param params
-     * @return
-     * @throws CallException
-     */
-    public Result call(final String apiUrl, final String... params) {
-        return call(apiUrl, map(params));
-    }
+				if ("gzip".equals(urlConnection.getContentEncoding())) {
+					inputStream = new GZIPInputStream(inputStream);
+				}
+				if (inputStream == null) {
+					lastResult = new Result(null);
+					return lastResult;
+				}
+			} catch (final IOException ignored) {
+			}
+		}
 
-    /**
-     * Performs the web-service call. If the <code>session</code> parameter is
-     * <code>non-null</code> then an authenticated call is made. If it's
-     * <code>null</code> then an unauthenticated call is made.<br/>
-     * The <code>apiKey</code> parameter is always required, even when a valid
-     * session is passed to this method.
-     * 
-     * @param method The method to call
-     * @param apiKey A Last.fm API key
-     * @param params Parameters
-     * @param session A Session instance or <code>null</code>
-     * @return the result of the operation
-     */
-    public Result call(final String apiUrl, Map<String, String> params) {
-        params = new WeakHashMap<String, String>(params);
-        InputStream inputStream = null;
+		try {
+			final Result result = createResultFromInputStream(inputStream);
+			lastResult = result;
+			return result;
+		} catch (final IOException ignored) {
+		} catch (final SAXException ignored) {
+		}
+		return null;
+	}
 
-        // no entry in cache, load from web
-        if (inputStream == null) {
-            try {
-                final HttpURLConnection urlConnection = openPostConnection(apiUrl, params);
-                inputStream = getInputStreamFromConnection(urlConnection);
+	/**
+	 * @param method
+	 * @param apiKey
+	 * @param params
+	 * @return
+	 * @throws CallException
+	 */
+	public Result call(final String apiUrl, final String... params) {
+		return call(apiUrl, map(params));
+	}
 
-                if ("gzip".equals(urlConnection.getContentEncoding())) {
-                	inputStream = new GZIPInputStream(inputStream);
-                }
-                if (inputStream == null) {
-                    lastResult = new Result(null);
-                    return lastResult;
-                }
-            } catch (final IOException ignored) {
-            }
-        }
+	/**
+	 * Performs the web-service call. If the <code>session</code> parameter is
+	 * <code>non-null</code> then an authenticated call is made. If it's
+	 * <code>null</code> then an unauthenticated call is made.<br/>
+	 * The <code>apiKey</code> parameter is always required, even when a valid
+	 * session is passed to this method.
+	 * 
+	 * @param method
+	 *            The method to call
+	 * @param apiKey
+	 *            A Last.fm API key
+	 * @param params
+	 *            Parameters
+	 * @param session
+	 *            A Session instance or <code>null</code>
+	 * @return the result of the operation
+	 */
+	public Result call(final String apiUrl, Map<String, String> params) {
+		params = new WeakHashMap<String, String>(params);
+		InputStream inputStream = null;
 
-        try {
-            final Result result = createResultFromInputStream(inputStream);
-            lastResult = result;
-            return result;
-        } catch (final IOException ignored) {
-        } catch (final SAXException ignored) {
-        }
-        return null;
-    }
+		// no entry in cache, load from web
+		if (inputStream == null) {
+			try {
+				final HttpURLConnection urlConnection = openPostConnection(
+						apiUrl, params);
+				inputStream = getInputStreamFromConnection(urlConnection);
 
-    /**
-     * Creates a new {@link HttpURLConnection}, sets the proxy, if available,
-     * and sets the User-Agent property.
-     * 
-     * @param url URL to connect to
-     * @return a new connection.
-     * @throws IOException if an I/O exception occurs.
-     */
-    public HttpURLConnection openConnection(final String url) throws IOException {
-        final URL u = new URL(url);
-        HttpURLConnection urlConnection;
-        urlConnection = (HttpURLConnection)u.openConnection();
-        urlConnection.setUseCaches(true);
-        return urlConnection;
-    }
+				if ("gzip".equals(urlConnection.getContentEncoding())) {
+					inputStream = new GZIPInputStream(inputStream);
+				}
+				if (inputStream == null) {
+					lastResult = new Result(null);
+					return lastResult;
+				}
+			} catch (final IOException ignored) {
+			}
+		}
 
-    /**
-     * @param method
-     * @param params
-     * @return
-     * @throws IOException
-     */
-    private HttpURLConnection openPostConnection(final String apiUrl,
-            final Map<String, String> params) throws IOException {
-        final HttpURLConnection urlConnection = openConnection(apiUrl);
-        urlConnection.setRequestMethod("POST");
-        urlConnection.setDoOutput(true);
-        urlConnection.setUseCaches(true);
-        final OutputStream outputStream = urlConnection.getOutputStream();
-        final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
-        final String post = buildPostBody(params);
-        writer.write(post);
-        writer.close();
-        return urlConnection;
-    }
-    
-    /**
-     * @param method
-     * @param params
-     * @return
-     * @throws IOException
-     */
-    private HttpURLConnection openGetConnection(final String apiUrl) throws IOException {
-        final HttpURLConnection urlConnection = openConnection(apiUrl);
-        urlConnection.setRequestMethod("GET");
-        urlConnection.setUseCaches(true);
-        return urlConnection;
-    }
+		try {
+			final Result result = createResultFromInputStream(inputStream);
+			lastResult = result;
+			return result;
+		} catch (final IOException ignored) {
+		} catch (final SAXException ignored) {
+		}
+		return null;
+	}
 
-    /**
-     * @param connection
-     * @return
-     * @throws IOException
-     */
-    private InputStream getInputStreamFromConnection(final HttpURLConnection connection)
-            throws IOException {
-        final int responseCode = connection.getResponseCode();
+	/**
+	 * Creates a new {@link HttpURLConnection}, sets the proxy, if available,
+	 * and sets the User-Agent property.
+	 * 
+	 * @param url
+	 *            URL to connect to
+	 * @return a new connection.
+	 * @throws IOException
+	 *             if an I/O exception occurs.
+	 */
+	public HttpURLConnection openConnection(final String url)
+			throws IOException {
+		final URL u = new URL(url);
+		HttpURLConnection urlConnection;
+		urlConnection = (HttpURLConnection) u.openConnection();
+		urlConnection.setUseCaches(true);
+		return urlConnection;
+	}
 
-        if (responseCode == HttpURLConnection.HTTP_FORBIDDEN
-                || responseCode == HttpURLConnection.HTTP_BAD_REQUEST) {
-            return connection.getErrorStream();
-        } else if (responseCode == HttpURLConnection.HTTP_OK) {
-            return connection.getInputStream();
-        }
+	/**
+	 * @param method
+	 * @param params
+	 * @return
+	 * @throws IOException
+	 */
+	private HttpURLConnection openPostConnection(final String apiUrl,
+			final Map<String, String> params) throws IOException {
+		final HttpURLConnection urlConnection = openConnection(apiUrl);
+		urlConnection.setRequestMethod("POST");
+		urlConnection.setDoOutput(true);
+		urlConnection.setUseCaches(true);
+		final OutputStream outputStream = urlConnection.getOutputStream();
+		final BufferedWriter writer = new BufferedWriter(
+				new OutputStreamWriter(outputStream));
+		final String post = buildPostBody(params);
+		writer.write(post);
+		writer.close();
+		return urlConnection;
+	}
 
-        return null;
-    }
+	/**
+	 * @param method
+	 * @param params
+	 * @return
+	 * @throws IOException
+	 */
+	private HttpURLConnection openGetConnection(final String apiUrl)
+			throws IOException {
+		final HttpURLConnection urlConnection = openConnection(apiUrl);
+		urlConnection.setRequestMethod("GET");
+		urlConnection.setUseCaches(true);
+		return urlConnection;
+	}
 
-    /**
-     * @param inputStream
-     * @return
-     * @throws SAXException
-     * @throws IOException
-     */
-    private Result createResultFromInputStream(final InputStream inputStream) throws SAXException,
-            IOException {
-    	StringBuilder inputStringBuilder = new StringBuilder();
-    	
-		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
-        String line = bufferedReader.readLine();
-        while(line != null){
-        	inputStringBuilder.append(line);
-        	inputStringBuilder.append('\n');
-            line = bufferedReader.readLine();
-        }
-    	
-    	return new Result(inputStringBuilder.toString());
-    }
+	/**
+	 * @param connection
+	 * @return
+	 * @throws IOException
+	 */
+	private InputStream getInputStreamFromConnection(
+			final HttpURLConnection connection) throws IOException {
+		final int responseCode = connection.getResponseCode();
 
+		if (responseCode == HttpURLConnection.HTTP_FORBIDDEN
+				|| responseCode == HttpURLConnection.HTTP_BAD_REQUEST) {
+			return connection.getErrorStream();
+		} else if (responseCode == HttpURLConnection.HTTP_OK) {
+			return connection.getInputStream();
+		}
 
+		return null;
+	}
 
-    /**
-     * @param method
-     * @param params
-     * @param strings
-     * @return
-     */
-    private String buildPostBody(final Map<String, String> params,
-            final String... strings) {
-        final StringBuilder builder = new StringBuilder(100);
-        for (final Iterator<Entry<String, String>> it = params.entrySet().iterator(); it.hasNext();) {
-            final Entry<String, String> entry = it.next();
-            builder.append(entry.getKey());
-            builder.append('=');
-            builder.append(encode(entry.getValue()));
-            if (it.hasNext() || strings.length > 0) {
-                builder.append('&');
-            }
-        }
-        int count = 0;
-        for (final String string : strings) {
-            builder.append(count % 2 == 0 ? string : encode(string));
-            count++;
-            if (count != strings.length) {
-                if (count % 2 == 0) {
-                    builder.append('&');
-                } else {
-                    builder.append('=');
-                }
-            }
-        }
-        return builder.toString();
-    }
+	/**
+	 * @param inputStream
+	 * @return
+	 * @throws SAXException
+	 * @throws IOException
+	 */
+	private Result createResultFromInputStream(final InputStream inputStream)
+			throws SAXException, IOException {
+		StringBuilder inputStringBuilder = new StringBuilder();
+
+		BufferedReader bufferedReader = new BufferedReader(
+				new InputStreamReader(inputStream, "UTF-8"));
+		String line = bufferedReader.readLine();
+		while (line != null) {
+			inputStringBuilder.append(line);
+			inputStringBuilder.append('\n');
+			line = bufferedReader.readLine();
+		}
+
+		return new Result(inputStringBuilder.toString());
+	}
+
+	/**
+	 * @param method
+	 * @param params
+	 * @param strings
+	 * @return
+	 */
+	private String buildPostBody(final Map<String, String> params,
+			final String... strings) {
+		final StringBuilder builder = new StringBuilder(100);
+		for (final Iterator<Entry<String, String>> it = params.entrySet()
+				.iterator(); it.hasNext();) {
+			final Entry<String, String> entry = it.next();
+			builder.append(entry.getKey());
+			builder.append('=');
+			builder.append(encode(entry.getValue()));
+			if (it.hasNext() || strings.length > 0) {
+				builder.append('&');
+			}
+		}
+		int count = 0;
+		for (final String string : strings) {
+			builder.append(count % 2 == 0 ? string : encode(string));
+			count++;
+			if (count != strings.length) {
+				if (count % 2 == 0) {
+					builder.append('&');
+				} else {
+					builder.append('=');
+				}
+			}
+		}
+		return builder.toString();
+	}
 }

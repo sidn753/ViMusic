@@ -26,22 +26,24 @@ import com.boko.vimusic.utils.ThemeUtils;
  */
 public class ThemeableFrameLayout extends FrameLayout {
 
-    /**
-     * Used to set the background
-     */
-    public static final String BACKGROUND = "pager_background";
+	/**
+	 * Used to set the background
+	 */
+	public static final String BACKGROUND = "pager_background";
 
-    /**
-     * @param context The {@link Context} to use
-     * @param attrs The attributes of the XML tag that is inflating the view.
-     */
-    @SuppressWarnings("deprecation")
-    public ThemeableFrameLayout(final Context context, final AttributeSet attrs) {
-        super(context, attrs);
-        // Initialze the theme resources
-        final ThemeUtils resources = new ThemeUtils(context);
-        // Theme the layout
-        setBackgroundDrawable(resources.getDrawable(BACKGROUND));
-    }
+	/**
+	 * @param context
+	 *            The {@link Context} to use
+	 * @param attrs
+	 *            The attributes of the XML tag that is inflating the view.
+	 */
+	@SuppressWarnings("deprecation")
+	public ThemeableFrameLayout(final Context context, final AttributeSet attrs) {
+		super(context, attrs);
+		// Initialze the theme resources
+		final ThemeUtils resources = new ThemeUtils(context);
+		// Theme the layout
+		setBackgroundDrawable(resources.getDrawable(BACKGROUND));
+	}
 
 }

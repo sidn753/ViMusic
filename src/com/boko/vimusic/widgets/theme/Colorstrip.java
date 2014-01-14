@@ -25,20 +25,22 @@ import com.boko.vimusic.utils.ThemeUtils;
  */
 public class Colorstrip extends View {
 
-    /**
-     * Resource name used to theme the colorstrip
-     */
-    private static final String COLORSTRIP = "colorstrip";
+	/**
+	 * Resource name used to theme the colorstrip
+	 */
+	private static final String COLORSTRIP = "colorstrip";
 
-    /**
-     * @param context The {@link Context} to use
-     * @param attrs The attributes of the XML tag that is inflating the view.
-     */
-    public Colorstrip(final Context context, final AttributeSet attrs) {
-        super(context, attrs);
-        // Initialze the theme resources
-        final ThemeUtils resources = new ThemeUtils(context);
-        // Theme the colorstrip
-        setBackgroundColor(resources.getColor(COLORSTRIP));
-    }
+	/**
+	 * @param context
+	 *            The {@link Context} to use
+	 * @param attrs
+	 *            The attributes of the XML tag that is inflating the view.
+	 */
+	public Colorstrip(final Context context, final AttributeSet attrs) {
+		super(context, attrs);
+		// Initialze the theme resources
+		final ThemeUtils resources = new ThemeUtils(context);
+		// Theme the colorstrip
+		setBackgroundColor(resources.getColor(COLORSTRIP));
+	}
 }

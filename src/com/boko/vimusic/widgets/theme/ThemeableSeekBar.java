@@ -22,21 +22,23 @@ import com.boko.vimusic.utils.ThemeUtils;
  */
 public class ThemeableSeekBar extends SeekBar {
 
-    /**
-     * Used to set the progess bar
-     */
-    public static final String PROGESS = "audio_player_seekbar";
+	/**
+	 * Used to set the progess bar
+	 */
+	public static final String PROGESS = "audio_player_seekbar";
 
-    /**
-     * @param context The {@link Context} to use
-     * @param attrs The attributes of the XML tag that is inflating the view.
-     */
-    public ThemeableSeekBar(final Context context, final AttributeSet attrs) {
-        super(context, attrs);
-        // Initialze the theme resources
-        final ThemeUtils resources = new ThemeUtils(context);
-        // Theme the seek bar
-        setProgressDrawable(resources.getDrawable(PROGESS));
-    }
+	/**
+	 * @param context
+	 *            The {@link Context} to use
+	 * @param attrs
+	 *            The attributes of the XML tag that is inflating the view.
+	 */
+	public ThemeableSeekBar(final Context context, final AttributeSet attrs) {
+		super(context, attrs);
+		// Initialze the theme resources
+		final ThemeUtils resources = new ThemeUtils(context);
+		// Theme the seek bar
+		setProgressDrawable(resources.getDrawable(PROGESS));
+	}
 
 }

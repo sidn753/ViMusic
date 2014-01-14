@@ -47,194 +47,198 @@ import com.boko.vimusic.utils.MusicUtils;
  * 
  * @author Andrew Neal (andrewdneal@gmail.com)
  */
-public class GenreFragment extends Fragment implements LoaderCallbacks<List<Genre>>,
-        OnItemClickListener {
+public class GenreFragment extends Fragment implements
+		LoaderCallbacks<List<Genre>>, OnItemClickListener {
 
-    /**
-     * Used to keep context menu items from bleeding into other fragments
-     */
-    private static final int GROUP_ID = 5;
+	/**
+	 * Used to keep context menu items from bleeding into other fragments
+	 */
+	private static final int GROUP_ID = 5;
 
-    /**
-     * LoaderCallbacks identifier
-     */
-    private static final int LOADER = 0;
+	/**
+	 * LoaderCallbacks identifier
+	 */
+	private static final int LOADER = 0;
 
-    /**
-     * Fragment UI
-     */
-    private ViewGroup mRootView;
+	/**
+	 * Fragment UI
+	 */
+	private ViewGroup mRootView;
 
-    /**
-     * The adapter for the list
-     */
-    private GenreAdapter mAdapter;
+	/**
+	 * The adapter for the list
+	 */
+	private GenreAdapter mAdapter;
 
-    /**
-     * The list view
-     */
-    private ListView mListView;
+	/**
+	 * The list view
+	 */
+	private ListView mListView;
 
-    /**
-     * Genre song list
-     */
-    private Song[] mGenreList;
+	/**
+	 * Genre song list
+	 */
+	private Song[] mGenreList;
 
-    /**
-     * Represents a genre
-     */
-    private Genre mGenre;
+	/**
+	 * Represents a genre
+	 */
+	private Genre mGenre;
 
-    /**
-     * Empty constructor as per the {@link Fragment} documentation
-     */
-    public GenreFragment() {
-    }
+	/**
+	 * Empty constructor as per the {@link Fragment} documentation
+	 */
+	public GenreFragment() {
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onCreate(final Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        // Create the adpater
-        mAdapter = new GenreAdapter(getActivity(), R.layout.list_item_simple);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void onCreate(final Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		// Create the adpater
+		mAdapter = new GenreAdapter(getActivity(), R.layout.list_item_simple);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
-            final Bundle savedInstanceState) {
-        // The View for the fragment's UI
-        mRootView = (ViewGroup)inflater.inflate(R.layout.list_base, null);
-        // Initialize the list
-        mListView = (ListView)mRootView.findViewById(R.id.list_base);
-        // Set the data behind the list
-        mListView.setAdapter(mAdapter);
-        // Release any references to the recycled Views
-        mListView.setRecyclerListener(new RecycleHolder());
-        // Listen for ContextMenus to be created
-        mListView.setOnCreateContextMenuListener(this);
-        // Show the albums and songs from the selected genre
-        mListView.setOnItemClickListener(this);
-        return mRootView;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public View onCreateView(final LayoutInflater inflater,
+			final ViewGroup container, final Bundle savedInstanceState) {
+		// The View for the fragment's UI
+		mRootView = (ViewGroup) inflater.inflate(R.layout.list_base, null);
+		// Initialize the list
+		mListView = (ListView) mRootView.findViewById(R.id.list_base);
+		// Set the data behind the list
+		mListView.setAdapter(mAdapter);
+		// Release any references to the recycled Views
+		mListView.setRecyclerListener(new RecycleHolder());
+		// Listen for ContextMenus to be created
+		mListView.setOnCreateContextMenuListener(this);
+		// Show the albums and songs from the selected genre
+		mListView.setOnItemClickListener(this);
+		return mRootView;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onActivityCreated(final Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        // Enable the options menu
-        setHasOptionsMenu(true);
-        // Start the loader
-        getLoaderManager().initLoader(LOADER, null, this);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void onActivityCreated(final Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+		// Enable the options menu
+		setHasOptionsMenu(true);
+		// Start the loader
+		getLoaderManager().initLoader(LOADER, null, this);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onCreateContextMenu(final ContextMenu menu, final View v,
-            final ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        // Get the position of the selected item
-        final AdapterContextMenuInfo info = (AdapterContextMenuInfo)menuInfo;
-        // Create a new genre
-        mGenre = mAdapter.getItem(info.position);
-        // Create a list of the genre's songs
-        mGenreList = MusicUtils.getSongListForGenre(getActivity(), mGenre.getId());
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void onCreateContextMenu(final ContextMenu menu, final View v,
+			final ContextMenuInfo menuInfo) {
+		super.onCreateContextMenu(menu, v, menuInfo);
+		// Get the position of the selected item
+		final AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
+		// Create a new genre
+		mGenre = mAdapter.getItem(info.position);
+		// Create a list of the genre's songs
+		mGenreList = MusicUtils.getSongListForGenre(getActivity(),
+				mGenre.getId());
 
-        // Play the genre
-        menu.add(GROUP_ID, FragmentMenuItems.PLAY_SELECTION, Menu.NONE,
-                R.string.context_menu_play_selection);
-        // Add the genre to the queue
-        menu.add(GROUP_ID, FragmentMenuItems.ADD_TO_QUEUE, Menu.NONE, R.string.add_to_queue);
-    }
+		// Play the genre
+		menu.add(GROUP_ID, FragmentMenuItems.PLAY_SELECTION, Menu.NONE,
+				R.string.context_menu_play_selection);
+		// Add the genre to the queue
+		menu.add(GROUP_ID, FragmentMenuItems.ADD_TO_QUEUE, Menu.NONE,
+				R.string.add_to_queue);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean onContextItemSelected(final android.view.MenuItem item) {
-        if (item.getGroupId() == GROUP_ID) {
-            switch (item.getItemId()) {
-                case FragmentMenuItems.PLAY_SELECTION:
-                    MusicUtils.playAll(getActivity(), mGenreList, 0, false);
-                    return true;
-                case FragmentMenuItems.ADD_TO_QUEUE:
-                    MusicUtils.addToQueue(getActivity(), mGenreList);
-                    return true;
-                default:
-                    break;
-            }
-        }
-        return super.onContextItemSelected(item);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean onContextItemSelected(final android.view.MenuItem item) {
+		if (item.getGroupId() == GROUP_ID) {
+			switch (item.getItemId()) {
+			case FragmentMenuItems.PLAY_SELECTION:
+				MusicUtils.playAll(getActivity(), mGenreList, 0, false);
+				return true;
+			case FragmentMenuItems.ADD_TO_QUEUE:
+				MusicUtils.addToQueue(getActivity(), mGenreList);
+				return true;
+			default:
+				break;
+			}
+		}
+		return super.onContextItemSelected(item);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onItemClick(final AdapterView<?> parent, final View view, final int position,
-            final long id) {
-        mGenre = mAdapter.getItem(position);
-        // Create a new bundle to transfer the artist info
-        final Bundle bundle = new Bundle();
-        if (mGenre.getId() != null) {
-        	bundle.putString(Config.ID, mGenre.getId());	
-        }
-        bundle.putString(Config.MIME_TYPE, MediaStore.Audio.Genres.CONTENT_TYPE);
-        bundle.putString(Config.NAME, mGenre.getName());
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void onItemClick(final AdapterView<?> parent, final View view,
+			final int position, final long id) {
+		mGenre = mAdapter.getItem(position);
+		// Create a new bundle to transfer the artist info
+		final Bundle bundle = new Bundle();
+		if (mGenre.getId() != null) {
+			bundle.putString(Config.ID, mGenre.getId());
+		}
+		bundle.putString(Config.MIME_TYPE, MediaStore.Audio.Genres.CONTENT_TYPE);
+		bundle.putString(Config.NAME, mGenre.getName());
 
-        // Create the intent to launch the profile activity
-        final Intent intent = new Intent(getActivity(), ProfileActivity.class);
-        intent.putExtras(bundle);
-        startActivity(intent);
-    }
+		// Create the intent to launch the profile activity
+		final Intent intent = new Intent(getActivity(), ProfileActivity.class);
+		intent.putExtras(bundle);
+		startActivity(intent);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Loader<List<Genre>> onCreateLoader(final int id, final Bundle args) {
-        return new GenreLoader(getActivity());
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Loader<List<Genre>> onCreateLoader(final int id, final Bundle args) {
+		return new GenreLoader(getActivity());
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onLoadFinished(final Loader<List<Genre>> loader, final List<Genre> data) {
-        // Check for any errors
-        if (data.isEmpty()) {
-            // Set the empty text
-            final TextView empty = (TextView)mRootView.findViewById(R.id.empty);
-            empty.setText(getString(R.string.empty_music));
-            mListView.setEmptyView(empty);
-            return;
-        }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void onLoadFinished(final Loader<List<Genre>> loader,
+			final List<Genre> data) {
+		// Check for any errors
+		if (data.isEmpty()) {
+			// Set the empty text
+			final TextView empty = (TextView) mRootView
+					.findViewById(R.id.empty);
+			empty.setText(getString(R.string.empty_music));
+			mListView.setEmptyView(empty);
+			return;
+		}
 
-        // Start fresh
-        mAdapter.unload();
-        // Add the data to the adpater
-        for (final Genre genre : data) {
-            mAdapter.add(genre);
-        }
-        // Build the cache
-        mAdapter.buildCache();
-    }
+		// Start fresh
+		mAdapter.unload();
+		// Add the data to the adpater
+		for (final Genre genre : data) {
+			mAdapter.add(genre);
+		}
+		// Build the cache
+		mAdapter.buildCache();
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onLoaderReset(final Loader<List<Genre>> loader) {
-        // Clear the data in the adapter
-        mAdapter.unload();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void onLoaderReset(final Loader<List<Genre>> loader) {
+		// Clear the data in the adapter
+		mAdapter.unload();
+	}
 
 }

@@ -32,100 +32,104 @@ import java.util.List;
  */
 public class AlbumSongLoader extends WrappedAsyncTaskLoader<List<Song>> {
 
-    /**
-     * The result
-     */
-    private final ArrayList<Song> mSongList = Lists.newArrayList();
+	/**
+	 * The result
+	 */
+	private final ArrayList<Song> mSongList = Lists.newArrayList();
 
-    /**
-     * The {@link Cursor} used to run the query.
-     */
-    private Cursor mCursor;
+	/**
+	 * The {@link Cursor} used to run the query.
+	 */
+	private Cursor mCursor;
 
-    /**
-     * The Id of the album the songs belong to.
-     */
-    private final String mAlbumID;
+	/**
+	 * The Id of the album the songs belong to.
+	 */
+	private final String mAlbumID;
 
-    /**
-     * Constructor of <code>AlbumSongHandler</code>
-     * 
-     * @param context The {@link Context} to use.
-     * @param albumId The Id of the album the songs belong to.
-     */
-    public AlbumSongLoader(final Context context, final String albumId) {
-        super(context);
-        mAlbumID = albumId;
-    }
+	/**
+	 * Constructor of <code>AlbumSongHandler</code>
+	 * 
+	 * @param context
+	 *            The {@link Context} to use.
+	 * @param albumId
+	 *            The Id of the album the songs belong to.
+	 */
+	public AlbumSongLoader(final Context context, final String albumId) {
+		super(context);
+		mAlbumID = albumId;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<Song> loadInBackground() {
-        // Create the Cursor
-        mCursor = makeAlbumSongCursor(getContext(), mAlbumID);
-        // Gather the data
-        if (mCursor != null && mCursor.moveToFirst()) {
-            do {
-                // Copy the song Id
-                final String id = mCursor.getString(0);
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Song> loadInBackground() {
+		// Create the Cursor
+		mCursor = makeAlbumSongCursor(getContext(), mAlbumID);
+		// Gather the data
+		if (mCursor != null && mCursor.moveToFirst()) {
+			do {
+				// Copy the song Id
+				final String id = mCursor.getString(0);
 
-                // Copy the song name
-                final String songName = mCursor.getString(1);
+				// Copy the song name
+				final String songName = mCursor.getString(1);
 
-                // Copy the artist name
-                final String artist = mCursor.getString(2);
+				// Copy the artist name
+				final String artist = mCursor.getString(2);
 
-                // Copy the album name
-                final String album = mCursor.getString(3);
+				// Copy the album name
+				final String album = mCursor.getString(3);
 
-                // Copy the duration
-                final long duration = mCursor.getLong(4);
+				// Copy the duration
+				final long duration = mCursor.getLong(4);
 
-                // Make the duration label
-                final int seconds = (int) (duration / 1000);
+				// Make the duration label
+				final int seconds = (int) (duration / 1000);
 
-                // Create a new song
-                final Song song = new Song(id, songName, artist, album, seconds);
+				// Create a new song
+				final Song song = new Song(id, songName, artist, album, seconds);
 
-                // Add everything up
-                mSongList.add(song);
-            } while (mCursor.moveToNext());
-        }
-        // Close the cursor
-        if (mCursor != null) {
-            mCursor.close();
-            mCursor = null;
-        }
-        return mSongList;
-    }
+				// Add everything up
+				mSongList.add(song);
+			} while (mCursor.moveToNext());
+		}
+		// Close the cursor
+		if (mCursor != null) {
+			mCursor.close();
+			mCursor = null;
+		}
+		return mSongList;
+	}
 
-    /**
-     * @param context The {@link Context} to use.
-     * @param albumId The Id of the album the songs belong to.
-     * @return The {@link Cursor} used to run the query.
-     */
-    public static final Cursor makeAlbumSongCursor(final Context context, final String albumId) {
-        // Match the songs up with the artist
-        final StringBuilder selection = new StringBuilder();
-        selection.append(AudioColumns.IS_MUSIC + "=1");
-        selection.append(" AND " + AudioColumns.TITLE + " != ''");
-        selection.append(" AND " + AudioColumns.ALBUM_ID + "=" + albumId);
-        return context.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                new String[] {
-                        /* 0 */
-                        BaseColumns._ID,
-                        /* 1 */
-                        AudioColumns.TITLE,
-                        /* 2 */
-                        AudioColumns.ARTIST,
-                        /* 3 */
-                        AudioColumns.ALBUM,
-                        /* 4 */
-                        AudioColumns.DURATION
-                }, selection.toString(), null,
-                PreferenceUtils.getInstance(context).getAlbumSongSortOrder());
-    }
+	/**
+	 * @param context
+	 *            The {@link Context} to use.
+	 * @param albumId
+	 *            The Id of the album the songs belong to.
+	 * @return The {@link Cursor} used to run the query.
+	 */
+	public static final Cursor makeAlbumSongCursor(final Context context,
+			final String albumId) {
+		// Match the songs up with the artist
+		final StringBuilder selection = new StringBuilder();
+		selection.append(AudioColumns.IS_MUSIC + "=1");
+		selection.append(" AND " + AudioColumns.TITLE + " != ''");
+		selection.append(" AND " + AudioColumns.ALBUM_ID + "=" + albumId);
+		return context.getContentResolver().query(
+				MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, new String[] {
+				/* 0 */
+				BaseColumns._ID,
+				/* 1 */
+				AudioColumns.TITLE,
+				/* 2 */
+				AudioColumns.ARTIST,
+				/* 3 */
+				AudioColumns.ALBUM,
+				/* 4 */
+				AudioColumns.DURATION }, selection.toString(), null,
+				PreferenceUtils.getInstance(context).getAlbumSongSortOrder());
+	}
 
 }

@@ -11,7 +11,8 @@ import android.text.TextUtils;
  * A class that represents a song.
  * 
  */
-public class Song extends Media implements Parcelable, Serializable, Comparable<Song> {
+public class Song extends Media implements Parcelable, Serializable,
+		Comparable<Song> {
 
 	/**
 	 * The song artist
@@ -66,7 +67,7 @@ public class Song extends Media implements Parcelable, Serializable, Comparable<
 			String id = src.readString();
 
 			String host = src.readString();
-			
+
 			return new Song(id, host, null, null, 0);
 		}
 
@@ -86,13 +87,14 @@ public class Song extends Media implements Parcelable, Serializable, Comparable<
 		dest.writeString(getId());
 		dest.writeString(getHost());
 	}
-	
+
 	public String getLinkPlay() {
 		if (mLinkPlay != null) {
 			return mLinkPlay;
 		}
 		if (getId() != null && TextUtils.isDigitsOnly(getId())) {
-			mLinkPlay = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI + "/" + getId();
+			mLinkPlay = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI + "/"
+					+ getId();
 		}
 		return mLinkPlay;
 	}
@@ -102,7 +104,7 @@ public class Song extends Media implements Parcelable, Serializable, Comparable<
 		if (obj == null) {
 			return 1;
 		}
-		
+
 		if (getHost() == null) {
 			if (obj.getHost() != null) {
 				return -1;
@@ -110,9 +112,9 @@ public class Song extends Media implements Parcelable, Serializable, Comparable<
 		} else {
 			if (getHost().compareTo(obj.getHost()) != 0) {
 				return getHost().compareTo(obj.getHost());
-			}	
+			}
 		}
-		
+
 		if (getId() == null) {
 			if (obj.getId() != null) {
 				return -1;
@@ -120,9 +122,9 @@ public class Song extends Media implements Parcelable, Serializable, Comparable<
 		} else {
 			if (getId().compareTo(obj.getId()) != 0) {
 				return getId().compareTo(obj.getId());
-			}	
+			}
 		}
-		
+
 		return 0;
 	}
 }

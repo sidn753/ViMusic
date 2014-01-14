@@ -29,82 +29,88 @@ import com.boko.vimusic.widgets.theme.HoloSelector;
 /**
  * @author Andrew Neal (andrewdneal@gmail.com)
  */
-public class ShuffleButton extends ImageButton implements OnClickListener, OnLongClickListener {
+public class ShuffleButton extends ImageButton implements OnClickListener,
+		OnLongClickListener {
 
-    /**
-     * Shuffle theme resource
-     */
-    private static final String SHUFFLE = "btn_playback_shuffle";
+	/**
+	 * Shuffle theme resource
+	 */
+	private static final String SHUFFLE = "btn_playback_shuffle";
 
-    /**
-     * Shuffle all theme resource
-     */
-    private static final String SHUFFLE_ALL = "btn_playback_shuffle_all";
+	/**
+	 * Shuffle all theme resource
+	 */
+	private static final String SHUFFLE_ALL = "btn_playback_shuffle_all";
 
-    /**
-     * The resources to use.
-     */
-    private final ThemeUtils mResources;
+	/**
+	 * The resources to use.
+	 */
+	private final ThemeUtils mResources;
 
-    /**
-     * @param context The {@link Context} to use
-     * @param attrs The attributes of the XML tag that is inflating the view.
-     */
-    @SuppressWarnings("deprecation")
-    public ShuffleButton(final Context context, final AttributeSet attrs) {
-        super(context, attrs);
-        // Initialze the theme resources
-        mResources = new ThemeUtils(context);
-        // Theme the selector
-        setBackgroundDrawable(new HoloSelector(context));
-        // Control playback (cycle shuffle)
-        setOnClickListener(this);
-        // Show the cheat sheet
-        setOnLongClickListener(this);
-    }
+	/**
+	 * @param context
+	 *            The {@link Context} to use
+	 * @param attrs
+	 *            The attributes of the XML tag that is inflating the view.
+	 */
+	@SuppressWarnings("deprecation")
+	public ShuffleButton(final Context context, final AttributeSet attrs) {
+		super(context, attrs);
+		// Initialze the theme resources
+		mResources = new ThemeUtils(context);
+		// Theme the selector
+		setBackgroundDrawable(new HoloSelector(context));
+		// Control playback (cycle shuffle)
+		setOnClickListener(this);
+		// Show the cheat sheet
+		setOnLongClickListener(this);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onClick(final View v) {
-        MusicUtils.cycleShuffle();
-        updateShuffleState();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void onClick(final View v) {
+		MusicUtils.cycleShuffle();
+		updateShuffleState();
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean onLongClick(final View view) {
-        if (TextUtils.isEmpty(view.getContentDescription())) {
-            return false;
-        } else {
-            ApolloUtils.showCheatSheet(view);
-            return true;
-        }
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean onLongClick(final View view) {
+		if (TextUtils.isEmpty(view.getContentDescription())) {
+			return false;
+		} else {
+			ApolloUtils.showCheatSheet(view);
+			return true;
+		}
+	}
 
-    /**
-     * Sets the correct drawable for the shuffle state.
-     */
-    public void updateShuffleState() {
-        switch (MusicUtils.getShuffleMode()) {
-            case MusicPlaybackService.SHUFFLE_NORMAL:
-                setContentDescription(getResources().getString(R.string.accessibility_shuffle_all));
-                setImageDrawable(mResources.getDrawable(SHUFFLE_ALL));
-                break;
-            case MusicPlaybackService.SHUFFLE_AUTO:
-                setContentDescription(getResources().getString(R.string.accessibility_shuffle_all));
-                setImageDrawable(mResources.getDrawable(SHUFFLE_ALL));
-                break;
-            case MusicPlaybackService.SHUFFLE_NONE:
-                setContentDescription(getResources().getString(R.string.accessibility_shuffle));
-                setImageDrawable(mResources.getDrawable(SHUFFLE));
-                break;
-            default:
-                break;
-        }
-    }
+	/**
+	 * Sets the correct drawable for the shuffle state.
+	 */
+	public void updateShuffleState() {
+		switch (MusicUtils.getShuffleMode()) {
+		case MusicPlaybackService.SHUFFLE_NORMAL:
+			setContentDescription(getResources().getString(
+					R.string.accessibility_shuffle_all));
+			setImageDrawable(mResources.getDrawable(SHUFFLE_ALL));
+			break;
+		case MusicPlaybackService.SHUFFLE_AUTO:
+			setContentDescription(getResources().getString(
+					R.string.accessibility_shuffle_all));
+			setImageDrawable(mResources.getDrawable(SHUFFLE_ALL));
+			break;
+		case MusicPlaybackService.SHUFFLE_NONE:
+			setContentDescription(getResources().getString(
+					R.string.accessibility_shuffle));
+			setImageDrawable(mResources.getDrawable(SHUFFLE));
+			break;
+		default:
+			break;
+		}
+	}
 
 }

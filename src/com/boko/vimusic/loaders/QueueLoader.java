@@ -27,70 +27,72 @@ import java.util.List;
  */
 public class QueueLoader extends WrappedAsyncTaskLoader<List<Song>> {
 
-    /**
-     * The result
-     */
-    private final ArrayList<Song> mSongList = Lists.newArrayList();
+	/**
+	 * The result
+	 */
+	private final ArrayList<Song> mSongList = Lists.newArrayList();
 
-    /**
-     * The {@link Cursor} used to run the query.
-     */
-    private NowPlayingCursor mCursor;
+	/**
+	 * The {@link Cursor} used to run the query.
+	 */
+	private NowPlayingCursor mCursor;
 
-    /**
-     * Constructor of <code>QueueLoader</code>
-     * 
-     * @param context The {@link Context} to use
-     */
-    public QueueLoader(final Context context) {
-        super(context);
-    }
+	/**
+	 * Constructor of <code>QueueLoader</code>
+	 * 
+	 * @param context
+	 *            The {@link Context} to use
+	 */
+	public QueueLoader(final Context context) {
+		super(context);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<Song> loadInBackground() {
-        // Create the Cursor
-        mCursor = new NowPlayingCursor(getContext());
-        // Gather the data
-        if (mCursor != null && mCursor.moveToFirst()) {
-            do {
-                // Copy the song Id
-                final String id = mCursor.getString(0);
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Song> loadInBackground() {
+		// Create the Cursor
+		mCursor = new NowPlayingCursor(getContext());
+		// Gather the data
+		if (mCursor != null && mCursor.moveToFirst()) {
+			do {
+				// Copy the song Id
+				final String id = mCursor.getString(0);
 
-                // Copy the song name
-                final String songName = mCursor.getString(1);
+				// Copy the song name
+				final String songName = mCursor.getString(1);
 
-                // Copy the artist name
-                final String artist = mCursor.getString(2);
+				// Copy the artist name
+				final String artist = mCursor.getString(2);
 
-                // Copy the album name
-                final String album = mCursor.getString(3);
+				// Copy the album name
+				final String album = mCursor.getString(3);
 
-                // Create a new song
-                final Song song = new Song(id, songName, artist, album, -1);
+				// Create a new song
+				final Song song = new Song(id, songName, artist, album, -1);
 
-                // Add everything up
-                mSongList.add(song);
-            } while (mCursor.moveToNext());
-        }
-        // Close the cursor
-        if (mCursor != null) {
-            mCursor.close();
-            mCursor = null;
-        }
-        return mSongList;
-    }
+				// Add everything up
+				mSongList.add(song);
+			} while (mCursor.moveToNext());
+		}
+		// Close the cursor
+		if (mCursor != null) {
+			mCursor.close();
+			mCursor = null;
+		}
+		return mSongList;
+	}
 
-    /**
-     * Creates the {@link Cursor} used to run the query.
-     * 
-     * @param context The {@link Context} to use.
-     * @return The {@link Cursor} used to run the song query.
-     */
-    public static final Cursor makeQueueCursor(final Context context) {
-        final Cursor cursor = new NowPlayingCursor(context);
-        return cursor;
-    }
+	/**
+	 * Creates the {@link Cursor} used to run the query.
+	 * 
+	 * @param context
+	 *            The {@link Context} to use.
+	 * @return The {@link Cursor} used to run the song query.
+	 */
+	public static final Cursor makeQueueCursor(final Context context) {
+		final Cursor cursor = new NowPlayingCursor(context);
+		return cursor;
+	}
 }

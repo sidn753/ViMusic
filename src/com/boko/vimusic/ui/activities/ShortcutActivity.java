@@ -49,296 +49,316 @@ import com.boko.vimusic.utils.MusicUtils.ServiceToken;
  * 
  * @author Andrew Neal (andrewdneal@gmail.com)
  */
-public class ShortcutActivity extends FragmentActivity implements ServiceConnection {
+public class ShortcutActivity extends FragmentActivity implements
+		ServiceConnection {
 
-    /**
-     * If true, this class will begin playback and open
-     * {@link AudioPlayerActivity}, false will close the class after playback,
-     * which is what happens when a user starts playing something from an
-     * app-widget
-     */
-    public static final String OPEN_AUDIO_PLAYER = null;
+	/**
+	 * If true, this class will begin playback and open
+	 * {@link AudioPlayerActivity}, false will close the class after playback,
+	 * which is what happens when a user starts playing something from an
+	 * app-widget
+	 */
+	public static final String OPEN_AUDIO_PLAYER = null;
 
-    /**
-     * Service token
-     */
-    private ServiceToken mToken;
+	/**
+	 * Service token
+	 */
+	private ServiceToken mToken;
 
-    /**
-     * Gather the intent action and extras
-     */
-    private Intent mIntent;
+	/**
+	 * Gather the intent action and extras
+	 */
+	private Intent mIntent;
 
-    /**
-     * The list of songs to play
-     */
-    private Song[] mList;
+	/**
+	 * The list of songs to play
+	 */
+	private Song[] mList;
 
-    /**
-     * Used to shuffle the tracks or play them in order
-     */
-    private boolean mShouldShuffle;
+	/**
+	 * Used to shuffle the tracks or play them in order
+	 */
+	private boolean mShouldShuffle;
 
-    /**
-     * Search query from a voice action
-     */
-    private String mVoiceQuery;
+	/**
+	 * Search query from a voice action
+	 */
+	private String mVoiceQuery;
 
-    /**
-     * Used with the loader and voice queries
-     */
-    private final ArrayList<Song> mSong = Lists.newArrayList();
+	/**
+	 * Used with the loader and voice queries
+	 */
+	private final ArrayList<Song> mSong = Lists.newArrayList();
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void onCreate(final Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        // Fade it in
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onCreate(final Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		// Fade it in
+		overridePendingTransition(android.R.anim.fade_in,
+				android.R.anim.fade_out);
 
-        // Bind Apollo's service
-        mToken = MusicUtils.bindToService(this, this);
+		// Bind Apollo's service
+		mToken = MusicUtils.bindToService(this, this);
 
-        // Intiialize the intent
-        mIntent = getIntent();
-        // Get the voice search query
-        mVoiceQuery = Capitalize.capitalize(mIntent.getStringExtra(SearchManager.QUERY));
+		// Intiialize the intent
+		mIntent = getIntent();
+		// Get the voice search query
+		mVoiceQuery = Capitalize.capitalize(mIntent
+				.getStringExtra(SearchManager.QUERY));
 
-    }
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onServiceConnected(final ComponentName name, final IBinder service) {
-        mService = IService.Stub.asInterface(service);
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void onServiceConnected(final ComponentName name,
+			final IBinder service) {
+		mService = IService.Stub.asInterface(service);
 
-        // Check for a voice query
-        if (mIntent.getAction().equals(Config.PLAY_FROM_SEARCH)) {
-            getSupportLoaderManager().initLoader(0, null, mSongAlbumArtistQuery);
-        } else if (mService != null) {
-            AsyncHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    final String requestedMimeType = mIntent.getExtras().getString(MIME_TYPE);
+		// Check for a voice query
+		if (mIntent.getAction().equals(Config.PLAY_FROM_SEARCH)) {
+			getSupportLoaderManager()
+					.initLoader(0, null, mSongAlbumArtistQuery);
+		} else if (mService != null) {
+			AsyncHandler.post(new Runnable() {
+				@Override
+				public void run() {
+					final String requestedMimeType = mIntent.getExtras()
+							.getString(MIME_TYPE);
 
-                    // First, check the artist MIME type
-                    if (MediaStore.Audio.Artists.CONTENT_TYPE.equals(requestedMimeType)) {
+					// First, check the artist MIME type
+					if (MediaStore.Audio.Artists.CONTENT_TYPE
+							.equals(requestedMimeType)) {
 
-                        // Shuffle the artist track list
-                        mShouldShuffle = true;
+						// Shuffle the artist track list
+						mShouldShuffle = true;
 
-                        // Get the artist song list
-                        mList = MusicUtils.getSongListForArtist(ShortcutActivity.this, getId());
-                    } else
-                    // Second, check the album MIME type
-                    if (MediaStore.Audio.Albums.CONTENT_TYPE.equals(requestedMimeType)) {
+						// Get the artist song list
+						mList = MusicUtils.getSongListForArtist(
+								ShortcutActivity.this, getId());
+					} else
+					// Second, check the album MIME type
+					if (MediaStore.Audio.Albums.CONTENT_TYPE
+							.equals(requestedMimeType)) {
 
-                        // Shuffle the album track list
-                        mShouldShuffle = true;
+						// Shuffle the album track list
+						mShouldShuffle = true;
 
-                        // Get the album song list
-                        mList = MusicUtils.getSongListForAlbum(ShortcutActivity.this, getId());
-                    } else
-                    // Third, check the genre MIME type
-                    if (MediaStore.Audio.Genres.CONTENT_TYPE.equals(requestedMimeType)) {
+						// Get the album song list
+						mList = MusicUtils.getSongListForAlbum(
+								ShortcutActivity.this, getId());
+					} else
+					// Third, check the genre MIME type
+					if (MediaStore.Audio.Genres.CONTENT_TYPE
+							.equals(requestedMimeType)) {
 
-                        // Shuffle the genre track list
-                        mShouldShuffle = true;
+						// Shuffle the genre track list
+						mShouldShuffle = true;
 
-                        // Get the genre song list
-                        mList = MusicUtils.getSongListForGenre(ShortcutActivity.this, getId());
-                    } else
-                    // Fourth, check the playlist MIME type
-                    if (MediaStore.Audio.Playlists.CONTENT_TYPE.equals(requestedMimeType)) {
+						// Get the genre song list
+						mList = MusicUtils.getSongListForGenre(
+								ShortcutActivity.this, getId());
+					} else
+					// Fourth, check the playlist MIME type
+					if (MediaStore.Audio.Playlists.CONTENT_TYPE
+							.equals(requestedMimeType)) {
 
-                        // Don't shuffle the playlist track list
-                        mShouldShuffle = false;
+						// Don't shuffle the playlist track list
+						mShouldShuffle = false;
 
-                        // Get the playlist song list
-                        mList = MusicUtils.getSongListForPlaylist(ShortcutActivity.this, getId());
-                    } else
-                    // Check the Favorites playlist
-                    if (getString(R.string.playlist_favorites).equals(requestedMimeType)) {
+						// Get the playlist song list
+						mList = MusicUtils.getSongListForPlaylist(
+								ShortcutActivity.this, getId());
+					} else
+					// Check the Favorites playlist
+					if (getString(R.string.playlist_favorites).equals(
+							requestedMimeType)) {
 
-                        // Don't shuffle the Favorites track list
-                        mShouldShuffle = false;
+						// Don't shuffle the Favorites track list
+						mShouldShuffle = false;
 
-                        // Get the Favorites song list
-                        mList = MusicUtils.getSongListForFavorites(ShortcutActivity.this);
-                    } else
-                    // Check for the Last added playlist
-                    if (getString(R.string.playlist_last_added).equals(requestedMimeType)) {
+						// Get the Favorites song list
+						mList = MusicUtils
+								.getSongListForFavorites(ShortcutActivity.this);
+					} else
+					// Check for the Last added playlist
+					if (getString(R.string.playlist_last_added).equals(
+							requestedMimeType)) {
 
-                        // Don't shuffle the last added track list
-                        mShouldShuffle = false;
+						// Don't shuffle the last added track list
+						mShouldShuffle = false;
 
-                        // Get the Last added song list
-                        Cursor cursor = LastAddedLoader.makeLastAddedCursor(ShortcutActivity.this);
-                        if (cursor != null) {
-                            mList = MusicUtils.getSongListForCursor(cursor);
-                            cursor.close();
-                        }
-                    }
-                    // Finish up
-                    allDone();
-                }
-            });
-        } else {
-            // TODO Show and error explaining why
-        }
-    }
+						// Get the Last added song list
+						Cursor cursor = LastAddedLoader
+								.makeLastAddedCursor(ShortcutActivity.this);
+						if (cursor != null) {
+							mList = MusicUtils.getSongListForCursor(cursor);
+							cursor.close();
+						}
+					}
+					// Finish up
+					allDone();
+				}
+			});
+		} else {
+			// TODO Show and error explaining why
+		}
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onServiceDisconnected(final ComponentName name) {
-        mService = null;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void onServiceDisconnected(final ComponentName name) {
+		mService = null;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        // Unbind from the service
-        if (mService != null) {
-            MusicUtils.unbindFromService(mToken);
-            mToken = null;
-        }
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		// Unbind from the service
+		if (mService != null) {
+			MusicUtils.unbindFromService(mToken);
+			mToken = null;
+		}
+	}
 
-    /**
-     * Uses the query from a voice search to try and play a song, then album,
-     * then artist. If all of those fail, it checks for playlists and genres via
-     * a {@link #mPlaylistGenreQuery}.
-     */
-    private final LoaderCallbacks<List<Song>> mSongAlbumArtistQuery = new LoaderCallbacks<List<Song>>() {
+	/**
+	 * Uses the query from a voice search to try and play a song, then album,
+	 * then artist. If all of those fail, it checks for playlists and genres via
+	 * a {@link #mPlaylistGenreQuery}.
+	 */
+	private final LoaderCallbacks<List<Song>> mSongAlbumArtistQuery = new LoaderCallbacks<List<Song>>() {
 
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public Loader<List<Song>> onCreateLoader(final int id, final Bundle args) {
-            return new SearchLoader(ShortcutActivity.this, mVoiceQuery);
-        }
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public Loader<List<Song>> onCreateLoader(final int id, final Bundle args) {
+			return new SearchLoader(ShortcutActivity.this, mVoiceQuery);
+		}
 
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void onLoadFinished(final Loader<List<Song>> loader, final List<Song> data) {
-            // If the user searched for a playlist or genre, this list will
-            // return empty
-            if (data.isEmpty()) {
-                // Before running the playlist loader, try to play the
-                // "Favorites" playlist
-                if (isFavorite()) {
-                    MusicUtils.playFavorites(ShortcutActivity.this);
-                }
-                // Finish up
-                allDone();
-                return;
-            }
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public void onLoadFinished(final Loader<List<Song>> loader,
+				final List<Song> data) {
+			// If the user searched for a playlist or genre, this list will
+			// return empty
+			if (data.isEmpty()) {
+				// Before running the playlist loader, try to play the
+				// "Favorites" playlist
+				if (isFavorite()) {
+					MusicUtils.playFavorites(ShortcutActivity.this);
+				}
+				// Finish up
+				allDone();
+				return;
+			}
 
-            // Start fresh
-            mSong.clear();
-            // Add the data to the adpater
-            for (final Song song : data) {
-                mSong.add(song);
-            }
+			// Start fresh
+			mSong.clear();
+			// Add the data to the adpater
+			for (final Song song : data) {
+				mSong.add(song);
+			}
 
-            // What's about to happen is similar to the above process. Apollo
-            // runs a
-            // series of checks to see if anything comes up. When it does, it
-            // assumes (pretty accurately) that it should begin to play that
-            // thing.
-            // The fancy search query used in {@link SearchLoader} is the key to
-            // this. It allows the user to perform very specific queries. i.e.
-            // "Listen to Ethio
+			// What's about to happen is similar to the above process. Apollo
+			// runs a
+			// series of checks to see if anything comes up. When it does, it
+			// assumes (pretty accurately) that it should begin to play that
+			// thing.
+			// The fancy search query used in {@link SearchLoader} is the key to
+			// this. It allows the user to perform very specific queries. i.e.
+			// "Listen to Ethio
 
-            final String song = mSong.get(0).getName();
-            final String album = mSong.get(0).mAlbumName;
-            final String artist = mSong.get(0).mArtistName;
-            // This tripes as the song, album, and artist Id
-            final String id = mSong.get(0).getId();
-            // First, try to play a song
-            if (mList == null && song != null) {
-                mList = new Song[] {
-                    new Song(id, "", null, null, 0)
-                };
-            } else
-            // Second, try to play an album
-            if (mList == null && album != null) {
-                mList = MusicUtils.getSongListForAlbum(ShortcutActivity.this, id);
-            } else
-            // Third, try to play an artist
-            if (mList == null && artist != null) {
-                mList = MusicUtils.getSongListForArtist(ShortcutActivity.this, id);
-            }
-            // Finish up
-            allDone();
-        }
+			final String song = mSong.get(0).getName();
+			final String album = mSong.get(0).mAlbumName;
+			final String artist = mSong.get(0).mArtistName;
+			// This tripes as the song, album, and artist Id
+			final String id = mSong.get(0).getId();
+			// First, try to play a song
+			if (mList == null && song != null) {
+				mList = new Song[] { new Song(id, "", null, null, 0) };
+			} else
+			// Second, try to play an album
+			if (mList == null && album != null) {
+				mList = MusicUtils.getSongListForAlbum(ShortcutActivity.this,
+						id);
+			} else
+			// Third, try to play an artist
+			if (mList == null && artist != null) {
+				mList = MusicUtils.getSongListForArtist(ShortcutActivity.this,
+						id);
+			}
+			// Finish up
+			allDone();
+		}
 
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void onLoaderReset(final Loader<List<Song>> loader) {
-            // Clear the data
-            mSong.clear();
-        }
-    };
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public void onLoaderReset(final Loader<List<Song>> loader) {
+			// Clear the data
+			mSong.clear();
+		}
+	};
 
-    /**
-     * Used to find the Id supplied
-     * 
-     * @return The Id passed into the activity
-     */
-    private String getId() {
-        return mIntent.getExtras().getString(Config.ID);
-    }
+	/**
+	 * Used to find the Id supplied
+	 * 
+	 * @return The Id passed into the activity
+	 */
+	private String getId() {
+		return mIntent.getExtras().getString(Config.ID);
+	}
 
-    /**
-     * @return True if the user searched for the favorites playlist
-     */
-    private boolean isFavorite() {
-        // Check to see if the user spoke the word "Favorites"
-        final String favoritePlaylist = getString(R.string.playlist_favorites);
-        if (mVoiceQuery.equals(favoritePlaylist)) {
-            return true;
-        }
+	/**
+	 * @return True if the user searched for the favorites playlist
+	 */
+	private boolean isFavorite() {
+		// Check to see if the user spoke the word "Favorites"
+		final String favoritePlaylist = getString(R.string.playlist_favorites);
+		if (mVoiceQuery.equals(favoritePlaylist)) {
+			return true;
+		}
 
-        // Check to see if the user spoke the word "Favorite"
-        final String favorite = getString(R.string.playlist_favorite);
-        if (mVoiceQuery.equals(favorite)) {
-            return true;
-        }
+		// Check to see if the user spoke the word "Favorite"
+		final String favorite = getString(R.string.playlist_favorite);
+		if (mVoiceQuery.equals(favorite)) {
+			return true;
+		}
 
-        return false;
-    }
+		return false;
+	}
 
-    /**
-     * Starts playback, open {@link AudioPlayerActivity} and finishes this one
-     */
-    private void allDone() {
-        final boolean shouldOpenAudioPlayer = mIntent.getBooleanExtra(OPEN_AUDIO_PLAYER, true);
-        // Play the list
-        if (mList != null && mList.length > 0) {
-            MusicUtils.playAll(this, mList, 0, mShouldShuffle);
-        }
+	/**
+	 * Starts playback, open {@link AudioPlayerActivity} and finishes this one
+	 */
+	private void allDone() {
+		final boolean shouldOpenAudioPlayer = mIntent.getBooleanExtra(
+				OPEN_AUDIO_PLAYER, true);
+		// Play the list
+		if (mList != null && mList.length > 0) {
+			MusicUtils.playAll(this, mList, 0, mShouldShuffle);
+		}
 
-        // Open the now playing screen
-        if (shouldOpenAudioPlayer) {
-            final Intent intent = new Intent(this, AudioPlayerActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
-        }
-        // All done
-        finish();
-    }
+		// Open the now playing screen
+		if (shouldOpenAudioPlayer) {
+			final Intent intent = new Intent(this, AudioPlayerActivity.class);
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(intent);
+		}
+		// All done
+		finish();
+	}
 }

@@ -28,105 +28,108 @@ import android.graphics.drawable.Drawable;
  */
 public class AlphaPatternDrawable extends Drawable {
 
-    private final Paint mPaint = new Paint();
+	private final Paint mPaint = new Paint();
 
-    private final Paint mPaintWhite = new Paint();
+	private final Paint mPaintWhite = new Paint();
 
-    private final Paint mPaintGray = new Paint();
+	private final Paint mPaintGray = new Paint();
 
-    private int mRectangleSize = 10;
+	private int mRectangleSize = 10;
 
-    private int numRectanglesHorizontal;
+	private int numRectanglesHorizontal;
 
-    private int numRectanglesVertical;
+	private int numRectanglesVertical;
 
-    /* Bitmap in which the pattern will be cached. */
-    private Bitmap mBitmap;
+	/* Bitmap in which the pattern will be cached. */
+	private Bitmap mBitmap;
 
-    /**/
-    public AlphaPatternDrawable(final int rectangleSize) {
-        mRectangleSize = rectangleSize;
-        mPaintWhite.setColor(0xffffffff);
-        mPaintGray.setColor(0xffcbcbcb);
-    }
+	/**/
+	public AlphaPatternDrawable(final int rectangleSize) {
+		mRectangleSize = rectangleSize;
+		mPaintWhite.setColor(0xffffffff);
+		mPaintGray.setColor(0xffcbcbcb);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void draw(final Canvas canvas) {
-        canvas.drawBitmap(mBitmap, null, getBounds(), mPaint);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void draw(final Canvas canvas) {
+		canvas.drawBitmap(mBitmap, null, getBounds(), mPaint);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getOpacity() {
-        return 0;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getOpacity() {
+		return 0;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setAlpha(final int alpha) {
-        throw new UnsupportedOperationException("Alpha is not supported by this drawable.");
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setAlpha(final int alpha) {
+		throw new UnsupportedOperationException(
+				"Alpha is not supported by this drawable.");
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setColorFilter(final ColorFilter cf) {
-        throw new UnsupportedOperationException("ColorFilter is not supported by this drawable.");
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setColorFilter(final ColorFilter cf) {
+		throw new UnsupportedOperationException(
+				"ColorFilter is not supported by this drawable.");
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void onBoundsChange(final Rect bounds) {
-        super.onBoundsChange(bounds);
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onBoundsChange(final Rect bounds) {
+		super.onBoundsChange(bounds);
 
-        final int mHeight = bounds.height();
-        final int mWidth = bounds.width();
+		final int mHeight = bounds.height();
+		final int mWidth = bounds.width();
 
-        numRectanglesHorizontal = (int)Math.ceil((mWidth / mRectangleSize));
-        numRectanglesVertical = (int)Math.ceil(mHeight / mRectangleSize);
+		numRectanglesHorizontal = (int) Math.ceil((mWidth / mRectangleSize));
+		numRectanglesVertical = (int) Math.ceil(mHeight / mRectangleSize);
 
-        generatePatternBitmap();
-    }
+		generatePatternBitmap();
+	}
 
-    /**
-     * This will generate a bitmap with the pattern as big as the rectangle we
-     * were allow to draw on. We do this to cache the bitmap so we don't need to
-     * recreate it each time draw() is called since it takes a few milliseconds.
-     */
-    private void generatePatternBitmap() {
+	/**
+	 * This will generate a bitmap with the pattern as big as the rectangle we
+	 * were allow to draw on. We do this to cache the bitmap so we don't need to
+	 * recreate it each time draw() is called since it takes a few milliseconds.
+	 */
+	private void generatePatternBitmap() {
 
-        if (getBounds().width() <= 0 || getBounds().height() <= 0) {
-            return;
-        }
+		if (getBounds().width() <= 0 || getBounds().height() <= 0) {
+			return;
+		}
 
-        mBitmap = Bitmap.createBitmap(getBounds().width(), getBounds().height(), Config.ARGB_8888);
-        final Canvas mCanvas = new Canvas(mBitmap);
+		mBitmap = Bitmap.createBitmap(getBounds().width(),
+				getBounds().height(), Config.ARGB_8888);
+		final Canvas mCanvas = new Canvas(mBitmap);
 
-        final Rect mRect = new Rect();
-        boolean mVerticalStartWhite = true;
-        for (int i = 0; i <= numRectanglesVertical; i++) {
-            boolean mIsWhite = mVerticalStartWhite;
-            for (int j = 0; j <= numRectanglesHorizontal; j++) {
-                mRect.top = i * mRectangleSize;
-                mRect.left = j * mRectangleSize;
-                mRect.bottom = mRect.top + mRectangleSize;
-                mRect.right = mRect.left + mRectangleSize;
+		final Rect mRect = new Rect();
+		boolean mVerticalStartWhite = true;
+		for (int i = 0; i <= numRectanglesVertical; i++) {
+			boolean mIsWhite = mVerticalStartWhite;
+			for (int j = 0; j <= numRectanglesHorizontal; j++) {
+				mRect.top = i * mRectangleSize;
+				mRect.left = j * mRectangleSize;
+				mRect.bottom = mRect.top + mRectangleSize;
+				mRect.right = mRect.left + mRectangleSize;
 
-                mCanvas.drawRect(mRect, mIsWhite ? mPaintWhite : mPaintGray);
+				mCanvas.drawRect(mRect, mIsWhite ? mPaintWhite : mPaintGray);
 
-                mIsWhite = !mIsWhite;
-            }
-            mVerticalStartWhite = !mVerticalStartWhite;
-        }
-    }
+				mIsWhite = !mIsWhite;
+			}
+			mVerticalStartWhite = !mVerticalStartWhite;
+		}
+	}
 }

@@ -36,210 +36,215 @@ import com.boko.vimusic.provider.RecentStore.RecentTable;
 @TargetApi(11)
 public class RecentWidgetService extends RemoteViewsService {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public RemoteViewsFactory onGetViewFactory(final Intent intent) {
-        return new WidgetRemoteViewsFactory(getApplicationContext());
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public RemoteViewsFactory onGetViewFactory(final Intent intent) {
+		return new WidgetRemoteViewsFactory(getApplicationContext());
+	}
 
-    /**
-     * This is the factory that will provide data to the collection widget.
-     */
-    private static final class WidgetRemoteViewsFactory implements
-            RemoteViewsService.RemoteViewsFactory {
-        /**
-         * Number of views (ImageView and TextView)
-         */
-        private static final int VIEW_TYPE_COUNT = 2;
+	/**
+	 * This is the factory that will provide data to the collection widget.
+	 */
+	private static final class WidgetRemoteViewsFactory implements
+			RemoteViewsService.RemoteViewsFactory {
+		/**
+		 * Number of views (ImageView and TextView)
+		 */
+		private static final int VIEW_TYPE_COUNT = 2;
 
-        /**
-         * The context to use
-         */
-        private final Context mContext;
+		/**
+		 * The context to use
+		 */
+		private final Context mContext;
 
-        /**
-         * Image cache
-         */
-        private final ImageFetcher mFetcher;
+		/**
+		 * Image cache
+		 */
+		private final ImageFetcher mFetcher;
 
-        /**
-         * Recents db
-         */
-        private final RecentStore mRecentsStore;
+		/**
+		 * Recents db
+		 */
+		private final RecentStore mRecentsStore;
 
-        /**
-         * Cursor to use
-         */
-        private Cursor mCursor;
+		/**
+		 * Cursor to use
+		 */
+		private Cursor mCursor;
 
-        /**
-         * Remove views
-         */
-        private RemoteViews mViews;
+		/**
+		 * Remove views
+		 */
+		private RemoteViews mViews;
 
-        /**
-         * Constructor of <code>WidgetRemoteViewsFactory</code>
-         * 
-         * @param context The {@link Context} to use.
-         */
-        public WidgetRemoteViewsFactory(final Context context) {
-            // Get the context
-            mContext = context;
-            // Initialze the image cache
-            mFetcher = ImageFetcher.getInstance(context);
-            mFetcher.setImageCache(ImageCache.getInstance(context));
-            // Initialze the recents store
-            mRecentsStore = RecentStore.getInstance(context);
-        }
+		/**
+		 * Constructor of <code>WidgetRemoteViewsFactory</code>
+		 * 
+		 * @param context
+		 *            The {@link Context} to use.
+		 */
+		public WidgetRemoteViewsFactory(final Context context) {
+			// Get the context
+			mContext = context;
+			// Initialze the image cache
+			mFetcher = ImageFetcher.getInstance(context);
+			mFetcher.setImageCache(ImageCache.getInstance(context));
+			// Initialze the recents store
+			mRecentsStore = RecentStore.getInstance(context);
+		}
 
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public int getCount() {
-            // Check for errors
-            if (mCursor == null || mCursor.isClosed() || mCursor.getCount() <= 0) {
-                return 0;
-            }
-            return mCursor.getCount();
-        }
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public int getCount() {
+			// Check for errors
+			if (mCursor == null || mCursor.isClosed()
+					|| mCursor.getCount() <= 0) {
+				return 0;
+			}
+			return mCursor.getCount();
+		}
 
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public long getItemId(final int position) {
-            return position;
-        }
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public long getItemId(final int position) {
+			return position;
+		}
 
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public RemoteViews getViewAt(final int position) {
-            mCursor.moveToPosition(position);
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public RemoteViews getViewAt(final int position) {
+			mCursor.moveToPosition(position);
 
-            // Create the remote views
-            mViews = new RemoteViews(mContext.getPackageName(), R.layout.app_widget_recents_items);
+			// Create the remote views
+			mViews = new RemoteViews(mContext.getPackageName(),
+					R.layout.app_widget_recents_items);
 
-            // Copy the album id
-            final String id = mCursor.getString(mCursor
-                    .getColumnIndexOrThrow(RecentTable.AID));
+			// Copy the album id
+			final String id = mCursor.getString(mCursor
+					.getColumnIndexOrThrow(RecentTable.AID));
 
-            // Copy the album name
-            final String albumName = mCursor.getString(mCursor
-                    .getColumnIndexOrThrow(RecentTable.NAME));
+			// Copy the album name
+			final String albumName = mCursor.getString(mCursor
+					.getColumnIndexOrThrow(RecentTable.NAME));
 
-            // Copy the artist name
-            final String artist = mCursor.getString(mCursor
-                    .getColumnIndexOrThrow(RecentTable.ARTIST));
+			// Copy the artist name
+			final String artist = mCursor.getString(mCursor
+					.getColumnIndexOrThrow(RecentTable.ARTIST));
 
-            // Set the album names
-            mViews.setTextViewText(R.id.app_widget_recents_line_one, albumName);
-            // Set the artist names
-            mViews.setTextViewText(R.id.app_widget_recents_line_two, artist);
-            // Set the album art
-            Bitmap bitmap = mFetcher.getCachedArtwork(albumName, artist, id);
-            if (bitmap != null) {
-                mViews.setImageViewBitmap(R.id.app_widget_recents_base_image, bitmap);
-            } else {
-                mViews.setImageViewResource(R.id.app_widget_recents_base_image,
-                        R.drawable.default_artwork);
-            }
+			// Set the album names
+			mViews.setTextViewText(R.id.app_widget_recents_line_one, albumName);
+			// Set the artist names
+			mViews.setTextViewText(R.id.app_widget_recents_line_two, artist);
+			// Set the album art
+			Bitmap bitmap = mFetcher.getCachedArtwork(albumName, artist, id);
+			if (bitmap != null) {
+				mViews.setImageViewBitmap(R.id.app_widget_recents_base_image,
+						bitmap);
+			} else {
+				mViews.setImageViewResource(R.id.app_widget_recents_base_image,
+						R.drawable.default_artwork);
+			}
 
-            // Open the profile of the touched album
-            final Intent profileIntent = new Intent();
-            final Bundle profileExtras = new Bundle();
-            if (id != null) {
-            	profileExtras.putString(Config.ID, id);
-            }
-            profileExtras.putString(Config.NAME, albumName);
-            profileExtras.putString(Config.ARTIST_NAME, artist);
-            profileExtras.putString(RecentWidgetProvider.SET_ACTION,
-                    RecentWidgetProvider.OPEN_PROFILE);
-            profileIntent.putExtras(profileExtras);
-            mViews.setOnClickFillInIntent(R.id.app_widget_recents_items, profileIntent);
+			// Open the profile of the touched album
+			final Intent profileIntent = new Intent();
+			final Bundle profileExtras = new Bundle();
+			if (id != null) {
+				profileExtras.putString(Config.ID, id);
+			}
+			profileExtras.putString(Config.NAME, albumName);
+			profileExtras.putString(Config.ARTIST_NAME, artist);
+			profileExtras.putString(RecentWidgetProvider.SET_ACTION,
+					RecentWidgetProvider.OPEN_PROFILE);
+			profileIntent.putExtras(profileExtras);
+			mViews.setOnClickFillInIntent(R.id.app_widget_recents_items,
+					profileIntent);
 
-            // Play the album when the artwork is touched
-            final Intent playAlbum = new Intent();
-            final Bundle playAlbumExtras = new Bundle();
-            if (id != null) {
-            	playAlbumExtras.putString(Config.ID, id);
-            }
-            playAlbumExtras.putString(RecentWidgetProvider.SET_ACTION,
-                    RecentWidgetProvider.PLAY_ALBUM);
-            playAlbum.putExtras(playAlbumExtras);
-            mViews.setOnClickFillInIntent(R.id.app_widget_recents_base_image, playAlbum);
-            return mViews;
-        }
+			// Play the album when the artwork is touched
+			final Intent playAlbum = new Intent();
+			final Bundle playAlbumExtras = new Bundle();
+			if (id != null) {
+				playAlbumExtras.putString(Config.ID, id);
+			}
+			playAlbumExtras.putString(RecentWidgetProvider.SET_ACTION,
+					RecentWidgetProvider.PLAY_ALBUM);
+			playAlbum.putExtras(playAlbumExtras);
+			mViews.setOnClickFillInIntent(R.id.app_widget_recents_base_image,
+					playAlbum);
+			return mViews;
+		}
 
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public int getViewTypeCount() {
-            return VIEW_TYPE_COUNT;
-        }
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public int getViewTypeCount() {
+			return VIEW_TYPE_COUNT;
+		}
 
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public boolean hasStableIds() {
-            return true;
-        }
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public boolean hasStableIds() {
+			return true;
+		}
 
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void onDataSetChanged() {
-            if (mCursor != null && !mCursor.isClosed()) {
-                mCursor.close();
-                mCursor = null;
-            }
-            mCursor = mRecentsStore.getReadableDatabase().query(
-                    RecentTable.TABLE_NAME,
-                    new String[] {
-                            RecentTable.AID + " as id", RecentTable.AID,
-                            RecentTable.NAME, RecentTable.ARTIST,
-                            RecentTable.SONG_COUNT, RecentTable.YEAR,
-                            RecentTable.TIME_PLAYED
-                    }, null, null, null, null, RecentTable.TIME_PLAYED + " DESC");
-        }
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public void onDataSetChanged() {
+			if (mCursor != null && !mCursor.isClosed()) {
+				mCursor.close();
+				mCursor = null;
+			}
+			mCursor = mRecentsStore.getReadableDatabase().query(
+					RecentTable.TABLE_NAME,
+					new String[] { RecentTable.AID + " as id", RecentTable.AID,
+							RecentTable.NAME, RecentTable.ARTIST,
+							RecentTable.SONG_COUNT, RecentTable.YEAR,
+							RecentTable.TIME_PLAYED }, null, null, null, null,
+					RecentTable.TIME_PLAYED + " DESC");
+		}
 
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void onDestroy() {
-            closeCursor();
-        }
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public void onDestroy() {
+			closeCursor();
+		}
 
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public RemoteViews getLoadingView() {
-            // Nothing to do
-            return null;
-        }
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public RemoteViews getLoadingView() {
+			// Nothing to do
+			return null;
+		}
 
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void onCreate() {
-            // Nothing to do
-        }
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public void onCreate() {
+			// Nothing to do
+		}
 
-        private void closeCursor() {
-            if (mCursor != null && !mCursor.isClosed()) {
-                mCursor.close();
-                mCursor = null;
-            }
-        }
-    }
+		private void closeCursor() {
+			if (mCursor != null && !mCursor.isClosed()) {
+				mCursor.close();
+				mCursor = null;
+			}
+		}
+	}
 }

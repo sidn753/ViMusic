@@ -35,140 +35,147 @@ import com.boko.vimusic.R;
  * This widget implements the dynamic action bar tab behavior that can change
  * across different configurations or circumstances.
  */
-public class IconPageIndicator extends HorizontalScrollView implements PageIndicator {
-    private final IcsLinearLayout mIconsLayout;
+public class IconPageIndicator extends HorizontalScrollView implements
+		PageIndicator {
+	private final IcsLinearLayout mIconsLayout;
 
-    private ViewPager mViewPager;
-    private OnPageChangeListener mListener;
-    private Runnable mIconSelector;
-    private int mSelectedIndex;
+	private ViewPager mViewPager;
+	private OnPageChangeListener mListener;
+	private Runnable mIconSelector;
+	private int mSelectedIndex;
 
-    public IconPageIndicator(Context context) {
-        this(context, null);
-    }
+	public IconPageIndicator(Context context) {
+		this(context, null);
+	}
 
-    public IconPageIndicator(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        setHorizontalScrollBarEnabled(false);
+	public IconPageIndicator(Context context, AttributeSet attrs) {
+		super(context, attrs);
+		setHorizontalScrollBarEnabled(false);
 
-        mIconsLayout = new IcsLinearLayout(context, R.attr.vpiIconPageIndicatorStyle);
-        addView(mIconsLayout, new LayoutParams(WRAP_CONTENT, FILL_PARENT, Gravity.CENTER));
-    }
+		mIconsLayout = new IcsLinearLayout(context,
+				R.attr.vpiIconPageIndicatorStyle);
+		addView(mIconsLayout, new LayoutParams(WRAP_CONTENT, FILL_PARENT,
+				Gravity.CENTER));
+	}
 
-    private void animateToIcon(final int position) {
-        final View iconView = mIconsLayout.getChildAt(position);
-        if (mIconSelector != null) {
-            removeCallbacks(mIconSelector);
-        }
-        mIconSelector = new Runnable() {
-            public void run() {
-                final int scrollPos = iconView.getLeft() - (getWidth() - iconView.getWidth()) / 2;
-                smoothScrollTo(scrollPos, 0);
-                mIconSelector = null;
-            }
-        };
-        post(mIconSelector);
-    }
+	private void animateToIcon(final int position) {
+		final View iconView = mIconsLayout.getChildAt(position);
+		if (mIconSelector != null) {
+			removeCallbacks(mIconSelector);
+		}
+		mIconSelector = new Runnable() {
+			public void run() {
+				final int scrollPos = iconView.getLeft()
+						- (getWidth() - iconView.getWidth()) / 2;
+				smoothScrollTo(scrollPos, 0);
+				mIconSelector = null;
+			}
+		};
+		post(mIconSelector);
+	}
 
-    @Override
-    public void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        if (mIconSelector != null) {
-            // Re-post the selector we saved
-            post(mIconSelector);
-        }
-    }
+	@Override
+	public void onAttachedToWindow() {
+		super.onAttachedToWindow();
+		if (mIconSelector != null) {
+			// Re-post the selector we saved
+			post(mIconSelector);
+		}
+	}
 
-    @Override
-    public void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        if (mIconSelector != null) {
-            removeCallbacks(mIconSelector);
-        }
-    }
+	@Override
+	public void onDetachedFromWindow() {
+		super.onDetachedFromWindow();
+		if (mIconSelector != null) {
+			removeCallbacks(mIconSelector);
+		}
+	}
 
-    @Override
-    public void onPageScrollStateChanged(int arg0) {
-        if (mListener != null) {
-            mListener.onPageScrollStateChanged(arg0);
-        }
-    }
+	@Override
+	public void onPageScrollStateChanged(int arg0) {
+		if (mListener != null) {
+			mListener.onPageScrollStateChanged(arg0);
+		}
+	}
 
-    @Override
-    public void onPageScrolled(int arg0, float arg1, int arg2) {
-        if (mListener != null) {
-            mListener.onPageScrolled(arg0, arg1, arg2);
-        }
-    }
+	@Override
+	public void onPageScrolled(int arg0, float arg1, int arg2) {
+		if (mListener != null) {
+			mListener.onPageScrolled(arg0, arg1, arg2);
+		}
+	}
 
-    @Override
-    public void onPageSelected(int arg0) {
-        setCurrentItem(arg0);
-        if (mListener != null) {
-            mListener.onPageSelected(arg0);
-        }
-    }
+	@Override
+	public void onPageSelected(int arg0) {
+		setCurrentItem(arg0);
+		if (mListener != null) {
+			mListener.onPageSelected(arg0);
+		}
+	}
 
-    @Override
-    public void setViewPager(ViewPager view) {
-        if (mViewPager == view) {
-            return;
-        }
-        if (mViewPager != null) {
-            mViewPager.setOnPageChangeListener(null);
-        }
-        PagerAdapter adapter = view.getAdapter();
-        if (adapter == null) {
-            throw new IllegalStateException("ViewPager does not have adapter instance.");
-        }
-        mViewPager = view;
-        view.setOnPageChangeListener(this);
-        notifyDataSetChanged();
-    }
+	@Override
+	public void setViewPager(ViewPager view) {
+		if (mViewPager == view) {
+			return;
+		}
+		if (mViewPager != null) {
+			mViewPager.setOnPageChangeListener(null);
+		}
+		PagerAdapter adapter = view.getAdapter();
+		if (adapter == null) {
+			throw new IllegalStateException(
+					"ViewPager does not have adapter instance.");
+		}
+		mViewPager = view;
+		view.setOnPageChangeListener(this);
+		notifyDataSetChanged();
+	}
 
-    public void notifyDataSetChanged() {
-        mIconsLayout.removeAllViews();
-        IconPagerAdapter iconAdapter = (IconPagerAdapter) mViewPager.getAdapter();
-        int count = iconAdapter.getCount();
-        for (int i = 0; i < count; i++) {
-            ImageView view = new ImageView(getContext(), null, R.attr.vpiIconPageIndicatorStyle);
-            view.setImageResource(iconAdapter.getIconResId(i));
-            mIconsLayout.addView(view);
-        }
-        if (mSelectedIndex > count) {
-            mSelectedIndex = count - 1;
-        }
-        setCurrentItem(mSelectedIndex);
-        requestLayout();
-    }
+	public void notifyDataSetChanged() {
+		mIconsLayout.removeAllViews();
+		IconPagerAdapter iconAdapter = (IconPagerAdapter) mViewPager
+				.getAdapter();
+		int count = iconAdapter.getCount();
+		for (int i = 0; i < count; i++) {
+			ImageView view = new ImageView(getContext(), null,
+					R.attr.vpiIconPageIndicatorStyle);
+			view.setImageResource(iconAdapter.getIconResId(i));
+			mIconsLayout.addView(view);
+		}
+		if (mSelectedIndex > count) {
+			mSelectedIndex = count - 1;
+		}
+		setCurrentItem(mSelectedIndex);
+		requestLayout();
+	}
 
-    @Override
-    public void setViewPager(ViewPager view, int initialPosition) {
-        setViewPager(view);
-        setCurrentItem(initialPosition);
-    }
+	@Override
+	public void setViewPager(ViewPager view, int initialPosition) {
+		setViewPager(view);
+		setCurrentItem(initialPosition);
+	}
 
-    @Override
-    public void setCurrentItem(int item) {
-        if (mViewPager == null) {
-            throw new IllegalStateException("ViewPager has not been bound.");
-        }
-        mSelectedIndex = item;
-        mViewPager.setCurrentItem(item);
+	@Override
+	public void setCurrentItem(int item) {
+		if (mViewPager == null) {
+			throw new IllegalStateException("ViewPager has not been bound.");
+		}
+		mSelectedIndex = item;
+		mViewPager.setCurrentItem(item);
 
-        int tabCount = mIconsLayout.getChildCount();
-        for (int i = 0; i < tabCount; i++) {
-            View child = mIconsLayout.getChildAt(i);
-            boolean isSelected = (i == item);
-            child.setSelected(isSelected);
-            if (isSelected) {
-                animateToIcon(item);
-            }
-        }
-    }
+		int tabCount = mIconsLayout.getChildCount();
+		for (int i = 0; i < tabCount; i++) {
+			View child = mIconsLayout.getChildAt(i);
+			boolean isSelected = (i == item);
+			child.setSelected(isSelected);
+			if (isSelected) {
+				animateToIcon(item);
+			}
+		}
+	}
 
-    @Override
-    public void setOnPageChangeListener(OnPageChangeListener listener) {
-        mListener = listener;
-    }
+	@Override
+	public void setOnPageChangeListener(OnPageChangeListener listener) {
+		mListener = listener;
+	}
 }

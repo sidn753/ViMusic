@@ -43,7 +43,7 @@ import com.boko.vimusic.api.Result;
  */
 public class Artist extends com.boko.vimusic.model.Artist {
 
-    /**
+	/**
 	 * @param artistId
 	 * @param artistName
 	 * @param songNumber
@@ -55,83 +55,94 @@ public class Artist extends com.boko.vimusic.model.Artist {
 	}
 
 	/**
-     * Retrieves detailed artist info for the given artist or mbid entry.
-     * 
-     * @param artistOrMbid Name of the artist or an mbid
-     * @return detailed artist info
-     */
-    public final static Artist getInfo(final Context context, final String artistOrMbid) {
-        return getInfo(context, artistOrMbid, Locale.getDefault(), Config.LASTFM_API_KEY);
-    }
+	 * Retrieves detailed artist info for the given artist or mbid entry.
+	 * 
+	 * @param artistOrMbid
+	 *            Name of the artist or an mbid
+	 * @return detailed artist info
+	 */
+	public final static Artist getInfo(final Context context,
+			final String artistOrMbid) {
+		return getInfo(context, artistOrMbid, Locale.getDefault(),
+				Config.LASTFM_API_KEY);
+	}
 
-    /**
-     * Retrieves detailed artist info for the given artist or mbid entry.
-     * 
-     * @param artistOrMbid Name of the artist or an mbid
-     * @param locale The language to fetch info in, or <code>null</code>
-     * @param apiKey The API key
-     * @return detailed artist info
-     */
-    public final static Artist getInfo(final Context context, final String artistOrMbid,
-            final Locale locale, final String apiKey) {
-        final Map<String, String> mParams = new WeakHashMap<String, String>();
-        mParams.put("method","artist.getInfo");
-        mParams.put("artist", artistOrMbid);
-        if (locale != null && locale.getLanguage().length() != 0) {
-            mParams.put("lang", locale.getLanguage());
-        }
-        mParams.put("api_key", apiKey);
-        final Result mResult = Caller.getInstance(context).call("http://ws.audioscrobbler.com/2.0/", mParams);
-        return createItemFromElement(mResult.getContentElement());
-    }
+	/**
+	 * Retrieves detailed artist info for the given artist or mbid entry.
+	 * 
+	 * @param artistOrMbid
+	 *            Name of the artist or an mbid
+	 * @param locale
+	 *            The language to fetch info in, or <code>null</code>
+	 * @param apiKey
+	 *            The API key
+	 * @return detailed artist info
+	 */
+	public final static Artist getInfo(final Context context,
+			final String artistOrMbid, final Locale locale, final String apiKey) {
+		final Map<String, String> mParams = new WeakHashMap<String, String>();
+		mParams.put("method", "artist.getInfo");
+		mParams.put("artist", artistOrMbid);
+		if (locale != null && locale.getLanguage().length() != 0) {
+			mParams.put("lang", locale.getLanguage());
+		}
+		mParams.put("api_key", apiKey);
+		final Result mResult = Caller.getInstance(context).call(
+				"http://ws.audioscrobbler.com/2.0/", mParams);
+		return createItemFromElement(mResult.getContentElement());
+	}
 
-    /**
-     * Use the last.fm corrections data to check whether the supplied artist has
-     * a correction to a canonical artist. This method returns a new
-     * {@link Artist} object containing the corrected data, or <code>null</code>
-     * if the supplied Artist was not found.
-     * 
-     * @param artist The artist name to correct
-     * @return a new {@link Artist}, or <code>null</code>
-     */
-    public final static Artist getCorrection(final Context context, final String artist) {
-        Result result = null;
-        try {
-            result = Caller.getInstance(context).call("artist.getCorrection",
-                    Config.LASTFM_API_KEY, "artist", artist);
-            final DomElement correctionElement = result.getContentElement().getChild("correction");
-            if (correctionElement == null) {
-                return new Artist(null, artist, 0, 0);
-            }
-            final DomElement artistElem = correctionElement.getChild("artist");
-            return createItemFromElement(artistElem);
-        } catch (final Exception ignored) {
-            return null;
-        }
-    }
-    
-    public static Artist createItemFromElement(final DomElement element) {
-        if (element == null) {
-            return null;
-        }
-        final Artist artist = new Artist(null, null, 0, 0);
-        final Collection<DomElement> images = element.getChildren("image");
-        for (final DomElement image : images) {
-            final String attribute = image.getAttribute("size");
-            ImageSize size = null;
-            if (attribute == null) {
-                size = ImageSize.UNKNOWN;
-            } else {
-                try {
-                    size = ImageSize.valueOf(attribute.toUpperCase(Locale.ENGLISH));
-                } catch (final IllegalArgumentException e) {
-                    // if they suddenly again introduce a new image size
-                }
-            }
-            if (size == ImageSize.EXTRALARGE) {
-            	artist.setAvatarUrl(image.getText());
-            }
-        }
-        return artist;
-    }
+	/**
+	 * Use the last.fm corrections data to check whether the supplied artist has
+	 * a correction to a canonical artist. This method returns a new
+	 * {@link Artist} object containing the corrected data, or <code>null</code>
+	 * if the supplied Artist was not found.
+	 * 
+	 * @param artist
+	 *            The artist name to correct
+	 * @return a new {@link Artist}, or <code>null</code>
+	 */
+	public final static Artist getCorrection(final Context context,
+			final String artist) {
+		Result result = null;
+		try {
+			result = Caller.getInstance(context).call("artist.getCorrection",
+					Config.LASTFM_API_KEY, "artist", artist);
+			final DomElement correctionElement = result.getContentElement()
+					.getChild("correction");
+			if (correctionElement == null) {
+				return new Artist(null, artist, 0, 0);
+			}
+			final DomElement artistElem = correctionElement.getChild("artist");
+			return createItemFromElement(artistElem);
+		} catch (final Exception ignored) {
+			return null;
+		}
+	}
+
+	public static Artist createItemFromElement(final DomElement element) {
+		if (element == null) {
+			return null;
+		}
+		final Artist artist = new Artist(null, null, 0, 0);
+		final Collection<DomElement> images = element.getChildren("image");
+		for (final DomElement image : images) {
+			final String attribute = image.getAttribute("size");
+			ImageSize size = null;
+			if (attribute == null) {
+				size = ImageSize.UNKNOWN;
+			} else {
+				try {
+					size = ImageSize.valueOf(attribute
+							.toUpperCase(Locale.ENGLISH));
+				} catch (final IllegalArgumentException e) {
+					// if they suddenly again introduce a new image size
+				}
+			}
+			if (size == ImageSize.EXTRALARGE) {
+				artist.setAvatarUrl(image.getText());
+			}
+		}
+		return artist;
+	}
 }

@@ -11,17 +11,17 @@ public class Media {
 	 * Host's unique id of a media.
 	 */
 	private String mId;
-	
+
 	/**
 	 * Media host.
 	 */
 	private String mHost;
-	
+
 	/**
 	 * Media name.
 	 */
 	private String mName;
-	
+
 	/**
 	 * Media avatar url.
 	 */
@@ -58,13 +58,13 @@ public class Media {
 	public void setAvatarUrl(String avatarUrl) {
 		this.mAvatarUrl = avatarUrl;
 	}
-	
+
 	@Override
 	public boolean equals(final Object obj) {
 		if (obj == null) {
 			return false;
 		}
-		final Media other = (Media)obj;
+		final Media other = (Media) obj;
 		if (!TextUtils.equals(getHost(), other.getHost())) {
 			return false;
 		}

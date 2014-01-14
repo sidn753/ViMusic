@@ -35,191 +35,207 @@ import java.util.Locale;
  * @author Andrew Neal (andrewdneal@gmail.com)
  */
 public class ColorSchemeDialog extends AlertDialog implements
-        ColorPickerView.OnColorChangedListener {
+		ColorPickerView.OnColorChangedListener {
 
-    private final int mCurrentColor;
+	private final int mCurrentColor;
 
-    private final OnColorChangedListener mListener = this;;
+	private final OnColorChangedListener mListener = this;;
 
-    private LayoutInflater mInflater;
+	private LayoutInflater mInflater;
 
-    private ColorPickerView mColorPicker;
+	private ColorPickerView mColorPicker;
 
-    private Button mOldColor;
+	private Button mOldColor;
 
-    private Button mNewColor;
+	private Button mNewColor;
 
-    private View mRootView;
+	private View mRootView;
 
-    private EditText mHexValue;
+	private EditText mHexValue;
 
-    /**
-     * Constructor of <code>ColorSchemeDialog</code>
-     * 
-     * @param context The {@link Contxt} to use.
-     */
-    public ColorSchemeDialog(final Context context) {
-        super(context);
-        getWindow().setFormat(PixelFormat.RGBA_8888);
-        mCurrentColor = PreferenceUtils.getInstance(context).getDefaultThemeColor(context);
-        setUp(mCurrentColor);
-    }
+	/**
+	 * Constructor of <code>ColorSchemeDialog</code>
+	 * 
+	 * @param context
+	 *            The {@link Contxt} to use.
+	 */
+	public ColorSchemeDialog(final Context context) {
+		super(context);
+		getWindow().setFormat(PixelFormat.RGBA_8888);
+		mCurrentColor = PreferenceUtils.getInstance(context)
+				.getDefaultThemeColor(context);
+		setUp(mCurrentColor);
+	}
 
-    @Override
-    public void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        ApolloUtils.removeHardwareAccelerationSupport(mColorPicker);
-    }
+	@Override
+	public void onAttachedToWindow() {
+		super.onAttachedToWindow();
+		ApolloUtils.removeHardwareAccelerationSupport(mColorPicker);
+	}
 
-    /*
-     * (non-Javadoc)
-     * @see com.boko.vimusic.widgets.ColorPickerView.OnColorChangedListener#
-     * onColorChanged(int)
-     */
-    @Override
-    public void onColorChanged(final int color) {
-        if (mHexValue != null) {
-            mHexValue.setText(padLeft(Integer.toHexString(color).toUpperCase(Locale.getDefault()),
-                    '0', 8));
-        }
-        mNewColor.setBackgroundColor(color);
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.boko.vimusic.widgets.ColorPickerView.OnColorChangedListener#
+	 * onColorChanged(int)
+	 */
+	@Override
+	public void onColorChanged(final int color) {
+		if (mHexValue != null) {
+			mHexValue
+					.setText(padLeft(
+							Integer.toHexString(color).toUpperCase(
+									Locale.getDefault()), '0', 8));
+		}
+		mNewColor.setBackgroundColor(color);
+	}
 
-    private String padLeft(final String string, final char padChar, final int size) {
-        if (string.length() >= size) {
-            return string;
-        }
-        final StringBuilder result = new StringBuilder();
-        for (int i = string.length(); i < size; i++) {
-            result.append(padChar);
-        }
-        result.append(string);
-        return result.toString();
-    }
+	private String padLeft(final String string, final char padChar,
+			final int size) {
+		if (string.length() >= size) {
+			return string;
+		}
+		final StringBuilder result = new StringBuilder();
+		for (int i = string.length(); i < size; i++) {
+			result.append(padChar);
+		}
+		result.append(string);
+		return result.toString();
+	}
 
-    /**
-     * Initialzes the presets and color picker
-     * 
-     * @param color The color to use.
-     */
-    private void setUp(final int color) {
-        mInflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mRootView = mInflater.inflate(R.layout.color_scheme_dialog, null);
+	/**
+	 * Initialzes the presets and color picker
+	 * 
+	 * @param color
+	 *            The color to use.
+	 */
+	private void setUp(final int color) {
+		mInflater = (LayoutInflater) getContext().getSystemService(
+				Context.LAYOUT_INFLATER_SERVICE);
+		mRootView = mInflater.inflate(R.layout.color_scheme_dialog, null);
 
-        mColorPicker = (ColorPickerView)mRootView.findViewById(R.id.color_picker_view);
-        mOldColor = (Button)mRootView.findViewById(R.id.color_scheme_dialog_old_color);
-        mOldColor.setOnClickListener(mPresetListener);
-        mNewColor = (Button)mRootView.findViewById(R.id.color_scheme_dialog_new_color);
-        setUpPresets(R.id.color_scheme_dialog_preset_one);
-        setUpPresets(R.id.color_scheme_dialog_preset_two);
-        setUpPresets(R.id.color_scheme_dialog_preset_three);
-        setUpPresets(R.id.color_scheme_dialog_preset_four);
-        setUpPresets(R.id.color_scheme_dialog_preset_five);
-        setUpPresets(R.id.color_scheme_dialog_preset_six);
-        setUpPresets(R.id.color_scheme_dialog_preset_seven);
-        setUpPresets(R.id.color_scheme_dialog_preset_eight);
-        mHexValue = (EditText)mRootView.findViewById(R.id.color_scheme_dialog_hex_value);
-        mHexValue.addTextChangedListener(new TextWatcher() {
+		mColorPicker = (ColorPickerView) mRootView
+				.findViewById(R.id.color_picker_view);
+		mOldColor = (Button) mRootView
+				.findViewById(R.id.color_scheme_dialog_old_color);
+		mOldColor.setOnClickListener(mPresetListener);
+		mNewColor = (Button) mRootView
+				.findViewById(R.id.color_scheme_dialog_new_color);
+		setUpPresets(R.id.color_scheme_dialog_preset_one);
+		setUpPresets(R.id.color_scheme_dialog_preset_two);
+		setUpPresets(R.id.color_scheme_dialog_preset_three);
+		setUpPresets(R.id.color_scheme_dialog_preset_four);
+		setUpPresets(R.id.color_scheme_dialog_preset_five);
+		setUpPresets(R.id.color_scheme_dialog_preset_six);
+		setUpPresets(R.id.color_scheme_dialog_preset_seven);
+		setUpPresets(R.id.color_scheme_dialog_preset_eight);
+		mHexValue = (EditText) mRootView
+				.findViewById(R.id.color_scheme_dialog_hex_value);
+		mHexValue.addTextChangedListener(new TextWatcher() {
 
-            @Override
-            public void onTextChanged(final CharSequence s, final int start, final int before,
-                    final int count) {
-                try {
-                    mColorPicker.setColor(Color.parseColor("#"
-                            + mHexValue.getText().toString().toUpperCase(Locale.getDefault())));
-                    mNewColor.setBackgroundColor(Color.parseColor("#"
-                            + mHexValue.getText().toString().toUpperCase(Locale.getDefault())));
-                } catch (final Exception ignored) {
-                }
-            }
+			@Override
+			public void onTextChanged(final CharSequence s, final int start,
+					final int before, final int count) {
+				try {
+					mColorPicker.setColor(Color.parseColor("#"
+							+ mHexValue.getText().toString()
+									.toUpperCase(Locale.getDefault())));
+					mNewColor.setBackgroundColor(Color.parseColor("#"
+							+ mHexValue.getText().toString()
+									.toUpperCase(Locale.getDefault())));
+				} catch (final Exception ignored) {
+				}
+			}
 
-            @Override
-            public void beforeTextChanged(final CharSequence s, final int start, final int count,
-                    final int after) {
-                /* Nothing to do */
-            }
+			@Override
+			public void beforeTextChanged(final CharSequence s,
+					final int start, final int count, final int after) {
+				/* Nothing to do */
+			}
 
-            @Override
-            public void afterTextChanged(final Editable s) {
-                /* Nothing to do */
-            }
-        });
+			@Override
+			public void afterTextChanged(final Editable s) {
+				/* Nothing to do */
+			}
+		});
 
-        mColorPicker.setOnColorChangedListener(this);
-        mOldColor.setBackgroundColor(color);
-        mColorPicker.setColor(color, true);
+		mColorPicker.setOnColorChangedListener(this);
+		mOldColor.setBackgroundColor(color);
+		mColorPicker.setColor(color, true);
 
-        setTitle(R.string.color_picker_title);
-        setView(mRootView);
-    }
+		setTitle(R.string.color_picker_title);
+		setView(mRootView);
+	}
 
-    /**
-     * @param color The color resource.
-     * @return A new color from Apollo's resources.
-     */
-    private int getColor(final int color) {
-        return getContext().getResources().getColor(color);
-    }
+	/**
+	 * @param color
+	 *            The color resource.
+	 * @return A new color from Apollo's resources.
+	 */
+	private int getColor(final int color) {
+		return getContext().getResources().getColor(color);
+	}
 
-    /**
-     * @return {@link ColorPickerView}'s current color
-     */
-    public int getColor() {
-        return mColorPicker.getColor();
-    }
+	/**
+	 * @return {@link ColorPickerView}'s current color
+	 */
+	public int getColor() {
+		return mColorPicker.getColor();
+	}
 
-    /**
-     * @param which The Id of the preset color
-     */
-    private void setUpPresets(final int which) {
-        final Button preset = (Button)mRootView.findViewById(which);
-        if (preset != null) {
-            preset.setOnClickListener(mPresetListener);
-        }
-    }
+	/**
+	 * @param which
+	 *            The Id of the preset color
+	 */
+	private void setUpPresets(final int which) {
+		final Button preset = (Button) mRootView.findViewById(which);
+		if (preset != null) {
+			preset.setOnClickListener(mPresetListener);
+		}
+	}
 
-    /**
-     * Sets up the preset buttons
-     */
-    private final View.OnClickListener mPresetListener = new View.OnClickListener() {
+	/**
+	 * Sets up the preset buttons
+	 */
+	private final View.OnClickListener mPresetListener = new View.OnClickListener() {
 
-        @Override
-        public void onClick(final View v) {
-            switch (v.getId()) {
-                case R.id.color_scheme_dialog_preset_one:
-                    mColorPicker.setColor(getColor(R.color.holo_blue_light));
-                    break;
-                case R.id.color_scheme_dialog_preset_two:
-                    mColorPicker.setColor(getColor(R.color.holo_green_light));
-                    break;
-                case R.id.color_scheme_dialog_preset_three:
-                    mColorPicker.setColor(getColor(R.color.holo_orange_dark));
-                    break;
-                case R.id.color_scheme_dialog_preset_four:
-                    mColorPicker.setColor(getColor(R.color.holo_orange_light));
-                    break;
-                case R.id.color_scheme_dialog_preset_five:
-                    mColorPicker.setColor(getColor(R.color.holo_purple));
-                    break;
-                case R.id.color_scheme_dialog_preset_six:
-                    mColorPicker.setColor(getColor(R.color.holo_red_light));
-                    break;
-                case R.id.color_scheme_dialog_preset_seven:
-                    mColorPicker.setColor(getColor(R.color.white));
-                    break;
-                case R.id.color_scheme_dialog_preset_eight:
-                    mColorPicker.setColor(getColor(R.color.black));
-                    break;
-                case R.id.color_scheme_dialog_old_color:
-                    mColorPicker.setColor(mCurrentColor);
-                    break;
-                default:
-                    break;
-            }
-            if (mListener != null) {
-                mListener.onColorChanged(getColor());
-            }
-        }
-    };
+		@Override
+		public void onClick(final View v) {
+			switch (v.getId()) {
+			case R.id.color_scheme_dialog_preset_one:
+				mColorPicker.setColor(getColor(R.color.holo_blue_light));
+				break;
+			case R.id.color_scheme_dialog_preset_two:
+				mColorPicker.setColor(getColor(R.color.holo_green_light));
+				break;
+			case R.id.color_scheme_dialog_preset_three:
+				mColorPicker.setColor(getColor(R.color.holo_orange_dark));
+				break;
+			case R.id.color_scheme_dialog_preset_four:
+				mColorPicker.setColor(getColor(R.color.holo_orange_light));
+				break;
+			case R.id.color_scheme_dialog_preset_five:
+				mColorPicker.setColor(getColor(R.color.holo_purple));
+				break;
+			case R.id.color_scheme_dialog_preset_six:
+				mColorPicker.setColor(getColor(R.color.holo_red_light));
+				break;
+			case R.id.color_scheme_dialog_preset_seven:
+				mColorPicker.setColor(getColor(R.color.white));
+				break;
+			case R.id.color_scheme_dialog_preset_eight:
+				mColorPicker.setColor(getColor(R.color.black));
+				break;
+			case R.id.color_scheme_dialog_old_color:
+				mColorPicker.setColor(mCurrentColor);
+				break;
+			default:
+				break;
+			}
+			if (mListener != null) {
+				mListener.onColorChanged(getColor());
+			}
+		}
+	};
 
 }

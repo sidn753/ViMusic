@@ -30,73 +30,78 @@ import com.boko.vimusic.widgets.theme.HoloSelector;
  * 
  * @author Andrew Neal (andrewdneal@gmail.com)
  */
-public class PlayPauseButton extends ImageButton implements OnClickListener, OnLongClickListener {
+public class PlayPauseButton extends ImageButton implements OnClickListener,
+		OnLongClickListener {
 
-    /**
-     * Play button theme resource
-     */
-    private static final String PLAY = "btn_playback_play";
+	/**
+	 * Play button theme resource
+	 */
+	private static final String PLAY = "btn_playback_play";
 
-    /**
-     * Pause button theme resource
-     */
-    private static final String PAUSE = "btn_playback_pause";
+	/**
+	 * Pause button theme resource
+	 */
+	private static final String PAUSE = "btn_playback_pause";
 
-    /**
-     * The resources to use.
-     */
-    private final ThemeUtils mResources;
+	/**
+	 * The resources to use.
+	 */
+	private final ThemeUtils mResources;
 
-    /**
-     * @param context The {@link Context} to use
-     * @param attrs The attributes of the XML tag that is inflating the view.
-     */
-    @SuppressWarnings("deprecation")
-    public PlayPauseButton(final Context context, final AttributeSet attrs) {
-        super(context, attrs);
-        // Initialze the theme resources
-        mResources = new ThemeUtils(context);
-        // Theme the selector
-        setBackgroundDrawable(new HoloSelector(context));
-        // Control playback (play/pause)
-        setOnClickListener(this);
-        // Show the cheat sheet
-        setOnLongClickListener(this);
-    }
+	/**
+	 * @param context
+	 *            The {@link Context} to use
+	 * @param attrs
+	 *            The attributes of the XML tag that is inflating the view.
+	 */
+	@SuppressWarnings("deprecation")
+	public PlayPauseButton(final Context context, final AttributeSet attrs) {
+		super(context, attrs);
+		// Initialze the theme resources
+		mResources = new ThemeUtils(context);
+		// Theme the selector
+		setBackgroundDrawable(new HoloSelector(context));
+		// Control playback (play/pause)
+		setOnClickListener(this);
+		// Show the cheat sheet
+		setOnLongClickListener(this);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onClick(final View v) {
-        MusicUtils.playOrPause();
-        updateState();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void onClick(final View v) {
+		MusicUtils.playOrPause();
+		updateState();
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean onLongClick(final View view) {
-        if (TextUtils.isEmpty(view.getContentDescription())) {
-            return false;
-        } else {
-            ApolloUtils.showCheatSheet(view);
-            return true;
-        }
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean onLongClick(final View view) {
+		if (TextUtils.isEmpty(view.getContentDescription())) {
+			return false;
+		} else {
+			ApolloUtils.showCheatSheet(view);
+			return true;
+		}
+	}
 
-    /**
-     * Sets the correct drawable for playback.
-     */
-    public void updateState() {
-        if (MusicUtils.isPlaying()) {
-            setContentDescription(getResources().getString(R.string.accessibility_pause));
-            setImageDrawable(mResources.getDrawable(PAUSE));
-        } else {
-            setContentDescription(getResources().getString(R.string.accessibility_play));
-            setImageDrawable(mResources.getDrawable(PLAY));
-        }
-    }
+	/**
+	 * Sets the correct drawable for playback.
+	 */
+	public void updateState() {
+		if (MusicUtils.isPlaying()) {
+			setContentDescription(getResources().getString(
+					R.string.accessibility_pause));
+			setImageDrawable(mResources.getDrawable(PAUSE));
+		} else {
+			setContentDescription(getResources().getString(
+					R.string.accessibility_play));
+			setImageDrawable(mResources.getDrawable(PLAY));
+		}
+	}
 
 }

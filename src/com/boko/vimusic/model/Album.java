@@ -11,44 +11,49 @@
 
 package com.boko.vimusic.model;
 
-
 /**
  * A class that represents an album.
  * 
  */
 public class Album extends Media {
 
-    /**
-     * The album artist
-     */
-    public String mArtistName;
+	/**
+	 * The album artist
+	 */
+	public String mArtistName;
 
-    /**
-     * The number of songs in the album
-     */
-    public int mSongNumber;
+	/**
+	 * The number of songs in the album
+	 */
+	public int mSongNumber;
 
-    /**
-     * The year the album was released
-     */
-    public String mYear;
+	/**
+	 * The year the album was released
+	 */
+	public String mYear;
 
-    /**
-     * Constructor of <code>Album</code>
-     * 
-     * @param albumId The Id of the album
-     * @param albumName The name of the album
-     * @param artistName The album artist
-     * @param songNumber The number of songs in the album
-     * @param albumYear The year the album was released
-     */
-    public Album(final String albumId, final String albumName, final String artistName,
-            final int songNumber, final String albumYear) {
-        super();
-        setId(albumId);
-        setName(albumName);
-        mArtistName = artistName;
-        mSongNumber = songNumber;
-        mYear = albumYear;
-    }
+	/**
+	 * Constructor of <code>Album</code>
+	 * 
+	 * @param albumId
+	 *            The Id of the album
+	 * @param albumName
+	 *            The name of the album
+	 * @param artistName
+	 *            The album artist
+	 * @param songNumber
+	 *            The number of songs in the album
+	 * @param albumYear
+	 *            The year the album was released
+	 */
+	public Album(final String albumId, final String albumName,
+			final String artistName, final int songNumber,
+			final String albumYear) {
+		super();
+		setId(albumId);
+		setName(albumName);
+		mArtistName = artistName;
+		mSongNumber = songNumber;
+		mYear = albumYear;
+	}
 }

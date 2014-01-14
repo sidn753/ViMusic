@@ -36,130 +36,136 @@ import java.util.ArrayList;
  */
 public class PhotoSelectionDialog extends DialogFragment {
 
-    private static final int NEW_PHOTO = 0;
+	private static final int NEW_PHOTO = 0;
 
-    private static final int OLD_PHOTO = 1;
+	private static final int OLD_PHOTO = 1;
 
-    private static final int GOOGLE_SEARCH = 2;
+	private static final int GOOGLE_SEARCH = 2;
 
-    private static final int FETCH_IMAGE = 3;
+	private static final int FETCH_IMAGE = 3;
 
-    private final ArrayList<String> mChoices = Lists.newArrayList();
+	private final ArrayList<String> mChoices = Lists.newArrayList();
 
-    private static ProfileType mProfileType;
+	private static ProfileType mProfileType;
 
-    /**
-     * Empty constructor as per the {@link Fragment} documentation
-     */
-    public PhotoSelectionDialog() {
-    }
+	/**
+	 * Empty constructor as per the {@link Fragment} documentation
+	 */
+	public PhotoSelectionDialog() {
+	}
 
-    /**
-     * @param title The dialog title.
-     * @param value The MIME type
-     * @return A new instance of the dialog.
-     */
-    public static PhotoSelectionDialog newInstance(final String title, final ProfileType type) {
-        final PhotoSelectionDialog frag = new PhotoSelectionDialog();
-        final Bundle args = new Bundle();
-        args.putString(Config.NAME, title);
-        frag.setArguments(args);
-        mProfileType = type;
-        return frag;
-    }
+	/**
+	 * @param title
+	 *            The dialog title.
+	 * @param value
+	 *            The MIME type
+	 * @return A new instance of the dialog.
+	 */
+	public static PhotoSelectionDialog newInstance(final String title,
+			final ProfileType type) {
+		final PhotoSelectionDialog frag = new PhotoSelectionDialog();
+		final Bundle args = new Bundle();
+		args.putString(Config.NAME, title);
+		frag.setArguments(args);
+		mProfileType = type;
+		return frag;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        final String title = getArguments().getString(Config.NAME);
-        switch (mProfileType) {
-            case ARTIST:
-                setArtistChoices();
-                break;
-            case ALBUM:
-                setAlbumChoices();
-                break;
-            case OTHER:
-                setOtherChoices();
-                break;
-            default:
-                break;
-        }
-        // Dialog item Adapter
-        final ProfileActivity activity = (ProfileActivity) getActivity();
-        final ListAdapter adapter = new ArrayAdapter<String>(activity,
-                android.R.layout.select_dialog_item, mChoices);
-        return new AlertDialog.Builder(activity).setTitle(title)
-                .setAdapter(adapter, new DialogInterface.OnClickListener() {
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Dialog onCreateDialog(final Bundle savedInstanceState) {
+		final String title = getArguments().getString(Config.NAME);
+		switch (mProfileType) {
+		case ARTIST:
+			setArtistChoices();
+			break;
+		case ALBUM:
+			setAlbumChoices();
+			break;
+		case OTHER:
+			setOtherChoices();
+			break;
+		default:
+			break;
+		}
+		// Dialog item Adapter
+		final ProfileActivity activity = (ProfileActivity) getActivity();
+		final ListAdapter adapter = new ArrayAdapter<String>(activity,
+				android.R.layout.select_dialog_item, mChoices);
+		return new AlertDialog.Builder(activity).setTitle(title)
+				.setAdapter(adapter, new DialogInterface.OnClickListener() {
 
-                    @Override
-                    public void onClick(final DialogInterface dialog, final int which) {
-                        switch (which) {
-                            case NEW_PHOTO:
-                                activity.selectNewPhoto();
-                                break;
-                            case OLD_PHOTO:
-                                activity.selectOldPhoto();
-                                break;
-                            case FETCH_IMAGE:
-                                activity.fetchAlbumArt();
-                                break;
-                            case GOOGLE_SEARCH:
-                                activity.googleSearch();
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                }).create();
-    }
+					@Override
+					public void onClick(final DialogInterface dialog,
+							final int which) {
+						switch (which) {
+						case NEW_PHOTO:
+							activity.selectNewPhoto();
+							break;
+						case OLD_PHOTO:
+							activity.selectOldPhoto();
+							break;
+						case FETCH_IMAGE:
+							activity.fetchAlbumArt();
+							break;
+						case GOOGLE_SEARCH:
+							activity.googleSearch();
+							break;
+						default:
+							break;
+						}
+					}
+				}).create();
+	}
 
-    /**
-     * Adds the choices for the artist profile image.
-     */
-    private void setArtistChoices() {
-        // Select a photo from the gallery
-        mChoices.add(NEW_PHOTO, getString(R.string.new_photo));
-        if (ApolloUtils.isOnline(getActivity())) {
-            // Option to fetch the old artist image
-            mChoices.add(OLD_PHOTO, getString(R.string.context_menu_fetch_artist_image));
-            // Search Google for the artist name
-            mChoices.add(GOOGLE_SEARCH, getString(R.string.google_search));
-        }
-    }
+	/**
+	 * Adds the choices for the artist profile image.
+	 */
+	private void setArtistChoices() {
+		// Select a photo from the gallery
+		mChoices.add(NEW_PHOTO, getString(R.string.new_photo));
+		if (ApolloUtils.isOnline(getActivity())) {
+			// Option to fetch the old artist image
+			mChoices.add(OLD_PHOTO,
+					getString(R.string.context_menu_fetch_artist_image));
+			// Search Google for the artist name
+			mChoices.add(GOOGLE_SEARCH, getString(R.string.google_search));
+		}
+	}
 
-    /**
-     * Adds the choices for the album profile image.
-     */
-    private void setAlbumChoices() {
-        // Select a photo from the gallery
-        mChoices.add(NEW_PHOTO, getString(R.string.new_photo));
-        // Option to fetch the old album image
-        mChoices.add(OLD_PHOTO, getString(R.string.old_photo));
-        if (ApolloUtils.isOnline(getActivity())) {
-            // Search Google for the album name
-            mChoices.add(GOOGLE_SEARCH, getString(R.string.google_search));
-            // Option to fetch the album image
-            mChoices.add(FETCH_IMAGE, getString(R.string.context_menu_fetch_album_art));
-        }
-    }
+	/**
+	 * Adds the choices for the album profile image.
+	 */
+	private void setAlbumChoices() {
+		// Select a photo from the gallery
+		mChoices.add(NEW_PHOTO, getString(R.string.new_photo));
+		// Option to fetch the old album image
+		mChoices.add(OLD_PHOTO, getString(R.string.old_photo));
+		if (ApolloUtils.isOnline(getActivity())) {
+			// Search Google for the album name
+			mChoices.add(GOOGLE_SEARCH, getString(R.string.google_search));
+			// Option to fetch the album image
+			mChoices.add(FETCH_IMAGE,
+					getString(R.string.context_menu_fetch_album_art));
+		}
+	}
 
-    /**
-     * Adds the choices for the genre and playlist images.
-     */
-    private void setOtherChoices() {
-        // Select a photo from the gallery
-        mChoices.add(NEW_PHOTO, getString(R.string.new_photo));
-        // Option to use the default image
-        mChoices.add(OLD_PHOTO, getString(R.string.use_default));
-    }
+	/**
+	 * Adds the choices for the genre and playlist images.
+	 */
+	private void setOtherChoices() {
+		// Select a photo from the gallery
+		mChoices.add(NEW_PHOTO, getString(R.string.new_photo));
+		// Option to use the default image
+		mChoices.add(OLD_PHOTO, getString(R.string.use_default));
+	}
 
-    /**
-     * Easily detect the MIME type
-     */
-    public enum ProfileType {
-        ARTIST, ALBUM, OTHER
-    }
+	/**
+	 * Easily detect the MIME type
+	 */
+	public enum ProfileType {
+		ARTIST, ALBUM, OTHER
+	}
 }

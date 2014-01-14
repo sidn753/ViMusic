@@ -27,140 +27,144 @@ import android.view.View;
  */
 public class ColorPanelView extends View {
 
-    /**
-     * The width in pixels of the border surrounding the color panel.
-     */
-    private final static float BORDER_WIDTH_PX = 1;
+	/**
+	 * The width in pixels of the border surrounding the color panel.
+	 */
+	private final static float BORDER_WIDTH_PX = 1;
 
-    private static float mDensity = 1f;
+	private static float mDensity = 1f;
 
-    private int mBorderColor = 0xff6E6E6E;
+	private int mBorderColor = 0xff6E6E6E;
 
-    private int mColor = 0xff000000;
+	private int mColor = 0xff000000;
 
-    private Paint mBorderPaint;
+	private Paint mBorderPaint;
 
-    private Paint mColorPaint;
+	private Paint mColorPaint;
 
-    private RectF mDrawingRect;
+	private RectF mDrawingRect;
 
-    private RectF mColorRect;
+	private RectF mColorRect;
 
-    private AlphaPatternDrawable mAlphaPattern;
+	private AlphaPatternDrawable mAlphaPattern;
 
-    public ColorPanelView(final Context context) {
-        this(context, null);
-    }
+	public ColorPanelView(final Context context) {
+		this(context, null);
+	}
 
-    public ColorPanelView(final Context context, final AttributeSet attrs) {
-        this(context, attrs, 0);
-    }
+	public ColorPanelView(final Context context, final AttributeSet attrs) {
+		this(context, attrs, 0);
+	}
 
-    public ColorPanelView(final Context context, final AttributeSet attrs, final int defStyle) {
-        super(context, attrs, defStyle);
-        init();
-    }
+	public ColorPanelView(final Context context, final AttributeSet attrs,
+			final int defStyle) {
+		super(context, attrs, defStyle);
+		init();
+	}
 
-    private void init() {
-        mBorderPaint = new Paint();
-        mColorPaint = new Paint();
-        mDensity = getContext().getResources().getDisplayMetrics().density;
-    }
+	private void init() {
+		mBorderPaint = new Paint();
+		mColorPaint = new Paint();
+		mDensity = getContext().getResources().getDisplayMetrics().density;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void onDraw(final Canvas canvas) {
-        final RectF rect = mColorRect;
-        if (BORDER_WIDTH_PX > 0) {
-            mBorderPaint.setColor(mBorderColor);
-            canvas.drawRect(mDrawingRect, mBorderPaint);
-        }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onDraw(final Canvas canvas) {
+		final RectF rect = mColorRect;
+		if (BORDER_WIDTH_PX > 0) {
+			mBorderPaint.setColor(mBorderColor);
+			canvas.drawRect(mDrawingRect, mBorderPaint);
+		}
 
-        if (mAlphaPattern != null) {
-            mAlphaPattern.draw(canvas);
-        }
+		if (mAlphaPattern != null) {
+			mAlphaPattern.draw(canvas);
+		}
 
-        mColorPaint.setColor(mColor);
-        canvas.drawRect(rect, mColorPaint);
-    }
+		mColorPaint.setColor(mColor);
+		canvas.drawRect(rect, mColorPaint);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec) {
-        final int width = MeasureSpec.getSize(widthMeasureSpec);
-        final int height = MeasureSpec.getSize(heightMeasureSpec);
-        setMeasuredDimension(width, height);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onMeasure(final int widthMeasureSpec,
+			final int heightMeasureSpec) {
+		final int width = MeasureSpec.getSize(widthMeasureSpec);
+		final int height = MeasureSpec.getSize(heightMeasureSpec);
+		setMeasuredDimension(width, height);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void onSizeChanged(final int w, final int h, final int oldw, final int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-        mDrawingRect = new RectF();
-        mDrawingRect.left = getPaddingLeft();
-        mDrawingRect.right = w - getPaddingRight();
-        mDrawingRect.top = getPaddingTop();
-        mDrawingRect.bottom = h - getPaddingBottom();
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onSizeChanged(final int w, final int h, final int oldw,
+			final int oldh) {
+		super.onSizeChanged(w, h, oldw, oldh);
+		mDrawingRect = new RectF();
+		mDrawingRect.left = getPaddingLeft();
+		mDrawingRect.right = w - getPaddingRight();
+		mDrawingRect.top = getPaddingTop();
+		mDrawingRect.bottom = h - getPaddingBottom();
 
-        setUpColorRect();
-    }
+		setUpColorRect();
+	}
 
-    private void setUpColorRect() {
-        final RectF dRect = mDrawingRect;
+	private void setUpColorRect() {
+		final RectF dRect = mDrawingRect;
 
-        final float left = dRect.left + BORDER_WIDTH_PX;
-        final float top = dRect.top + BORDER_WIDTH_PX;
-        final float bottom = dRect.bottom - BORDER_WIDTH_PX;
-        final float right = dRect.right - BORDER_WIDTH_PX;
+		final float left = dRect.left + BORDER_WIDTH_PX;
+		final float top = dRect.top + BORDER_WIDTH_PX;
+		final float bottom = dRect.bottom - BORDER_WIDTH_PX;
+		final float right = dRect.right - BORDER_WIDTH_PX;
 
-        mColorRect = new RectF(left, top, right, bottom);
+		mColorRect = new RectF(left, top, right, bottom);
 
-        mAlphaPattern = new AlphaPatternDrawable((int)(5 * mDensity));
+		mAlphaPattern = new AlphaPatternDrawable((int) (5 * mDensity));
 
-        mAlphaPattern.setBounds(Math.round(mColorRect.left), Math.round(mColorRect.top),
-                Math.round(mColorRect.right), Math.round(mColorRect.bottom));
-    }
+		mAlphaPattern.setBounds(Math.round(mColorRect.left),
+				Math.round(mColorRect.top), Math.round(mColorRect.right),
+				Math.round(mColorRect.bottom));
+	}
 
-    /**
-     * Set the color that should be shown by this view.
-     * 
-     * @param color
-     */
-    public void setColor(final int color) {
-        mColor = color;
-        invalidate();
-    }
+	/**
+	 * Set the color that should be shown by this view.
+	 * 
+	 * @param color
+	 */
+	public void setColor(final int color) {
+		mColor = color;
+		invalidate();
+	}
 
-    /**
-     * Get the color currently show by this view.
-     * 
-     * @return
-     */
-    public int getColor() {
-        return mColor;
-    }
+	/**
+	 * Get the color currently show by this view.
+	 * 
+	 * @return
+	 */
+	public int getColor() {
+		return mColor;
+	}
 
-    /**
-     * Set the color of the border surrounding the panel.
-     * 
-     * @param color
-     */
-    public void setBorderColor(final int color) {
-        mBorderColor = color;
-        invalidate();
-    }
+	/**
+	 * Set the color of the border surrounding the panel.
+	 * 
+	 * @param color
+	 */
+	public void setBorderColor(final int color) {
+		mBorderColor = color;
+		invalidate();
+	}
 
-    /**
-     * Get the color of the border surrounding the panel.
-     */
-    public int getBorderColor() {
-        return mBorderColor;
-    }
+	/**
+	 * Get the color of the border surrounding the panel.
+	 */
+	public int getBorderColor() {
+		return mBorderColor;
+	}
 
 }

@@ -26,6 +26,6 @@ package com.boko.vimusic.api.lastfm;
  */
 public enum ImageSize {
 
-    SMALL, MEDIUM, LARGE, EXTRALARGE, MEGA, UNKNOWN
+	SMALL, MEDIUM, LARGE, EXTRALARGE, MEGA, UNKNOWN
 
 }

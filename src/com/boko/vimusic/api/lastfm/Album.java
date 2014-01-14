@@ -40,78 +40,87 @@ import com.boko.vimusic.api.Result;
  */
 public class Album extends com.boko.vimusic.model.Album {
 
-    public Album(String albumId, String albumName, String artistName,
+	public Album(String albumId, String albumName, String artistName,
 			int songNumber, String albumYear) {
 		super(albumId, albumName, artistName, songNumber, albumYear);
 	}
-	
-    /**
-     * Get the metadata for an album on Last.fm using the album name or a
-     * musicbrainz id. See playlist.fetch on how to get the album playlist.
-     * 
-     * @param artist Artist's name
-     * @param albumOrMbid Album name or MBID
-     * @return Album metadata
-     */
-    public final static Album getInfo(final Context context, final String artist,
-            final String albumOrMbid) {
-        return getInfo(context, artist, albumOrMbid, null, Config.LASTFM_API_KEY);
-    }
 
-    /**
-     * Get the metadata for an album on Last.fm using the album name or a
-     * musicbrainz id. See playlist.fetch on how to get the album playlist.
-     * 
-     * @param artist Artist's name
-     * @param albumOrMbid Album name or MBID
-     * @param username The username for the context of the request. If supplied,
-     *            the user's playcount for this album is included in the
-     *            response.
-     * @param apiKey The API key
-     * @return Album metadata
-     */
-    public final static Album getInfo(final Context context, final String artist,
-            final String albumOrMbid, final String username, final String apiKey) {
-        final Map<String, String> params = new HashMap<String, String>();
-        params.put("method","album.getInfo");
-        params.put("artist", artist);
-        params.put("album", albumOrMbid);
-        params.put("username", username);
-        params.put("api_key", apiKey);
-        final Result result = Caller.getInstance(context).call("http://ws.audioscrobbler.com/2.0/", params);
-        return createItemFromElement(result.getContentElement());
-    }
-    
-    public static Album createItemFromElement(final DomElement element) {
-        if (element == null) {
-            return null;
-        }
-        final Album album = new Album(null, null, null, 0, null);
-        
-        final Collection<DomElement> images = element.getChildren("image");
-        for (final DomElement image : images) {
-            final String attribute = image.getAttribute("size");
-            ImageSize size = null;
-            if (attribute == null) {
-                size = ImageSize.UNKNOWN;
-            } else {
-                try {
-                    size = ImageSize.valueOf(attribute.toUpperCase(Locale.ENGLISH));
-                } catch (final IllegalArgumentException e) {
-                    // if they suddenly again introduce a new image size
-                }
-            }
-            if (size == ImageSize.EXTRALARGE) {
-            	album.setAvatarUrl(image.getText());
-            }
-        }
-        
-        if (element.hasChild("artist")) {
-            album.mArtistName = element.getChild("artist").getChildText("name");
-            if (album.mArtistName == null) {
-                album.mArtistName = element.getChildText("artist");
-            }
-        }
-        return album;
-    }
+	/**
+	 * Get the metadata for an album on Last.fm using the album name or a
+	 * musicbrainz id. See playlist.fetch on how to get the album playlist.
+	 * 
+	 * @param artist
+	 *            Artist's name
+	 * @param albumOrMbid
+	 *            Album name or MBID
+	 * @return Album metadata
+	 */
+	public final static Album getInfo(final Context context,
+			final String artist, final String albumOrMbid) {
+		return getInfo(context, artist, albumOrMbid, null,
+				Config.LASTFM_API_KEY);
+	}
+
+	/**
+	 * Get the metadata for an album on Last.fm using the album name or a
+	 * musicbrainz id. See playlist.fetch on how to get the album playlist.
+	 * 
+	 * @param artist
+	 *            Artist's name
+	 * @param albumOrMbid
+	 *            Album name or MBID
+	 * @param username
+	 *            The username for the context of the request. If supplied, the
+	 *            user's playcount for this album is included in the response.
+	 * @param apiKey
+	 *            The API key
+	 * @return Album metadata
+	 */
+	public final static Album getInfo(final Context context,
+			final String artist, final String albumOrMbid,
+			final String username, final String apiKey) {
+		final Map<String, String> params = new HashMap<String, String>();
+		params.put("method", "album.getInfo");
+		params.put("artist", artist);
+		params.put("album", albumOrMbid);
+		params.put("username", username);
+		params.put("api_key", apiKey);
+		final Result result = Caller.getInstance(context).call(
+				"http://ws.audioscrobbler.com/2.0/", params);
+		return createItemFromElement(result.getContentElement());
+	}
+
+	public static Album createItemFromElement(final DomElement element) {
+		if (element == null) {
+			return null;
+		}
+		final Album album = new Album(null, null, null, 0, null);
+
+		final Collection<DomElement> images = element.getChildren("image");
+		for (final DomElement image : images) {
+			final String attribute = image.getAttribute("size");
+			ImageSize size = null;
+			if (attribute == null) {
+				size = ImageSize.UNKNOWN;
+			} else {
+				try {
+					size = ImageSize.valueOf(attribute
+							.toUpperCase(Locale.ENGLISH));
+				} catch (final IllegalArgumentException e) {
+					// if they suddenly again introduce a new image size
+				}
+			}
+			if (size == ImageSize.EXTRALARGE) {
+				album.setAvatarUrl(image.getText());
+			}
+		}
+
+		if (element.hasChild("artist")) {
+			album.mArtistName = element.getChild("artist").getChildText("name");
+			if (album.mArtistName == null) {
+				album.mArtistName = element.getChildText("artist");
+			}
+		}
+		return album;
+	}
 }

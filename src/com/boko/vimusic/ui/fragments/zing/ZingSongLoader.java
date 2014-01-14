@@ -42,58 +42,66 @@ import com.boko.vimusic.utils.Lists;
 public class ZingSongLoader extends WrappedAsyncTaskLoader<List<Song>> {
 
 	private static final String SEARCH_URL = "http://m.mp3.zing.vn/tim-kiem/bai-hat.html?search_type=bai-hat&act=more&q=";
-    /**
-     * The result
-     */
-    private final ArrayList<Song> mSongList = Lists.newArrayList();
+	/**
+	 * The result
+	 */
+	private final ArrayList<Song> mSongList = Lists.newArrayList();
 
-    /**
-     * The {@link Cursor} used to run the query.
-     */
-    private Cursor mCursor;
+	/**
+	 * The {@link Cursor} used to run the query.
+	 */
+	private Cursor mCursor;
 
-    /**
-     * Constructor of <code>SongLoader</code>
-     * 
-     * @param context The {@link Context} to use
-     */
-    public ZingSongLoader(final Context context) {
-        super(context);
-    }
+	/**
+	 * Constructor of <code>SongLoader</code>
+	 * 
+	 * @param context
+	 *            The {@link Context} to use
+	 */
+	public ZingSongLoader(final Context context) {
+		super(context);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<Song> loadInBackground() {
-    	final Result rs = Caller.getInstance(getContext()).call(SEARCH_URL + "o");
-    	String raw = rs.getResultRaw();
-    	JSONObject obj;
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Song> loadInBackground() {
+		final Result rs = Caller.getInstance(getContext()).call(
+				SEARCH_URL + "o");
+		String raw = rs.getResultRaw();
+		JSONObject obj;
 		try {
 			obj = new JSONObject(raw);
-			Document doc = newDocumentBuilder().parse(new ByteArrayInputStream(("<html>" + obj.get("html").toString() + "</html>").getBytes("UTF-8")));
-			List<DomElement> links = new DomElement(doc.getDocumentElement()).getChildren("a");
+			Document doc = newDocumentBuilder().parse(
+					new ByteArrayInputStream(("<html>"
+							+ obj.get("html").toString() + "</html>")
+							.getBytes("UTF-8")));
+			List<DomElement> links = new DomElement(doc.getDocumentElement())
+					.getChildren("a");
 			for (DomElement link : links) {
 				Song song = new Song();
-				song.mArtistName = link.getChild("h4").removeChild("span").getText().trim();
+				song.mArtistName = link.getChild("h4").removeChild("span")
+						.getText().trim();
 				song.setName(link.getChildText("h3").trim());
 				mSongList.add(song);
 			}
 		} catch (Exception e) {
 		}
-        return mSongList;
-    }
+		return mSongList;
+	}
 
-    /**
-     * @return
-     */
-    private static DocumentBuilder newDocumentBuilder() {
-        try {
-            final DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-            return builderFactory.newDocumentBuilder();
-        } catch (final ParserConfigurationException e) {
-            // better never happens
-            throw new RuntimeException(e);
-        }
-    }
+	/**
+	 * @return
+	 */
+	private static DocumentBuilder newDocumentBuilder() {
+		try {
+			final DocumentBuilderFactory builderFactory = DocumentBuilderFactory
+					.newInstance();
+			return builderFactory.newDocumentBuilder();
+		} catch (final ParserConfigurationException e) {
+			// better never happens
+			throw new RuntimeException(e);
+		}
+	}
 }

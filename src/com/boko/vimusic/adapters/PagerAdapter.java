@@ -32,136 +32,145 @@ import com.boko.vimusic.utils.Lists;
  */
 public class PagerAdapter extends FragmentPagerAdapter {
 
-    private final SparseArray<WeakReference<Fragment>> mFragmentArray = new SparseArray<WeakReference<Fragment>>();
+	private final SparseArray<WeakReference<Fragment>> mFragmentArray = new SparseArray<WeakReference<Fragment>>();
 
-    private final List<Holder> mHolderList = Lists.newArrayList();
+	private final List<Holder> mHolderList = Lists.newArrayList();
 
-    private final FragmentActivity mFragmentActivity;
+	private final FragmentActivity mFragmentActivity;
 
-    private int mCurrentPage;
+	private int mCurrentPage;
 
-    /**
-     * Constructor of <code>PagerAdatper<code>
-     * 
-     * @param fragmentActivity The {@link Activity} of the
-     *            {@link Fragment}.
-     */
-    public PagerAdapter(final FragmentActivity fragmentActivity) {
-        super(fragmentActivity.getSupportFragmentManager());
-        mFragmentActivity = fragmentActivity;
-    }
+	/**
+	 * Constructor of <code>PagerAdatper<code>
+	 * 
+	 * @param fragmentActivity
+	 *            The {@link Activity} of the {@link Fragment}.
+	 */
+	public PagerAdapter(final FragmentActivity fragmentActivity) {
+		super(fragmentActivity.getSupportFragmentManager());
+		mFragmentActivity = fragmentActivity;
+	}
 
-    /**
-     * Method that adds a new fragment class to the viewer (the fragment is
-     * internally instantiate)
-     * 
-     * @param className The full qualified name of fragment class.
-     * @param params The instantiate params.
-     */
-    @SuppressWarnings("synthetic-access")
-    public void add(final Class<? extends Fragment> className, final Bundle params) {
-        final Holder mHolder = new Holder();
-        mHolder.mClassName = className.getName();
-        mHolder.mParams = params;
+	/**
+	 * Method that adds a new fragment class to the viewer (the fragment is
+	 * internally instantiate)
+	 * 
+	 * @param className
+	 *            The full qualified name of fragment class.
+	 * @param params
+	 *            The instantiate params.
+	 */
+	@SuppressWarnings("synthetic-access")
+	public void add(final Class<? extends Fragment> className,
+			final Bundle params) {
+		final Holder mHolder = new Holder();
+		mHolder.mClassName = className.getName();
+		mHolder.mParams = params;
 
-        final int mPosition = mHolderList.size();
-        mHolderList.add(mPosition, mHolder);
-        notifyDataSetChanged();
-    }
+		final int mPosition = mHolderList.size();
+		mHolderList.add(mPosition, mHolder);
+		notifyDataSetChanged();
+	}
 
-    /**
-     * Method that returns the {@link Fragment} in the argument
-     * position.
-     * 
-     * @param position The position of the fragment to return.
-     * @return Fragment The {@link Fragment} in the argument position.
-     */
-    public Fragment getFragment(final int position) {
-        final WeakReference<Fragment> mWeakFragment = mFragmentArray.get(position);
-        if (mWeakFragment != null && mWeakFragment.get() != null) {
-            return mWeakFragment.get();
-        }
-        return getItem(position);
-    }
+	/**
+	 * Method that returns the {@link Fragment} in the argument position.
+	 * 
+	 * @param position
+	 *            The position of the fragment to return.
+	 * @return Fragment The {@link Fragment} in the argument position.
+	 */
+	public Fragment getFragment(final int position) {
+		final WeakReference<Fragment> mWeakFragment = mFragmentArray
+				.get(position);
+		if (mWeakFragment != null && mWeakFragment.get() != null) {
+			return mWeakFragment.get();
+		}
+		return getItem(position);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Object instantiateItem(final ViewGroup container, final int position) {
-        final Fragment mFragment = (Fragment)super.instantiateItem(container, position);
-        final WeakReference<Fragment> mWeakFragment = mFragmentArray.get(position);
-        if (mWeakFragment != null) {
-            mWeakFragment.clear();
-        }
-        mFragmentArray.put(position, new WeakReference<Fragment>(mFragment));
-        return mFragment;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Object instantiateItem(final ViewGroup container, final int position) {
+		final Fragment mFragment = (Fragment) super.instantiateItem(container,
+				position);
+		final WeakReference<Fragment> mWeakFragment = mFragmentArray
+				.get(position);
+		if (mWeakFragment != null) {
+			mWeakFragment.clear();
+		}
+		mFragmentArray.put(position, new WeakReference<Fragment>(mFragment));
+		return mFragment;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Fragment getItem(final int position) {
-        final Holder mCurrentHolder = mHolderList.get(position);
-        final Fragment mFragment = Fragment.instantiate(mFragmentActivity,
-                mCurrentHolder.mClassName, mCurrentHolder.mParams);
-        return mFragment;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Fragment getItem(final int position) {
+		final Holder mCurrentHolder = mHolderList.get(position);
+		final Fragment mFragment = Fragment.instantiate(mFragmentActivity,
+				mCurrentHolder.mClassName, mCurrentHolder.mParams);
+		return mFragment;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void destroyItem(final ViewGroup container, final int position, final Object object) {
-        super.destroyItem(container, position, object);
-        final WeakReference<Fragment> mWeakFragment = mFragmentArray.get(position);
-        if (mWeakFragment != null) {
-            mWeakFragment.clear();
-        }
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void destroyItem(final ViewGroup container, final int position,
+			final Object object) {
+		super.destroyItem(container, position, object);
+		final WeakReference<Fragment> mWeakFragment = mFragmentArray
+				.get(position);
+		if (mWeakFragment != null) {
+			mWeakFragment.clear();
+		}
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getCount() {
-        return mHolderList.size();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getCount() {
+		return mHolderList.size();
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public CharSequence getPageTitle(final int position) {
-        return mFragmentActivity.getResources().getStringArray(R.array.page_titles)[position]
-                .toUpperCase(Locale.getDefault());
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public CharSequence getPageTitle(final int position) {
+		return mFragmentActivity.getResources().getStringArray(
+				R.array.page_titles)[position].toUpperCase(Locale.getDefault());
+	}
 
-    /**
-     * Method that returns the current page position.
-     * 
-     * @return int The current page.
-     */
-    public int getCurrentPage() {
-        return mCurrentPage;
-    }
+	/**
+	 * Method that returns the current page position.
+	 * 
+	 * @return int The current page.
+	 */
+	public int getCurrentPage() {
+		return mCurrentPage;
+	}
 
-    /**
-     * Method that sets the current page position.
-     * 
-     * @param currentPage The current page.
-     */
-    protected void setCurrentPage(final int currentPage) {
-        mCurrentPage = currentPage;
-    }
+	/**
+	 * Method that sets the current page position.
+	 * 
+	 * @param currentPage
+	 *            The current page.
+	 */
+	protected void setCurrentPage(final int currentPage) {
+		mCurrentPage = currentPage;
+	}
 
-    /**
-     * A private class with information about fragment initialization
-     */
-    private final static class Holder {
-        String mClassName;
+	/**
+	 * A private class with information about fragment initialization
+	 */
+	private final static class Holder {
+		String mClassName;
 
-        Bundle mParams;
-    }
+		Bundle mParams;
+	}
 }

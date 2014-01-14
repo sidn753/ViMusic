@@ -26,66 +26,67 @@ import com.boko.vimusic.ui.fragments.ThemeFragment;
  */
 public class ThemesActivity extends BaseActivity {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void onCreate(final Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onCreate(final Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
 
-        // Set up the action bar
-        final ActionBar actionBar = getActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setTitle(getString(R.string.settings_theme_chooser_title));
+		// Set up the action bar
+		final ActionBar actionBar = getActionBar();
+		actionBar.setDisplayHomeAsUpEnabled(true);
+		actionBar.setTitle(getString(R.string.settings_theme_chooser_title));
 
-        // Transact the theme fragment
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.activity_base_content, new ThemeFragment()).commit();
-        }
-    }
+		// Transact the theme fragment
+		if (savedInstanceState == null) {
+			getSupportFragmentManager().beginTransaction()
+					.replace(R.id.activity_base_content, new ThemeFragment())
+					.commit();
+		}
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean onPrepareOptionsMenu(final Menu menu) {
-        mResources.setShopIcon(menu);
-        return super.onPrepareOptionsMenu(menu);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean onPrepareOptionsMenu(final Menu menu) {
+		mResources.setShopIcon(menu);
+		return super.onPrepareOptionsMenu(menu);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean onCreateOptionsMenu(final Menu menu) {
-        getMenuInflater().inflate(R.menu.theme_shop, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean onCreateOptionsMenu(final Menu menu) {
+		getMenuInflater().inflate(R.menu.theme_shop, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean onOptionsItemSelected(final MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
-            case R.id.menu_shop:
-                mResources.shopFor(this);
-                return true;
-            default:
-                break;
-        }
-        return super.onOptionsItemSelected(item);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean onOptionsItemSelected(final MenuItem item) {
+		switch (item.getItemId()) {
+		case android.R.id.home:
+			finish();
+			return true;
+		case R.id.menu_shop:
+			mResources.shopFor(this);
+			return true;
+		default:
+			break;
+		}
+		return super.onOptionsItemSelected(item);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int setContentView() {
-        return R.layout.activity_base;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int setContentView() {
+		return R.layout.activity_base;
+	}
 }

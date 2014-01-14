@@ -30,108 +30,109 @@ import com.boko.vimusic.utils.MusicUtils;
  */
 public class RenamePlaylist extends BasePlaylistDialog {
 
-    private String mOriginalName;
+	private String mOriginalName;
 
-    private String mRenameId;
+	private String mRenameId;
 
-    /**
-     * @param id The Id of the playlist to rename
-     * @return A new instance of this dialog.
-     */
-    public static RenamePlaylist getInstance(final String id) {
-        final RenamePlaylist frag = new RenamePlaylist();
-        final Bundle args = new Bundle();
-        args.putString("rename", id);
-        frag.setArguments(args);
-        return frag;
-    }
+	/**
+	 * @param id
+	 *            The Id of the playlist to rename
+	 * @return A new instance of this dialog.
+	 */
+	public static RenamePlaylist getInstance(final String id) {
+		final RenamePlaylist frag = new RenamePlaylist();
+		final Bundle args = new Bundle();
+		args.putString("rename", id);
+		frag.setArguments(args);
+		return frag;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onSaveInstanceState(final Bundle outcicle) {
-        outcicle.putString("defaultname", mPlaylist.getText().toString());
-        outcicle.putString("rename", mRenameId);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void onSaveInstanceState(final Bundle outcicle) {
+		outcicle.putString("defaultname", mPlaylist.getText().toString());
+		outcicle.putString("rename", mRenameId);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void initObjects(final Bundle savedInstanceState) {
-        mRenameId = savedInstanceState != null ? savedInstanceState.getString("rename")
-                : getArguments().getString("rename");
-        mOriginalName = getPlaylistNameFromId(mRenameId);
-        mDefaultname = savedInstanceState != null ? savedInstanceState.getString("defaultname")
-                : mOriginalName;
-        if (mRenameId != null || mOriginalName == null || mDefaultname == null) {
-            getDialog().dismiss();
-            return;
-        }
-        final String promptformat = getString(R.string.create_playlist_prompt);
-        mPrompt = String.format(promptformat, mOriginalName, mDefaultname);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void initObjects(final Bundle savedInstanceState) {
+		mRenameId = savedInstanceState != null ? savedInstanceState
+				.getString("rename") : getArguments().getString("rename");
+		mOriginalName = getPlaylistNameFromId(mRenameId);
+		mDefaultname = savedInstanceState != null ? savedInstanceState
+				.getString("defaultname") : mOriginalName;
+		if (mRenameId != null || mOriginalName == null || mDefaultname == null) {
+			getDialog().dismiss();
+			return;
+		}
+		final String promptformat = getString(R.string.create_playlist_prompt);
+		mPrompt = String.format(promptformat, mOriginalName, mDefaultname);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onSaveClick() {
-        final String playlistName = mPlaylist.getText().toString();
-        if (playlistName != null && playlistName.length() > 0) {
-            final ContentResolver resolver = getActivity().getContentResolver();
-            final ContentValues values = new ContentValues(1);
-            values.put(Audio.Playlists.NAME, Capitalize.capitalize(playlistName));
-            resolver.update(Audio.Playlists.EXTERNAL_CONTENT_URI, values,
-                    MediaStore.Audio.Playlists._ID + "=?", new String[] {
-                        mRenameId
-                    });
-            closeKeyboard();
-            getDialog().dismiss();
-        }
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void onSaveClick() {
+		final String playlistName = mPlaylist.getText().toString();
+		if (playlistName != null && playlistName.length() > 0) {
+			final ContentResolver resolver = getActivity().getContentResolver();
+			final ContentValues values = new ContentValues(1);
+			values.put(Audio.Playlists.NAME,
+					Capitalize.capitalize(playlistName));
+			resolver.update(Audio.Playlists.EXTERNAL_CONTENT_URI, values,
+					MediaStore.Audio.Playlists._ID + "=?",
+					new String[] { mRenameId });
+			closeKeyboard();
+			getDialog().dismiss();
+		}
+	}
 
-    @Override
-    public void onTextChangedListener() {
-        final String playlistName = mPlaylist.getText().toString();
-        mSaveButton = mPlaylistDialog.getButton(Dialog.BUTTON_POSITIVE);
-        if (mSaveButton == null) {
-            return;
-        }
-        if (playlistName.trim().length() == 0) {
-            mSaveButton.setEnabled(false);
-        } else {
-            mSaveButton.setEnabled(true);
-            if (MusicUtils.getIdForPlaylist(getActivity(), playlistName) != null) {
-                mSaveButton.setText(R.string.overwrite);
-            } else {
-                mSaveButton.setText(R.string.save);
-            }
-        }
-    }
+	@Override
+	public void onTextChangedListener() {
+		final String playlistName = mPlaylist.getText().toString();
+		mSaveButton = mPlaylistDialog.getButton(Dialog.BUTTON_POSITIVE);
+		if (mSaveButton == null) {
+			return;
+		}
+		if (playlistName.trim().length() == 0) {
+			mSaveButton.setEnabled(false);
+		} else {
+			mSaveButton.setEnabled(true);
+			if (MusicUtils.getIdForPlaylist(getActivity(), playlistName) != null) {
+				mSaveButton.setText(R.string.overwrite);
+			} else {
+				mSaveButton.setText(R.string.save);
+			}
+		}
+	}
 
-    /**
-     * @param id The Id of the playlist
-     * @return The name of the playlist
-     */
-    private String getPlaylistNameFromId(final String id) {
-        Cursor cursor = getActivity().getContentResolver().query(
-                MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI, new String[] {
-                    MediaStore.Audio.Playlists.NAME
-                }, MediaStore.Audio.Playlists._ID + "=?", new String[] {
-                    id
-                }, MediaStore.Audio.Playlists.NAME);
-        String playlistName = null;
-        if (cursor != null) {
-            cursor.moveToFirst();
-            if (!cursor.isAfterLast()) {
-                playlistName = cursor.getString(0);
-            }
-        }
-        cursor.close();
-        cursor = null;
-        return playlistName;
-    }
+	/**
+	 * @param id
+	 *            The Id of the playlist
+	 * @return The name of the playlist
+	 */
+	private String getPlaylistNameFromId(final String id) {
+		Cursor cursor = getActivity().getContentResolver().query(
+				MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI,
+				new String[] { MediaStore.Audio.Playlists.NAME },
+				MediaStore.Audio.Playlists._ID + "=?", new String[] { id },
+				MediaStore.Audio.Playlists.NAME);
+		String playlistName = null;
+		if (cursor != null) {
+			cursor.moveToFirst();
+			if (!cursor.isAfterLast()) {
+				playlistName = cursor.getString(0);
+			}
+		}
+		cursor.close();
+		cursor = null;
+		return playlistName;
+	}
 
 }

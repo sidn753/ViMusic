@@ -22,21 +22,24 @@ import android.widget.ImageView;
  */
 public class LayoutSuppressingImageView extends ImageView {
 
-    /**
-     * @param context The {@link Context} to use
-     * @param attrs The attributes of the XML tag that is inflating the view
-     */
-    public LayoutSuppressingImageView(final Context context, final AttributeSet attrs) {
-        super(context, attrs);
+	/**
+	 * @param context
+	 *            The {@link Context} to use
+	 * @param attrs
+	 *            The attributes of the XML tag that is inflating the view
+	 */
+	public LayoutSuppressingImageView(final Context context,
+			final AttributeSet attrs) {
+		super(context, attrs);
 
-    }
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void requestLayout() {
-        forceLayout();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void requestLayout() {
+		forceLayout();
+	}
 
 }

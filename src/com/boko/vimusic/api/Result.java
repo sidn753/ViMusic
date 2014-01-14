@@ -55,12 +55,13 @@ public class Result {
 	public Document getResultDocument() {
 		if (resultDocument == null && resultRaw != null) {
 			try {
-				resultDocument = newDocumentBuilder().parse(new ByteArrayInputStream(resultRaw.getBytes("UTF-8")));
+				resultDocument = newDocumentBuilder().parse(
+						new ByteArrayInputStream(resultRaw.getBytes("UTF-8")));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
-		
+
 		return resultDocument;
 	}
 
@@ -73,16 +74,17 @@ public class Result {
 		return resultRaw;
 	}
 
-    /**
-     * @return
-     */
-    private DocumentBuilder newDocumentBuilder() {
-        try {
-            final DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-            return builderFactory.newDocumentBuilder();
-        } catch (final ParserConfigurationException e) {
-            // better never happens
-            throw new RuntimeException(e);
-        }
-    }
+	/**
+	 * @return
+	 */
+	private DocumentBuilder newDocumentBuilder() {
+		try {
+			final DocumentBuilderFactory builderFactory = DocumentBuilderFactory
+					.newInstance();
+			return builderFactory.newDocumentBuilder();
+		} catch (final ParserConfigurationException e) {
+			// better never happens
+			throw new RuntimeException(e);
+		}
+	}
 }

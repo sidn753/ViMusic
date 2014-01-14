@@ -26,32 +26,34 @@ import com.boko.vimusic.utils.ThemeUtils;
 @SuppressWarnings("deprecation")
 public class BottomActionBar extends RelativeLayout {
 
-    /**
-     * Resource name used to theme the bottom action bar
-     */
-    private static final String BOTTOM_ACTION_BAR = "bottom_action_bar";
+	/**
+	 * Resource name used to theme the bottom action bar
+	 */
+	private static final String BOTTOM_ACTION_BAR = "bottom_action_bar";
 
-    /**
-     * @param context The {@link Context} to use
-     * @param attrs The attributes of the XML tag that is inflating the view.
-     * @throws NameNotFoundException
-     */
-    public BottomActionBar(final Context context, final AttributeSet attrs) {
-        super(context, attrs);
-        // Initialze the theme resources
-        final ThemeUtils resources = new ThemeUtils(context);
-        // Theme the bottom action bar
-        setBackgroundDrawable(resources.getDrawable(BOTTOM_ACTION_BAR));
-    }
+	/**
+	 * @param context
+	 *            The {@link Context} to use
+	 * @param attrs
+	 *            The attributes of the XML tag that is inflating the view.
+	 * @throws NameNotFoundException
+	 */
+	public BottomActionBar(final Context context, final AttributeSet attrs) {
+		super(context, attrs);
+		// Initialze the theme resources
+		final ThemeUtils resources = new ThemeUtils(context);
+		// Theme the bottom action bar
+		setBackgroundDrawable(resources.getDrawable(BOTTOM_ACTION_BAR));
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void onFinishInflate() {
-        super.onFinishInflate();
-        // Theme the selector
-        final LinearLayout bottomActionBar = (LinearLayout)findViewById(R.id.bottom_action_bar);
-        bottomActionBar.setBackgroundDrawable(new HoloSelector(getContext()));
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onFinishInflate() {
+		super.onFinishInflate();
+		// Theme the selector
+		final LinearLayout bottomActionBar = (LinearLayout) findViewById(R.id.bottom_action_bar);
+		bottomActionBar.setBackgroundDrawable(new HoloSelector(getContext()));
+	}
 }

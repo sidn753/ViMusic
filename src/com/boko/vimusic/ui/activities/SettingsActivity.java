@@ -42,162 +42,177 @@ import com.boko.vimusic.widgets.ColorSchemeDialog;
 @SuppressWarnings("deprecation")
 public class SettingsActivity extends PreferenceActivity {
 
-    /**
-     * Image cache
-     */
-    private ImageCache mImageCache;
+	/**
+	 * Image cache
+	 */
+	private ImageCache mImageCache;
 
-    private PreferenceUtils mPreferences;
+	private PreferenceUtils mPreferences;
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void onCreate(final Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        // Fade it in
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onCreate(final Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		// Fade it in
+		overridePendingTransition(android.R.anim.fade_in,
+				android.R.anim.fade_out);
 
-        // Get the preferences
-        mPreferences = PreferenceUtils.getInstance(this);
+		// Get the preferences
+		mPreferences = PreferenceUtils.getInstance(this);
 
-        // Initialze the image cache
-        mImageCache = ImageCache.getInstance(this);
+		// Initialze the image cache
+		mImageCache = ImageCache.getInstance(this);
 
-        // UP
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+		// UP
+		getActionBar().setDisplayHomeAsUpEnabled(true);
 
-        // Add the preferences
-        addPreferencesFromResource(R.xml.settings);
+		// Add the preferences
+		addPreferencesFromResource(R.xml.settings);
 
-        // Interface settings
-        initInterface();
-        // Removes the cache entries
-        deleteCache();
-        // About
-        showOpenSourceLicenses();
-        // Update the version number
-        try {
-            final PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-            findPreference("version").setSummary(packageInfo.versionName);
-        } catch (final NameNotFoundException e) {
-            findPreference("version").setSummary("?");
-        }
-    }
+		// Interface settings
+		initInterface();
+		// Removes the cache entries
+		deleteCache();
+		// About
+		showOpenSourceLicenses();
+		// Update the version number
+		try {
+			final PackageInfo packageInfo = getPackageManager().getPackageInfo(
+					getPackageName(), 0);
+			findPreference("version").setSummary(packageInfo.versionName);
+		} catch (final NameNotFoundException e) {
+			findPreference("version").setSummary("?");
+		}
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean onOptionsItemSelected(final MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                finish();
-                return true;
-            default:
-                break;
-        }
-        return super.onOptionsItemSelected(item);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean onOptionsItemSelected(final MenuItem item) {
+		switch (item.getItemId()) {
+		case android.R.id.home:
+			onBackPressed();
+			finish();
+			return true;
+		default:
+			break;
+		}
+		return super.onOptionsItemSelected(item);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void onStart() {
-        super.onStart();
-        MusicUtils.notifyForegroundStateChanged(this, true);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onStart() {
+		super.onStart();
+		MusicUtils.notifyForegroundStateChanged(this, true);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void onStop() {
-        super.onStop();
-        MusicUtils.notifyForegroundStateChanged(this, false);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onStop() {
+		super.onStop();
+		MusicUtils.notifyForegroundStateChanged(this, false);
+	}
 
-    /**
-     * Initializes the preferences under the "Interface" category
-     */
-    private void initInterface() {
-        // Color scheme picker
-        updateColorScheme();
-        // Open the theme chooser
-        openThemeChooser();
-    }
+	/**
+	 * Initializes the preferences under the "Interface" category
+	 */
+	private void initInterface() {
+		// Color scheme picker
+		updateColorScheme();
+		// Open the theme chooser
+		openThemeChooser();
+	}
 
-    /**
-     * Shows the {@link ColorSchemeDialog} and then saves the changes.
-     */
-    private void updateColorScheme() {
-        final Preference colorScheme = findPreference("color_scheme");
-        colorScheme.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(final Preference preference) {
-                ApolloUtils.showColorPicker(SettingsActivity.this);
-                return true;
-            }
-        });
-    }
+	/**
+	 * Shows the {@link ColorSchemeDialog} and then saves the changes.
+	 */
+	private void updateColorScheme() {
+		final Preference colorScheme = findPreference("color_scheme");
+		colorScheme
+				.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+					@Override
+					public boolean onPreferenceClick(final Preference preference) {
+						ApolloUtils.showColorPicker(SettingsActivity.this);
+						return true;
+					}
+				});
+	}
 
-    /**
-     * Opens the {@link ThemeFragment}.
-     */
-    private void openThemeChooser() {
-        final Preference themeChooser = findPreference("theme_chooser");
-        themeChooser.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(final Preference preference) {
-                final Intent themeChooserIntent = new Intent(SettingsActivity.this,
-                        ThemesActivity.class);
-                startActivity(themeChooserIntent);
-                return true;
-            }
-        });
-    }
+	/**
+	 * Opens the {@link ThemeFragment}.
+	 */
+	private void openThemeChooser() {
+		final Preference themeChooser = findPreference("theme_chooser");
+		themeChooser
+				.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+					@Override
+					public boolean onPreferenceClick(final Preference preference) {
+						final Intent themeChooserIntent = new Intent(
+								SettingsActivity.this, ThemesActivity.class);
+						startActivity(themeChooserIntent);
+						return true;
+					}
+				});
+	}
 
-    /**
-     * Removes all of the cache entries.
-     */
-    private void deleteCache() {
-        final Preference deleteCache = findPreference("delete_cache");
-        deleteCache.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(final Preference preference) {
-                new AlertDialog.Builder(SettingsActivity.this).setMessage(R.string.delete_warning)
-                        .setPositiveButton(android.R.string.ok, new OnClickListener() {
+	/**
+	 * Removes all of the cache entries.
+	 */
+	private void deleteCache() {
+		final Preference deleteCache = findPreference("delete_cache");
+		deleteCache
+				.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+					@Override
+					public boolean onPreferenceClick(final Preference preference) {
+						new AlertDialog.Builder(SettingsActivity.this)
+								.setMessage(R.string.delete_warning)
+								.setPositiveButton(android.R.string.ok,
+										new OnClickListener() {
 
-                            @Override
-                            public void onClick(final DialogInterface dialog, final int which) {
-                                mImageCache.clearCaches();
-                            }
-                        }).setNegativeButton(R.string.cancel, new OnClickListener() {
+											@Override
+											public void onClick(
+													final DialogInterface dialog,
+													final int which) {
+												mImageCache.clearCaches();
+											}
+										})
+								.setNegativeButton(R.string.cancel,
+										new OnClickListener() {
 
-                            @Override
-                            public void onClick(final DialogInterface dialog, final int which) {
-                                dialog.dismiss();
-                            }
-                        }).create().show();
-                return true;
-            }
-        });
-    }
+											@Override
+											public void onClick(
+													final DialogInterface dialog,
+													final int which) {
+												dialog.dismiss();
+											}
+										}).create().show();
+						return true;
+					}
+				});
+	}
 
-    /**
-     * Show the open source licenses
-     */
-    private void showOpenSourceLicenses() {
-        final Preference mOpenSourceLicenses = findPreference("open_source");
-        mOpenSourceLicenses.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+	/**
+	 * Show the open source licenses
+	 */
+	private void showOpenSourceLicenses() {
+		final Preference mOpenSourceLicenses = findPreference("open_source");
+		mOpenSourceLicenses
+				.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 
-            @Override
-            public boolean onPreferenceClick(final Preference preference) {
-                ApolloUtils.createOpenSourceDialog(SettingsActivity.this).show();
-                return true;
-            }
-        });
-    }
+					@Override
+					public boolean onPreferenceClick(final Preference preference) {
+						ApolloUtils.createOpenSourceDialog(
+								SettingsActivity.this).show();
+						return true;
+					}
+				});
+	}
 }

@@ -21,12 +21,12 @@ import com.boko.vimusic.service.MusicPlaybackService;
 
 public abstract class AppWidgetBase extends AppWidgetProvider {
 
-    protected PendingIntent buildPendingIntent(Context context, final String action,
-            final ComponentName serviceName) {
-        Intent intent = new Intent(action);
-        intent.setComponent(serviceName);
-        intent.putExtra(MusicPlaybackService.NOW_IN_FOREGROUND, false);
-        return PendingIntent.getService(context, 0, intent, 0);
-    }
+	protected PendingIntent buildPendingIntent(Context context,
+			final String action, final ComponentName serviceName) {
+		Intent intent = new Intent(action);
+		intent.setComponent(serviceName);
+		intent.putExtra(MusicPlaybackService.NOW_IN_FOREGROUND, false);
+		return PendingIntent.getService(context, 0, intent, 0);
+	}
 
 }

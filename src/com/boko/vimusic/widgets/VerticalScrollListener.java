@@ -21,62 +21,64 @@ import com.boko.vimusic.utils.ApolloUtils;
 @SuppressLint("NewApi")
 public class VerticalScrollListener implements OnScrollListener {
 
-    /* Used to determine the off set to scroll the header */
-    private final ScrollableHeader mHeader;
+	/* Used to determine the off set to scroll the header */
+	private final ScrollableHeader mHeader;
 
-    private final ProfileTabCarousel mTabCarousel;
+	private final ProfileTabCarousel mTabCarousel;
 
-    private final int mPageIndex;
+	private final int mPageIndex;
 
-    public VerticalScrollListener(final ScrollableHeader header, final ProfileTabCarousel carousel,
-            final int pageIndex) {
-        mHeader = header;
-        mTabCarousel = carousel;
-        mPageIndex = pageIndex;
-    }
+	public VerticalScrollListener(final ScrollableHeader header,
+			final ProfileTabCarousel carousel, final int pageIndex) {
+		mHeader = header;
+		mTabCarousel = carousel;
+		mPageIndex = pageIndex;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onScroll(final AbsListView view, final int firstVisibleItem,
-            final int visibleItemCount, final int totalItemCount) {
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void onScroll(final AbsListView view, final int firstVisibleItem,
+			final int visibleItemCount, final int totalItemCount) {
 
-        if (mTabCarousel == null || mTabCarousel.isTabCarouselIsAnimating()) {
-            return;
-        }
+		if (mTabCarousel == null || mTabCarousel.isTabCarouselIsAnimating()) {
+			return;
+		}
 
-        final View top = view.getChildAt(firstVisibleItem);
-        if (top == null) {
-            return;
-        }
+		final View top = view.getChildAt(firstVisibleItem);
+		if (top == null) {
+			return;
+		}
 
-        if (firstVisibleItem != 0) {
-            mTabCarousel.moveToYCoordinate(mPageIndex,
-                    -mTabCarousel.getAllowedVerticalScrollLength());
-            return;
-        }
+		if (firstVisibleItem != 0) {
+			mTabCarousel.moveToYCoordinate(mPageIndex,
+					-mTabCarousel.getAllowedVerticalScrollLength());
+			return;
+		}
 
-        float y = view.getChildAt(firstVisibleItem).getY();
-        final float amtToScroll = Math.max(y, -mTabCarousel.getAllowedVerticalScrollLength());
-        mTabCarousel.moveToYCoordinate(mPageIndex, amtToScroll);
-    }
+		float y = view.getChildAt(firstVisibleItem).getY();
+		final float amtToScroll = Math.max(y,
+				-mTabCarousel.getAllowedVerticalScrollLength());
+		mTabCarousel.moveToYCoordinate(mPageIndex, amtToScroll);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onScrollStateChanged(final AbsListView view, final int scrollState) {
-        if (mHeader != null) {
-            mHeader.onScrollStateChanged(view, scrollState);
-        }
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void onScrollStateChanged(final AbsListView view,
+			final int scrollState) {
+		if (mHeader != null) {
+			mHeader.onScrollStateChanged(view, scrollState);
+		}
+	}
 
-    /** Defines the header to be scrolled. */
-    public interface ScrollableHeader {
+	/** Defines the header to be scrolled. */
+	public interface ScrollableHeader {
 
-        /* Used the pause the disk cache while scrolling */
-        public void onScrollStateChanged(AbsListView view, int scrollState);
-    }
+		/* Used the pause the disk cache while scrolling */
+		public void onScrollStateChanged(AbsListView view, int scrollState);
+	}
 
 }

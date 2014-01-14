@@ -1,4 +1,3 @@
-
 package com.boko.vimusic;
 
 import com.boko.vimusic.service.MusicPlaybackService;
@@ -8,14 +7,14 @@ import com.boko.vimusic.service.MusicPlaybackService;
  */
 public interface MusicStateListener {
 
-    /**
-     * Called when {@link MusicPlaybackService#REFRESH} is invoked
-     */
-    public void restartLoader();
+	/**
+	 * Called when {@link MusicPlaybackService#REFRESH} is invoked
+	 */
+	public void restartLoader();
 
-    /**
-     * Called when {@link MusicPlaybackService#META_CHANGED} is invoked
-     */
-    public void onMetaChanged();
+	/**
+	 * Called when {@link MusicPlaybackService#META_CHANGED} is invoked
+	 */
+	public void onMetaChanged();
 
 }

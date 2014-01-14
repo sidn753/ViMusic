@@ -33,66 +33,70 @@ import java.util.WeakHashMap;
  */
 public class ThemeableTextView extends TextView {
 
-    /**
-     * @param context The {@link Context} to use
-     * @param attrs The attributes of the XML tag that is inflating the view.
-     */
-    public ThemeableTextView(final Context context, final AttributeSet attrs) {
-        super(context, attrs);
-        // Initialze the theme resources
-        final ThemeUtils resources = new ThemeUtils(context);
-        // Retrieve styles attributes
-        final TypedArray typedArray = context.obtainStyledAttributes(attrs,
-                R.styleable.ThemeableTextView, 0, 0);
-        // Get the theme resource name
-        final String resourceName = typedArray
-                .getString(R.styleable.ThemeableTextView_themeResource);
-        // Theme the text color
-        if (!TextUtils.isEmpty(resourceName)) {
-            setTextColor(resources.getColor(resourceName));
-        }
-        // Recyle the attrs
-        typedArray.recycle();
-    }
+	/**
+	 * @param context
+	 *            The {@link Context} to use
+	 * @param attrs
+	 *            The attributes of the XML tag that is inflating the view.
+	 */
+	public ThemeableTextView(final Context context, final AttributeSet attrs) {
+		super(context, attrs);
+		// Initialze the theme resources
+		final ThemeUtils resources = new ThemeUtils(context);
+		// Retrieve styles attributes
+		final TypedArray typedArray = context.obtainStyledAttributes(attrs,
+				R.styleable.ThemeableTextView, 0, 0);
+		// Get the theme resource name
+		final String resourceName = typedArray
+				.getString(R.styleable.ThemeableTextView_themeResource);
+		// Theme the text color
+		if (!TextUtils.isEmpty(resourceName)) {
+			setTextColor(resources.getColor(resourceName));
+		}
+		// Recyle the attrs
+		typedArray.recycle();
+	}
 
-    /**
-     * A small class that holds a weak cache for any typefaces applied to the
-     * text.
-     */
-    public static final class TypefaceCache {
+	/**
+	 * A small class that holds a weak cache for any typefaces applied to the
+	 * text.
+	 */
+	public static final class TypefaceCache {
 
-        private static final WeakHashMap<String, Typeface> MAP = new WeakHashMap<String, Typeface>();
+		private static final WeakHashMap<String, Typeface> MAP = new WeakHashMap<String, Typeface>();
 
-        private static TypefaceCache sInstance;
+		private static TypefaceCache sInstance;
 
-        /**
-         * Constructor for <code>TypefaceCache</code>
-         */
-        public TypefaceCache() {
-        }
+		/**
+		 * Constructor for <code>TypefaceCache</code>
+		 */
+		public TypefaceCache() {
+		}
 
-        /**
-         * @return A singleton of {@linkTypefaceCache}.
-         */
-        public static final TypefaceCache getInstance() {
-            if (sInstance == null) {
-                sInstance = new TypefaceCache();
-            }
-            return sInstance;
-        }
+		/**
+		 * @return A singleton of {@linkTypefaceCache}.
+		 */
+		public static final TypefaceCache getInstance() {
+			if (sInstance == null) {
+				sInstance = new TypefaceCache();
+			}
+			return sInstance;
+		}
 
-        /**
-         * @param file The name of the type face asset.
-         * @param context The {@link Context} to use.
-         * @return A new type face.
-         */
-        public Typeface getTypeface(final String file, final Context context) {
-            Typeface result = MAP.get(file);
-            if (result == null) {
-                result = Typeface.createFromAsset(context.getAssets(), file);
-                MAP.put(file, result);
-            }
-            return result;
-        }
-    }
+		/**
+		 * @param file
+		 *            The name of the type face asset.
+		 * @param context
+		 *            The {@link Context} to use.
+		 * @return A new type face.
+		 */
+		public Typeface getTypeface(final String file, final Context context) {
+			Typeface result = MAP.get(file);
+			if (result == null) {
+				result = Typeface.createFromAsset(context.getAssets(), file);
+				MAP.put(file, result);
+			}
+			return result;
+		}
+	}
 }
