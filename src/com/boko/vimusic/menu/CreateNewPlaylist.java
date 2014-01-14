@@ -19,6 +19,7 @@ import android.provider.MediaStore;
 
 import com.boko.vimusic.R;
 import com.boko.vimusic.format.Capitalize;
+import com.boko.vimusic.model.Song;
 import com.boko.vimusic.utils.MusicUtils;
 
 /**
@@ -30,16 +31,16 @@ import com.boko.vimusic.utils.MusicUtils;
 public class CreateNewPlaylist extends BasePlaylistDialog {
 
     // The playlist list
-    private String[] mPlaylistList = new String[] {};
+    private Song[] mPlaylistList = new Song[] {};
 
     /**
      * @param list The list of tracks to add to the playlist
      * @return A new instance of this dialog.
      */
-    public static CreateNewPlaylist getInstance(final String[] list) {
+    public static CreateNewPlaylist getInstance(final Song[] list) {
         final CreateNewPlaylist frag = new CreateNewPlaylist();
         final Bundle args = new Bundle();
-        args.putStringArray("playlist_list", list);
+        args.putSerializable("playlist_list", list);
         frag.setArguments(args);
         return frag;
     }
@@ -57,7 +58,7 @@ public class CreateNewPlaylist extends BasePlaylistDialog {
      */
     @Override
     public void initObjects(final Bundle savedInstanceState) {
-        mPlaylistList = getArguments().getStringArray("playlist_list");
+        mPlaylistList = (Song[]) getArguments().getSerializable("playlist_list");
         mDefaultname = savedInstanceState != null ? savedInstanceState.getString("defaultname")
                 : makePlaylistName();
         if (mDefaultname == null) {

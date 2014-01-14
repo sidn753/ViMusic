@@ -34,7 +34,7 @@ public class Song extends com.boko.vimusic.model.Song {
         Vector<String> urls = HTMLLinkExtractor.grabHTMLLinks(htmlResponse);
         
         for (String url : urls) {
-        	if (url.startsWith(XML_URL) && song.mLinkPlay == null) {
+        	if (url.startsWith(XML_URL) && song.getLinkPlay() == null) {
         		final Result rs = Caller.getInstance(context).call(url.replace("&amp;", "&"));
         		DomElement element = rs.getContentElement();
         		song.setName(element.getChildText("title"));

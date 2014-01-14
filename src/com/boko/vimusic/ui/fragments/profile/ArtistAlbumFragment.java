@@ -11,6 +11,8 @@
 
 package com.boko.vimusic.ui.fragments.profile;
 
+import java.util.List;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -39,14 +41,13 @@ import com.boko.vimusic.menu.CreateNewPlaylist;
 import com.boko.vimusic.menu.DeleteDialog;
 import com.boko.vimusic.menu.FragmentMenuItems;
 import com.boko.vimusic.model.Album;
+import com.boko.vimusic.model.Song;
 import com.boko.vimusic.recycler.RecycleHolder;
 import com.boko.vimusic.utils.MusicUtils;
 import com.boko.vimusic.utils.NavUtils;
 import com.boko.vimusic.widgets.ProfileTabCarousel;
 import com.boko.vimusic.widgets.VerticalScrollListener;
 import com.boko.vimusic.widgets.VerticalScrollListener.ScrollableHeader;
-
-import java.util.List;
 
 /**
  * This class is used to display all of the albums from a particular artist.
@@ -79,7 +80,7 @@ public class ArtistAlbumFragment extends Fragment implements LoaderCallbacks<Lis
     /**
      * Album song list
      */
-    private String[] mAlbumList;
+    private Song[] mAlbumList;
 
     /**
      * Represents an album

@@ -48,7 +48,6 @@ import android.os.PowerManager.WakeLock;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.provider.MediaStore;
-import android.provider.MediaStore.Audio.AlbumColumns;
 import android.provider.MediaStore.Audio.AudioColumns;
 import android.util.Log;
 
@@ -60,6 +59,7 @@ import com.boko.vimusic.appwidgets.AppWidgetSmall;
 import com.boko.vimusic.appwidgets.RecentWidgetProvider;
 import com.boko.vimusic.cache.ImageCache;
 import com.boko.vimusic.cache.ImageFetcher;
+import com.boko.vimusic.model.Song;
 import com.boko.vimusic.provider.FavoritesStore;
 import com.boko.vimusic.provider.RecentStore;
 import com.boko.vimusic.utils.ApolloUtils;
@@ -193,8 +193,6 @@ public class MusicPlaybackService extends Service {
 
     public static final String CMDNOTIF = "buttonId";
 
-    private static final int IDCOLIDX = 0;
-
     /**
      * Moves a list to the front of the queue
      */
@@ -286,24 +284,6 @@ public class MusicPlaybackService extends Service {
     private static final int MAX_HISTORY_SIZE = 100;
 
     /**
-     * The columns used to retrieve any info from the current track
-     */
-    private static final String[] PROJECTION = new String[] {
-            "audio._id AS _id", MediaStore.Audio.Media.ARTIST, MediaStore.Audio.Media.ALBUM,
-            MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.DATA,
-            MediaStore.Audio.Media.MIME_TYPE, MediaStore.Audio.Media.ALBUM_ID,
-            MediaStore.Audio.Media.ARTIST_ID
-    };
-
-    /**
-     * The columns used to retrieve any info from the current album
-     */
-    private static final String[] ALBUM_PROJECTION = new String[] {
-            MediaStore.Audio.Albums.ALBUM, MediaStore.Audio.Albums.ARTIST,
-            MediaStore.Audio.Albums.LAST_YEAR
-    };
-
-    /**
      * Keeps a mapping of the track history
      */
     private static final LinkedList<Integer> mHistory = Lists.newLinkedList();
@@ -373,18 +353,6 @@ public class MusicPlaybackService extends Service {
     private boolean mShutdownScheduled;
 
     /**
-     * The cursor used to retrieve info on the current track and run the
-     * necessary queries to play audio files
-     */
-    private Cursor mCursor;
-
-    /**
-     * The cursor used to retrieve info on the album the current track is
-     * part of, if any.
-     */
-    private Cursor mAlbumCursor;
-
-    /**
      * Monitors the audio state
      */
     private AudioManager mAudioManager;
@@ -446,9 +414,9 @@ public class MusicPlaybackService extends Service {
 
     private int mServiceStartId = -1;
 
-    private String[] mPlayList = null;
+    private Song[] mPlayList = null;
 
-    private String[] mAutoShuffleList = null;
+    private Song[] mAutoShuffleList = null;
 
     private MusicPlayerHandler mPlayerHandler;
 
@@ -675,9 +643,6 @@ public class MusicPlaybackService extends Service {
         // Remove any callbacks from the handler
         mPlayerHandler.removeCallbacksAndMessages(null);
 
-        // Close the cursor
-        closeCursor();
-
         // Unregister the mount listener
         unregisterReceiver(mIntentReceiver);
         if (mUnmountReceiver != null) {
@@ -879,7 +844,6 @@ public class MusicPlaybackService extends Service {
             mPlayer.stop();
         }
         mFileToPlay = null;
-        closeCursor();
         if (goToIdle) {
             scheduleDelayedShutdown();
             mIsSupposedToBePlaying = false;
@@ -924,7 +888,6 @@ public class MusicPlaybackService extends Service {
                 if (mPlayListLen == 0) {
                     stop(true);
                     mPlayPos = -1;
-                    closeCursor();
                 } else {
                     if (mShuffleMode != SHUFFLE_NONE) {
                         mPlayPos = getNextPosition(true);
@@ -950,7 +913,7 @@ public class MusicPlaybackService extends Service {
      * @param list The list to add
      * @param position The position to place the tracks
      */
-    private void addToPlayList(final String[] list, int position) {
+    private void addToPlayList(final Song[] list, int position) {
         final int addlen = list.length;
         if (position < 0) {
             mPlayListLen = 0;
@@ -971,57 +934,7 @@ public class MusicPlaybackService extends Service {
         }
         mPlayListLen += addlen;
         if (mPlayListLen == 0) {
-            closeCursor();
             notifyChange(META_CHANGED);
-        }
-    }
-
-    /**
-     * @param trackId The track ID
-     */
-    private void updateCursor(final String trackId) {
-        updateCursor("_id=" + trackId, null);
-    }
-
-    private void updateCursor(final String selection, final String[] selectionArgs) {
-        synchronized (this) {
-            closeCursor();
-
-            mCursor = openCursorAndGoToFirst(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                    PROJECTION, selection, selectionArgs);
-        }
-
-        String albumId = getAlbumId();
-        if (albumId != null) {
-            mAlbumCursor = openCursorAndGoToFirst(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
-                    ALBUM_PROJECTION, "_id=" + albumId, null);
-        } else {
-            mAlbumCursor = null;
-        }
-    }
-
-    private Cursor openCursorAndGoToFirst(Uri uri, String[] projection,
-            String selection, String[] selectionArgs) {
-        Cursor c = getContentResolver().query(uri, projection,
-                selection, selectionArgs, null, null);
-        if (c == null) {
-            return null;
-        }
-        if (!c.moveToFirst()) {
-            c.close();
-            return null;
-        }
-        return c;
-     }
-
-    private void closeCursor() {
-        if (mCursor != null) {
-            mCursor.close();
-            mCursor = null;
-        }
-        if (mAlbumCursor != null) {
-            mAlbumCursor.close();
-            mAlbumCursor = null;
         }
     }
 
@@ -1042,24 +955,18 @@ public class MusicPlaybackService extends Service {
      */
     private void openCurrentAndMaybeNext(final boolean openNext) {
         synchronized (this) {
-            closeCursor();
-
             if (mPlayListLen == 0) {
                 return;
             }
             stop(false);
 
-            updateCursor(mPlayList[mPlayPos]);
             while (true) {
-                if (mCursor != null
-                        && openFile(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI + "/"
-                                + mCursor.getLong(IDCOLIDX))) {
+                if (openFile(mPlayList[mPlayPos].getLinkPlay())) {
                     break;
                 }
                 // if we get here then opening the file failed. We can close the
                 // cursor now, because
                 // we're either going to create a new one next, or stop trying
-                closeCursor();
                 if (mOpenFailedCounter++ < 10 && mPlayListLen > 1) {
                     final int pos = getNextPosition(false);
                     if (pos < 0) {
@@ -1073,7 +980,6 @@ public class MusicPlaybackService extends Service {
                     mPlayPos = pos;
                     stop(false);
                     mPlayPos = pos;
-                    updateCursor(mPlayList[mPlayPos]);
                 } else {
                     mOpenFailedCounter = 0;
                     Log.w(TAG, "Failed to open file for playback");
@@ -1173,8 +1079,8 @@ public class MusicPlaybackService extends Service {
         mNextPlayPos = getNextPosition(false);
         if (D) Log.d(TAG, "setNextTrack: next play position = " + mNextPlayPos);
         if (mNextPlayPos >= 0 && mPlayList != null) {
-            final String id = mPlayList[mNextPlayPos];
-            mPlayer.setNextDataSource(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI + "/" + id);
+            final Song song = mPlayList[mNextPlayPos];
+            mPlayer.setNextDataSource(song.getLinkPlay());
         } else {
             mPlayer.setNextDataSource(null);
         }
@@ -1194,10 +1100,10 @@ public class MusicPlaybackService extends Service {
                 return false;
             }
             final int len = cursor.getCount();
-            final String[] list = new String[len];
+            final Song[] list = new Song[len];
             for (int i = 0; i < len; i++) {
                 cursor.moveToNext();
-                list[i] = cursor.getString(0);
+                list[i] = new Song(cursor.getString(0), "", null, null, 0);
             }
             mAutoShuffleList = list;
             return true;
@@ -1273,7 +1179,7 @@ public class MusicPlaybackService extends Service {
             // reallocate at 2x requested size so we don't
             // need to grow and copy the array for every
             // insert
-            final String[] newlist = new String[size * 2];
+            final Song[] newlist = new Song[size * 2];
             final int len = mPlayList != null ? mPlayList.length : mPlayListLen;
             for (int i = 0; i < len; i++) {
                 newlist[i] = mPlayList[i];
@@ -1398,8 +1304,10 @@ public class MusicPlaybackService extends Service {
             final StringBuilder q = new StringBuilder();
             int len = mPlayListLen;
             for (int i = 0; i < len; i++) {
-            	String n = mPlayList[i];
-            	q.append(n + ";");
+            	Song song = mPlayList[i];
+            	if (song != null && song.getId() != null) {
+            		q.append(song.getId() + "&" + song.getHost() + "|");
+            	}
             }
             editor.putString("queue", q.toString());
             editor.putInt("cardid", mCardId);
@@ -1449,11 +1357,18 @@ public class MusicPlaybackService extends Service {
             int plen = 0;
             int n = 0;
             int shift = 0;
-            String[] ids = q.split(";");
-            for (String s : ids) {
-            	ensurePlayListCapacity(plen + 1);
-            	mPlayList[plen] = s;
-            	plen++;
+            String[] songs = q.split("|");
+            for (String song : songs) {
+            	String[] parts = song.split("&");
+            	if (parts != null && parts.length > 0) {
+                	ensurePlayListCapacity(plen + 1);
+                	if (parts.length == 1 || parts[1] == null) {
+                		mPlayList[plen] = new Song(parts[0], "", null, null, 0);
+                	} else {
+                		mPlayList[plen] = new Song(parts[0], parts[1], null, null, 0);
+                	}
+                	plen++;
+            	}
             }
             mPlayListLen = plen;
             final int pos = mPreferences.getInt("curpos", 0);
@@ -1462,13 +1377,7 @@ public class MusicPlaybackService extends Service {
                 return;
             }
             mPlayPos = pos;
-            updateCursor(mPlayList[mPlayPos]);
-            if (mCursor == null) {
-                SystemClock.sleep(3000);
-                updateCursor(mPlayList[mPlayPos]);
-            }
             synchronized (this) {
-                closeCursor();
                 mOpenFailedCounter = 20;
                 openCurrentAndNext();
             }
@@ -1549,30 +1458,30 @@ public class MusicPlaybackService extends Service {
                 return false;
             }
 
-            // If mCursor is null, try to associate path with a database cursor
-            if (mCursor == null) {
-                final ContentResolver resolver = getContentResolver();
-                Uri uri;
-                String where;
-                String selectionArgs[];
-                if (path.startsWith("content://media/")) {
-                    uri = Uri.parse(path);
-                    where = null;
-                    selectionArgs = null;
-                } else {
-                    uri = MediaStore.Audio.Media.getContentUriForPath(path);
+            if (mPlayList == null || mPlayList.length == 0) {
+                String where = null;
+                String selectionArgs[] = null;
+                if (!path.startsWith("content://media/")) {
                     where = MediaStore.Audio.Media.DATA + "=?";
                     selectionArgs = new String[] {
                         path
                     };
                 }
                 try {
-                    updateCursor(where, selectionArgs);
-                    if (mCursor != null) {
-                        ensurePlayListCapacity(1);
-                        mPlayListLen = 1;
-                        mPlayList[0] = mCursor.getString(IDCOLIDX);
-                        mPlayPos = 0;
+                    Cursor c = getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                    		new String[] {
+	                            "audio._id AS _id"
+                    		},
+                            where, selectionArgs, null, null);
+                    if (c != null) {
+                    	if (c.moveToFirst()) {
+                            ensurePlayListCapacity(1);
+                            mPlayListLen = 1;
+                            mPlayList[0] = new Song (c.getString(0), "", null, null, 0);
+                            mPlayPos = 0;
+                    	}
+                        c.close();
+                        c = null;
                     }
                 } catch (final UnsupportedOperationException ex) {
                 }
@@ -1632,11 +1541,11 @@ public class MusicPlaybackService extends Service {
      * @param id The id to be removed
      * @return how many instances of the track were removed
      */
-    public int removeTrack(final String id) {
+    public int removeTrack(final Song song) {
         int numremoved = 0;
         synchronized (this) {
             for (int i = 0; i < mPlayListLen; i++) {
-                if (mPlayList[i] == id) {
+                if (mPlayList[i].equals(song)) {
                     numremoved += removeTracksInternal(i, i);
                     i--;
                 }
@@ -1683,11 +1592,11 @@ public class MusicPlaybackService extends Service {
      */
     public String getPath() {
         synchronized (this) {
-            if (mCursor == null) {
-                return null;
-            }
-            return mCursor.getString(mCursor.getColumnIndexOrThrow(AudioColumns.DATA));
+        	if (mPlayPos >= 0 && mPlayer.isInitialized()) {
+        		return mPlayList[mPlayPos].getLinkPlay();
+        	}
         }
+        return null;
     }
 
     /**
@@ -1697,11 +1606,11 @@ public class MusicPlaybackService extends Service {
      */
     public String getAlbumName() {
         synchronized (this) {
-            if (mCursor == null) {
-                return null;
-            }
-            return mCursor.getString(mCursor.getColumnIndexOrThrow(AudioColumns.ALBUM));
+        	if (mPlayPos >= 0 && mPlayer.isInitialized()) {
+        		return mPlayList[mPlayPos].mAlbumName;
+        	}
         }
+        return null;
     }
 
     /**
@@ -1711,11 +1620,11 @@ public class MusicPlaybackService extends Service {
      */
     public String getTrackName() {
         synchronized (this) {
-            if (mCursor == null) {
-                return null;
-            }
-            return mCursor.getString(mCursor.getColumnIndexOrThrow(AudioColumns.TITLE));
+        	if (mPlayPos >= 0 && mPlayer.isInitialized()) {
+        		return mPlayList[mPlayPos].getName();
+        	}
         }
+        return null;
     }
 
     /**
@@ -1725,11 +1634,11 @@ public class MusicPlaybackService extends Service {
      */
     public String getArtistName() {
         synchronized (this) {
-            if (mCursor == null) {
-                return null;
-            }
-            return mCursor.getString(mCursor.getColumnIndexOrThrow(AudioColumns.ARTIST));
+        	if (mPlayPos >= 0 && mPlayer.isInitialized()) {
+        		return mPlayList[mPlayPos].mArtistName;
+        	}
         }
+        return null;
     }
 
     /**
@@ -1739,11 +1648,11 @@ public class MusicPlaybackService extends Service {
      */
     public String getAlbumArtistName() {
         synchronized (this) {
-            if (mAlbumCursor == null) {
-                return null;
-            }
-            return mAlbumCursor.getString(mAlbumCursor.getColumnIndexOrThrow(AlbumColumns.ARTIST));
+        	if (mPlayPos >= 0 && mPlayer.isInitialized()) {
+        		return null;
+        	}
         }
+        return null;
     }
 
     /**
@@ -1753,11 +1662,11 @@ public class MusicPlaybackService extends Service {
      */
     public String getAlbumId() {
         synchronized (this) {
-            if (mCursor == null) {
-                return null;
-            }
-            return mCursor.getString(mCursor.getColumnIndexOrThrow(AudioColumns.ALBUM_ID));
+        	if (mPlayPos >= 0 && mPlayer.isInitialized()) {
+        		return null;
+        	}
         }
+        return null;
     }
 
     /**
@@ -1767,11 +1676,11 @@ public class MusicPlaybackService extends Service {
      */
     public String getArtistId() {
         synchronized (this) {
-            if (mCursor == null) {
-                return null;
-            }
-            return mCursor.getString(mCursor.getColumnIndexOrThrow(AudioColumns.ARTIST_ID));
+        	if (mPlayPos >= 0 && mPlayer.isInitialized()) {
+        		return null;
+        	}
         }
+        return null;
     }
 
     /**
@@ -1782,7 +1691,7 @@ public class MusicPlaybackService extends Service {
     public String getAudioId() {
         synchronized (this) {
             if (mPlayPos >= 0 && mPlayer.isInitialized()) {
-                return mPlayList[mPlayPos];
+                return mPlayList[mPlayPos].getId();
             }
         }
         return null;
@@ -1837,10 +1746,10 @@ public class MusicPlaybackService extends Service {
      *
      * @return The queue as a long[]
      */
-    public String[] getQueue() {
+    public Song[] getQueue() {
         synchronized (this) {
             final int len = mPlayListLen;
-            final String[] list = new String[len];
+            final Song[] list = new Song[len];
             for (int i = 0; i < len; i++) {
                 list[i] = mPlayList[i];
             }
@@ -1873,7 +1782,7 @@ public class MusicPlaybackService extends Service {
      * @param list The list of tracks to open
      * @param position The position to start playback at
      */
-    public void open(final String[] list, final int position) {
+    public void open(final Song[] list, final int position) {
         synchronized (this) {
             if (mShuffleMode == SHUFFLE_AUTO) {
                 mShuffleMode = SHUFFLE_NORMAL;
@@ -1884,7 +1793,7 @@ public class MusicPlaybackService extends Service {
             if (mPlayListLen == listlength) {
                 newlist = false;
                 for (int i = 0; i < listlength; i++) {
-                    if (list[i] != mPlayList[i]) {
+                    if (!list[i].equals(mPlayList[i])) {
                         newlist = true;
                         break;
                     }
@@ -2062,7 +1971,7 @@ public class MusicPlaybackService extends Service {
                 index2 = mPlayListLen - 1;
             }
             if (index1 < index2) {
-                final String tmp = mPlayList[index1];
+                final Song tmp = mPlayList[index1];
                 for (int i = index1; i < index2; i++) {
                     mPlayList[i] = mPlayList[i + 1];
                 }
@@ -2073,7 +1982,7 @@ public class MusicPlaybackService extends Service {
                     mPlayPos--;
                 }
             } else if (index2 < index1) {
-                final String tmp = mPlayList[index1];
+                final Song tmp = mPlayList[index1];
                 for (int i = index1; i > index2; i--) {
                     mPlayList[i] = mPlayList[i - 1];
                 }
@@ -2155,7 +2064,7 @@ public class MusicPlaybackService extends Service {
      * @param list The list to queue
      * @param action The action to take
      */
-    public void enqueue(final String[] list, final int action) {
+    public void enqueue(final Song[] list, final int action) {
         synchronized (this) {
             if (action == NEXT && mPlayPos + 1 < mPlayListLen) {
                 addToPlayList(list, mPlayPos + 1);
@@ -2317,10 +2226,6 @@ public class MusicPlaybackService extends Service {
                     break;
                 case TRACK_WENT_TO_NEXT:
                     service.mPlayPos = service.mNextPlayPos;
-                    if (service.mCursor != null) {
-                        service.mCursor.close();
-                    }
-                    service.updateCursor(service.mPlayList[service.mPlayPos]);
                     service.notifyChange(META_CHANGED);
                     service.updateNotification();
                     service.setNextTrack();
@@ -2679,7 +2584,7 @@ public class MusicPlaybackService extends Service {
          * {@inheritDoc}
          */
         @Override
-        public void open(final String[] list, final int position) throws RemoteException {
+        public void open(final Song[] list, final int position) throws RemoteException {
             mService.get().open(list, position);
         }
 
@@ -2727,7 +2632,7 @@ public class MusicPlaybackService extends Service {
          * {@inheritDoc}
          */
         @Override
-        public void enqueue(final String[] list, final int action) throws RemoteException {
+        public void enqueue(final Song[] list, final int action) throws RemoteException {
             mService.get().enqueue(list, action);
         }
 
@@ -2799,7 +2704,7 @@ public class MusicPlaybackService extends Service {
          * {@inheritDoc}
          */
         @Override
-        public String[] getQueue() throws RemoteException {
+        public Song[] getQueue() throws RemoteException {
             return mService.get().getQueue();
         }
 
@@ -2919,8 +2824,8 @@ public class MusicPlaybackService extends Service {
          * {@inheritDoc}
          */
         @Override
-        public int removeTrack(final String id) throws RemoteException {
-            return mService.get().removeTrack(id);
+        public int removeTrack(final Song song) throws RemoteException {
+            return mService.get().removeTrack(song);
         }
 
         /**

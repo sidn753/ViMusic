@@ -11,6 +11,8 @@
 
 package com.boko.vimusic.adapters;
 
+import java.util.List;
+
 import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -20,17 +22,15 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 
-import com.boko.vimusic.Config;
 import com.boko.vimusic.R;
 import com.boko.vimusic.cache.ImageFetcher;
 import com.boko.vimusic.model.Album;
+import com.boko.vimusic.model.Song;
 import com.boko.vimusic.ui.MusicHolder;
 import com.boko.vimusic.ui.fragments.profile.ArtistAlbumFragment;
 import com.boko.vimusic.utils.ApolloUtils;
 import com.boko.vimusic.utils.Lists;
 import com.boko.vimusic.utils.MusicUtils;
-
-import java.util.List;
 
 /**
  * This {@link ArrayAdapter} is used to display the albums for a particular
@@ -199,7 +199,7 @@ public class ArtistAlbumAdapter extends ArrayAdapter<Album> {
             @Override
             public void onClick(final View v) {
                 final String id = getItem(position - 1).getId();
-                final String[] list = MusicUtils.getSongListForAlbum(getContext(), id);
+                final Song[] list = MusicUtils.getSongListForAlbum(getContext(), id);
                 MusicUtils.playAll(getContext(), list, 0, false);
             }
         });

@@ -54,6 +54,7 @@ import com.boko.vimusic.R;
 import com.boko.vimusic.adapters.PagerAdapter;
 import com.boko.vimusic.cache.ImageFetcher;
 import com.boko.vimusic.menu.DeleteDialog;
+import com.boko.vimusic.model.Song;
 import com.boko.vimusic.service.IService;
 import com.boko.vimusic.service.MusicPlaybackService;
 import com.boko.vimusic.ui.fragments.QueueFragment;
@@ -376,8 +377,8 @@ public class AudioPlayerActivity extends FragmentActivity implements ServiceConn
                 return true;
             case R.id.menu_audio_player_delete:
                 // Delete current song
-                DeleteDialog.newInstance(MusicUtils.getTrackName(), new String[] {
-                    MusicUtils.getCurrentAudioId()
+                DeleteDialog.newInstance(MusicUtils.getTrackName(), new Song[] {
+                    new Song(MusicUtils.getCurrentAudioId(), "", null, null, 0)
                 }, null).show(getSupportFragmentManager(), "DeleteDialog");
                 return true;
             default:
@@ -387,7 +388,7 @@ public class AudioPlayerActivity extends FragmentActivity implements ServiceConn
     }
 
     @Override
-    public void onDelete(String[] ids) {
+    public void onDelete(Song[] songs) {
         ((QueueFragment)mPagerAdapter.getFragment(0)).refreshQueue();
         if (MusicUtils.getQueue().length == 0) {
             NavUtils.goHome(this);

@@ -17,10 +17,12 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 
 import com.boko.vimusic.Config;
 import com.boko.vimusic.R;
 import com.boko.vimusic.cache.ImageFetcher;
+import com.boko.vimusic.model.Song;
 import com.boko.vimusic.utils.ApolloUtils;
 import com.boko.vimusic.utils.MusicUtils;
 
@@ -34,13 +36,13 @@ import com.boko.vimusic.utils.MusicUtils;
 public class DeleteDialog extends DialogFragment {
 
     public interface DeleteDialogCallback {
-        public void onDelete(String[] id);
+        public void onDelete(Song[] id);
     }
 
     /**
      * The item(s) to delete
      */
-    private String[] mItemList;
+    private Song[] mItemList;
 
     /**
      * The image cache
@@ -59,11 +61,11 @@ public class DeleteDialog extends DialogFragment {
      * @param key The key used to remove items from the cache.
      * @return A new instance of the dialog
      */
-    public static DeleteDialog newInstance(final String title, final String[] items, final String key) {
+    public static DeleteDialog newInstance(final String title, final Song[] items, final String key) {
         final DeleteDialog frag = new DeleteDialog();
         final Bundle args = new Bundle();
         args.putString(Config.NAME, title);
-        args.putStringArray("items", items);
+        args.putSerializable("items", items);
         args.putString("cachekey", key);
         frag.setArguments(args);
         return frag;
@@ -79,7 +81,7 @@ public class DeleteDialog extends DialogFragment {
         // Get the image cache key
         final String key = arguments.getString("cachekey");
         // Get the track(s) to delete
-        mItemList = arguments.getStringArray("items");
+        mItemList = (Song[]) arguments.getSerializable("items");
         // Get the dialog title
         final String title = arguments.getString(Config.NAME);
         final String dialogTitle = getString(R.string.delete_dialog_title, title);

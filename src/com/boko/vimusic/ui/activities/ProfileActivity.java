@@ -34,6 +34,7 @@ import com.boko.vimusic.adapters.PagerAdapter;
 import com.boko.vimusic.cache.ImageFetcher;
 import com.boko.vimusic.menu.PhotoSelectionDialog;
 import com.boko.vimusic.menu.PhotoSelectionDialog.ProfileType;
+import com.boko.vimusic.model.Song;
 import com.boko.vimusic.ui.fragments.profile.AlbumSongFragment;
 import com.boko.vimusic.ui.fragments.profile.ArtistAlbumFragment;
 import com.boko.vimusic.ui.fragments.profile.ArtistSongFragment;
@@ -318,7 +319,7 @@ public class ProfileActivity extends BaseActivity implements OnPageChangeListene
             }
             case R.id.menu_shuffle: {
                 final String id = mArguments.getString(Config.ID);
-                String[] list = null;
+                Song[] list = null;
                 if (isArtist()) {
                     list = MusicUtils.getSongListForArtist(this, id);
                 } else if (isAlbum()) {

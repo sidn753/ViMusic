@@ -11,6 +11,8 @@
 
 package com.boko.vimusic.ui.fragments;
 
+import java.util.List;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -35,11 +37,10 @@ import com.boko.vimusic.adapters.GenreAdapter;
 import com.boko.vimusic.loaders.GenreLoader;
 import com.boko.vimusic.menu.FragmentMenuItems;
 import com.boko.vimusic.model.Genre;
+import com.boko.vimusic.model.Song;
 import com.boko.vimusic.recycler.RecycleHolder;
 import com.boko.vimusic.ui.activities.ProfileActivity;
 import com.boko.vimusic.utils.MusicUtils;
-
-import java.util.List;
 
 /**
  * This class is used to display all of the genres on a user's device.
@@ -77,7 +78,7 @@ public class GenreFragment extends Fragment implements LoaderCallbacks<List<Genr
     /**
      * Genre song list
      */
-    private String[] mGenreList;
+    private Song[] mGenreList;
 
     /**
      * Represents a genre

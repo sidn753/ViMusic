@@ -11,6 +11,8 @@
 
 package com.boko.vimusic.ui.fragments;
 
+import java.util.List;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentUris;
@@ -43,12 +45,11 @@ import com.boko.vimusic.loaders.PlaylistLoader;
 import com.boko.vimusic.menu.FragmentMenuItems;
 import com.boko.vimusic.menu.RenamePlaylist;
 import com.boko.vimusic.model.Playlist;
+import com.boko.vimusic.model.Song;
 import com.boko.vimusic.recycler.RecycleHolder;
 import com.boko.vimusic.ui.activities.BaseActivity;
 import com.boko.vimusic.ui.activities.ProfileActivity;
 import com.boko.vimusic.utils.MusicUtils;
-
-import java.util.List;
 
 /**
  * This class is used to display all of the playlists on a user's device.
@@ -191,7 +192,7 @@ public class PlaylistFragment extends Fragment implements LoaderCallbacks<List<P
                     }
                     return true;
                 case FragmentMenuItems.ADD_TO_QUEUE:
-                	String[] list = null;
+                	Song[] list = null;
                     if (info.position == 0) {
                         list = MusicUtils.getSongListForFavorites(getActivity());
                     } else if (info.position == 1) {

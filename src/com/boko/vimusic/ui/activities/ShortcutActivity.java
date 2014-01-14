@@ -72,7 +72,7 @@ public class ShortcutActivity extends FragmentActivity implements ServiceConnect
     /**
      * The list of songs to play
      */
-    private String[] mList;
+    private Song[] mList;
 
     /**
      * Used to shuffle the tracks or play them in order
@@ -268,8 +268,8 @@ public class ShortcutActivity extends FragmentActivity implements ServiceConnect
             final String id = mSong.get(0).getId();
             // First, try to play a song
             if (mList == null && song != null) {
-                mList = new String[] {
-                    id
+                mList = new Song[] {
+                    new Song(id, "", null, null, 0)
                 };
             } else
             // Second, try to play an album

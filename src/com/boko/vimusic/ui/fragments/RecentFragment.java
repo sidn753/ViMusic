@@ -13,6 +13,8 @@ package com.boko.vimusic.ui.fragments;
 
 import static com.boko.vimusic.utils.PreferenceUtils.RECENT_LAYOUT;
 
+import java.util.List;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -35,7 +37,6 @@ import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.boko.vimusic.Config;
 import com.boko.vimusic.MusicStateListener;
 import com.boko.vimusic.R;
 import com.boko.vimusic.adapters.AlbumAdapter;
@@ -45,6 +46,7 @@ import com.boko.vimusic.menu.CreateNewPlaylist;
 import com.boko.vimusic.menu.DeleteDialog;
 import com.boko.vimusic.menu.FragmentMenuItems;
 import com.boko.vimusic.model.Album;
+import com.boko.vimusic.model.Song;
 import com.boko.vimusic.provider.RecentStore;
 import com.boko.vimusic.recycler.RecycleHolder;
 import com.boko.vimusic.ui.activities.BaseActivity;
@@ -52,8 +54,6 @@ import com.boko.vimusic.utils.ApolloUtils;
 import com.boko.vimusic.utils.MusicUtils;
 import com.boko.vimusic.utils.NavUtils;
 import com.boko.vimusic.utils.PreferenceUtils;
-
-import java.util.List;
 
 /**
  * This class is used to display all of the recently listened to albums by the
@@ -102,7 +102,7 @@ public class RecentFragment extends Fragment implements LoaderCallbacks<List<Alb
     /**
      * Album song list
      */
-    private String[] mAlbumList;
+    private Song[] mAlbumList;
 
     /**
      * Represents an album

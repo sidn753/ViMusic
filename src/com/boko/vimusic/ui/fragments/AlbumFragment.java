@@ -13,13 +13,14 @@ package com.boko.vimusic.ui.fragments;
 
 import static com.boko.vimusic.utils.PreferenceUtils.ALBUM_LAYOUT;
 
+import java.util.List;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
-import android.text.TextUtils;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -37,7 +38,6 @@ import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.boko.vimusic.Config;
 import com.boko.vimusic.MusicStateListener;
 import com.boko.vimusic.R;
 import com.boko.vimusic.adapters.AlbumAdapter;
@@ -47,6 +47,7 @@ import com.boko.vimusic.menu.CreateNewPlaylist;
 import com.boko.vimusic.menu.DeleteDialog;
 import com.boko.vimusic.menu.FragmentMenuItems;
 import com.boko.vimusic.model.Album;
+import com.boko.vimusic.model.Song;
 import com.boko.vimusic.recycler.RecycleHolder;
 import com.boko.vimusic.ui.activities.BaseActivity;
 import com.boko.vimusic.utils.ApolloUtils;
@@ -54,8 +55,6 @@ import com.boko.vimusic.utils.MusicUtils;
 import com.boko.vimusic.utils.NavUtils;
 import com.boko.vimusic.utils.PreferenceUtils;
 import com.viewpagerindicator.TitlePageIndicator;
-
-import java.util.List;
 
 /**
  * This class is used to display all of the albums on a user's device.
@@ -103,7 +102,7 @@ public class AlbumFragment extends Fragment implements LoaderCallbacks<List<Albu
     /**
      * Album song list
      */
-    private String[] mAlbumList;
+    private Song[] mAlbumList;
 
     /**
      * Represents an album

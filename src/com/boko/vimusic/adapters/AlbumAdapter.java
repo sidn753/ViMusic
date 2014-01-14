@@ -20,10 +20,10 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 
-import com.boko.vimusic.Config;
 import com.boko.vimusic.R;
 import com.boko.vimusic.cache.ImageFetcher;
 import com.boko.vimusic.model.Album;
+import com.boko.vimusic.model.Song;
 import com.boko.vimusic.ui.MusicHolder;
 import com.boko.vimusic.ui.MusicHolder.DataHolder;
 import com.boko.vimusic.utils.ApolloUtils;
@@ -185,7 +185,7 @@ public class AlbumAdapter extends ArrayAdapter<Album> {
             @Override
             public void onClick(final View v) {
                 final String id = getItem(position).getId();
-                final String[] list = MusicUtils.getSongListForAlbum(getContext(), id);
+                final Song[] list = MusicUtils.getSongListForAlbum(getContext(), id);
                 MusicUtils.playAll(getContext(), list, 0, false);
             }
         });

@@ -22,9 +22,9 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.boko.vimusic.Config;
 import com.boko.vimusic.R;
 import com.boko.vimusic.cache.ImageFetcher;
+import com.boko.vimusic.model.Song;
 import com.boko.vimusic.utils.ApolloUtils;
 import com.boko.vimusic.utils.BitmapUtils;
 import com.boko.vimusic.utils.MusicUtils;
@@ -173,7 +173,7 @@ public class CarouselTab extends FrameLayoutWithOverlay {
 
                 @Override
                 public void onClick(final View v) {
-                    final String[] albumList = MusicUtils.getSongListForAlbum(getContext(),
+                    final Song[] albumList = MusicUtils.getSongListForAlbum(getContext(),
                             MusicUtils.getIdForAlbum(context, lastAlbum, artist));
                     MusicUtils.playAll(getContext(), albumList, 0, false);
                 }

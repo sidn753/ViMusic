@@ -23,6 +23,7 @@ import android.widget.ImageView;
 import com.boko.vimusic.R;
 import com.boko.vimusic.cache.ImageFetcher;
 import com.boko.vimusic.model.Artist;
+import com.boko.vimusic.model.Song;
 import com.boko.vimusic.ui.MusicHolder;
 import com.boko.vimusic.ui.MusicHolder.DataHolder;
 import com.boko.vimusic.utils.ApolloUtils;
@@ -177,7 +178,7 @@ public class ArtistAdapter extends ArrayAdapter<Artist> {
             @Override
             public void onClick(final View v) {
                 final String id = getItem(position).getId();
-                final String[] list = MusicUtils.getSongListForArtist(getContext(), id);
+                final Song[] list = MusicUtils.getSongListForArtist(getContext(), id);
                 MusicUtils.playAll(getContext(), list, 0, false);
             }
         });

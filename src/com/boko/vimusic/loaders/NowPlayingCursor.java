@@ -14,6 +14,7 @@ import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Audio.AudioColumns;
 
+import com.boko.vimusic.model.Song;
 import com.boko.vimusic.utils.MusicUtils;
 
 /**
@@ -36,9 +37,9 @@ public class NowPlayingCursor extends AbstractCursor {
 
     private final Context mContext;
 
-    private String[] mNowPlaying;
+    private Song[] mNowPlaying;
 
-    private String[] mCursorIndexes;
+    private Song[] mCursorIndexes;
 
     private int mSize;
 
@@ -77,7 +78,7 @@ public class NowPlayingCursor extends AbstractCursor {
             return false;
         }
 
-        final String id = mNowPlaying[newPosition];
+        final Song id = mNowPlaying[newPosition];
         final int cursorIndex = Arrays.binarySearch(mCursorIndexes, id);
         mQueueCursor.moveToPosition(cursorIndex);
         mCurPos = newPosition;
@@ -220,7 +221,7 @@ public class NowPlayingCursor extends AbstractCursor {
         final StringBuilder selection = new StringBuilder();
         selection.append(MediaStore.Audio.Media._ID + " IN (");
         for (int i = 0; i < mSize; i++) {
-            selection.append(mNowPlaying[i]);
+            selection.append(mNowPlaying[i].getId());
             if (i < mSize - 1) {
                 selection.append(",");
             }
@@ -237,11 +238,11 @@ public class NowPlayingCursor extends AbstractCursor {
         }
 
         final int playlistSize = mQueueCursor.getCount();
-        mCursorIndexes = new String[playlistSize];
+        mCursorIndexes = new Song[playlistSize];
         mQueueCursor.moveToFirst();
         final int columnIndex = mQueueCursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID);
         for (int i = 0; i < playlistSize; i++) {
-            mCursorIndexes[i] = mQueueCursor.getString(columnIndex);
+            mCursorIndexes[i] = new Song(mQueueCursor.getString(columnIndex), "", null, null, 0);
             mQueueCursor.moveToNext();
         }
         mQueueCursor.moveToFirst();
@@ -249,10 +250,10 @@ public class NowPlayingCursor extends AbstractCursor {
 
         int removed = 0;
         for (int i = mNowPlaying.length - 1; i >= 0; i--) {
-            final String trackId = mNowPlaying[i];
-            final int cursorIndex = Arrays.binarySearch(mCursorIndexes, trackId);
+            final Song track = mNowPlaying[i];
+            final int cursorIndex = Arrays.binarySearch(mCursorIndexes, track);
             if (cursorIndex < 0) {
-                removed += MusicUtils.removeTrack(trackId);
+                removed += MusicUtils.removeTrack(track);
             }
         }
         if (removed > 0) {

@@ -95,7 +95,7 @@ public class SongFragment extends Fragment implements LoaderCallbacks<List<Song>
     /**
      * Id of a context menu item
      */
-    private String mSelectedId;
+    private Song mSelectedId;
 
     /**
      * Song, album, and artist name used in the context menu
@@ -178,7 +178,7 @@ public class SongFragment extends Fragment implements LoaderCallbacks<List<Song>
         mSelectedPosition = info.position;
         // Creat a new song
         mSong = mAdapter.getItem(mSelectedPosition);
-        mSelectedId = mSong.getId();
+        mSelectedId = mSong;
         mSongName = mSong.getName();
         mAlbumName = mSong.mAlbumName;
         mArtistName = mSong.mArtistName;
@@ -218,32 +218,32 @@ public class SongFragment extends Fragment implements LoaderCallbacks<List<Song>
         if (item.getGroupId() == GROUP_ID) {
             switch (item.getItemId()) {
                 case FragmentMenuItems.PLAY_SELECTION:
-                    MusicUtils.playAll(getActivity(), new String[] {
+                    MusicUtils.playAll(getActivity(), new Song[] {
                         mSelectedId
                     }, 0, false);
                     return true;
                 case FragmentMenuItems.PLAY_NEXT:
-                    MusicUtils.playNext(new String[] {
+                    MusicUtils.playNext(new Song[] {
                         mSelectedId
                     });
                     return true;
                 case FragmentMenuItems.ADD_TO_QUEUE:
-                    MusicUtils.addToQueue(getActivity(), new String[] {
+                    MusicUtils.addToQueue(getActivity(), new Song[] {
                         mSelectedId
                     });
                     return true;
                 case FragmentMenuItems.ADD_TO_FAVORITES:
                     FavoritesStore.getInstance(getActivity()).addSong(
-                    		mSelectedId, "", mSongName, mAlbumName, mArtistName);
+                    		mSelectedId.getId(), mSelectedId.getHost(), mSongName, mAlbumName, mArtistName);
                     return true;
                 case FragmentMenuItems.NEW_PLAYLIST:
-                    CreateNewPlaylist.getInstance(new String[] {
+                    CreateNewPlaylist.getInstance(new Song[] {
                         mSelectedId
                     }).show(getFragmentManager(), "CreatePlaylist");
                     return true;
                 case FragmentMenuItems.PLAYLIST_SELECTED:
                     final String mPlaylistId = item.getIntent().getStringExtra("playlist");
-                    MusicUtils.addToPlaylist(getActivity(), new String[] {
+                    MusicUtils.addToPlaylist(getActivity(), new Song[] {
                         mSelectedId
                     }, mPlaylistId);
                     return true;
@@ -251,11 +251,11 @@ public class SongFragment extends Fragment implements LoaderCallbacks<List<Song>
                     NavUtils.openArtistProfile(getActivity(), mArtistName);
                     return true;
                 case FragmentMenuItems.USE_AS_RINGTONE:
-                    MusicUtils.setRingtone(getActivity(), mSelectedId);
+                    MusicUtils.setRingtone(getActivity(), mSelectedId.getId());
                     return true;
                 case FragmentMenuItems.DELETE:
                     mShouldRefresh = true;
-                    DeleteDialog.newInstance(mSong.getName(), new String[] {
+                    DeleteDialog.newInstance(mSong.getName(), new Song[] {
                         mSelectedId
                     }, null).show(getFragmentManager(), "DeleteDialog");
                     return true;
@@ -273,7 +273,7 @@ public class SongFragment extends Fragment implements LoaderCallbacks<List<Song>
     public void onItemClick(final AdapterView<?> parent, final View view, final int position,
             final long id) {
         Cursor cursor = SongLoader.makeSongCursor(getActivity());
-        final String[] list = MusicUtils.getSongListForCursor(cursor);
+        final Song[] list = MusicUtils.getSongListForCursor(cursor);
         MusicUtils.playAll(getActivity(), list, position, false);
         cursor.close();
         cursor = null;

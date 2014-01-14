@@ -1,5 +1,7 @@
 package com.boko.vimusic.model;
 
+import android.text.TextUtils;
+
 /**
  * A class that represents a generic media.
  */
@@ -55,5 +57,20 @@ public class Media {
 
 	public void setAvatarUrl(String avatarUrl) {
 		this.mAvatarUrl = avatarUrl;
+	}
+	
+	@Override
+	public boolean equals(final Object obj) {
+		if (obj == null) {
+			return false;
+		}
+		final Media other = (Media)obj;
+		if (!TextUtils.equals(getHost(), other.getHost())) {
+			return false;
+		}
+		if (!TextUtils.equals(getId(), other.getId())) {
+			return false;
+		}
+		return true;
 	}
 }

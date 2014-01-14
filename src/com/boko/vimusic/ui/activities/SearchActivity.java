@@ -54,6 +54,7 @@ import android.widget.TextView;
 import com.boko.vimusic.R;
 import com.boko.vimusic.cache.ImageFetcher;
 import com.boko.vimusic.format.PrefixHighlighter;
+import com.boko.vimusic.model.Song;
 import com.boko.vimusic.recycler.RecycleHolder;
 import com.boko.vimusic.service.IService;
 import com.boko.vimusic.ui.MusicHolder;
@@ -372,8 +373,8 @@ public class SearchActivity extends Activity implements LoaderCallbacks<Cursor>,
                     cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums._ID)));
         } else if (position >= 0 && id >= 0) {
             // If it's a song, play it and leave
-            final String[] list = new String[] {
-                String.valueOf(id)
+            final Song[] list = new Song[] {
+                new Song(String.valueOf(id), "", null, null, 0)
             };
             MusicUtils.playAll(this, list, 0, false);
         }
