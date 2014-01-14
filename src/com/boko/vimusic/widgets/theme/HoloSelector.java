@@ -11,16 +11,15 @@
 
 package com.boko.vimusic.widgets.theme;
 
+import java.lang.ref.WeakReference;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.StateListDrawable;
 
-import com.boko.vimusic.utils.ApolloUtils;
 import com.boko.vimusic.utils.ThemeUtils;
-
-import java.lang.ref.WeakReference;
 
 /**
  * A themeable {@link StateListDrawable}.

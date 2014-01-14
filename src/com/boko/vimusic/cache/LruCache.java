@@ -14,10 +14,10 @@ package com.boko.vimusic.cache;
 // NOTE: upstream of this class is android.util.LruCache, changes below
 // expose trimToSize() to be called externally.
 
-import android.annotation.SuppressLint;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import android.annotation.SuppressLint;
 
 /**
  * Static library version of {@link android.util.LruCache}. Used to write apps

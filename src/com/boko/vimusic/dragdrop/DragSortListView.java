@@ -12,6 +12,10 @@
 
 package com.boko.vimusic.dragdrop;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
 import android.content.Context;
 import android.database.DataSetObserver;
 import android.graphics.Canvas;
@@ -31,10 +35,6 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 
 import com.boko.vimusic.R;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 
 /**
  * ListView subclass that mediates drag and drop resorting of items.

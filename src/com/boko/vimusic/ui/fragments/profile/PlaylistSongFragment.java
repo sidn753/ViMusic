@@ -11,6 +11,8 @@
 
 package com.boko.vimusic.ui.fragments.profile;
 
+import java.util.List;
+
 import android.app.Activity;
 import android.database.Cursor;
 import android.net.Uri;
@@ -49,8 +51,6 @@ import com.boko.vimusic.utils.MusicUtils;
 import com.boko.vimusic.utils.NavUtils;
 import com.boko.vimusic.widgets.ProfileTabCarousel;
 import com.boko.vimusic.widgets.VerticalScrollListener;
-
-import java.util.List;
 
 /**
  * This class is used to display all of the songs from a particular playlist.

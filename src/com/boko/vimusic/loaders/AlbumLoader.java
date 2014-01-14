@@ -11,19 +11,18 @@
 
 package com.boko.vimusic.loaders;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.content.Context;
 import android.database.Cursor;
 import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Audio.AlbumColumns;
 
-import com.boko.vimusic.R;
 import com.boko.vimusic.model.Album;
 import com.boko.vimusic.utils.Lists;
 import com.boko.vimusic.utils.PreferenceUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Used to query {@link MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI} and return

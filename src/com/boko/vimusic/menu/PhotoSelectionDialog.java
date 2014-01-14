@@ -11,6 +11,8 @@
 
 package com.boko.vimusic.menu;
 
+import java.util.ArrayList;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -24,8 +26,6 @@ import com.boko.vimusic.R;
 import com.boko.vimusic.ui.activities.ProfileActivity;
 import com.boko.vimusic.utils.ApolloUtils;
 import com.boko.vimusic.utils.Lists;
-
-import java.util.ArrayList;
 
 /**
  * Used when the user touches the image in the header in {@link ProfileActivity}

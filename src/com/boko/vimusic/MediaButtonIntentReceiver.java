@@ -20,7 +20,6 @@ import android.os.Message;
 import android.view.KeyEvent;
 
 import com.boko.vimusic.service.MusicPlaybackService;
-import com.boko.vimusic.ui.activities.HomeActivity;
 
 /**
  * Used to control headset playback. Single press: pause/resume. Double press:

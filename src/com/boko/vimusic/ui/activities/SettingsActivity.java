@@ -18,16 +18,13 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
-import android.preference.CheckBoxPreference;
 import android.preference.Preference;
-import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.view.MenuItem;
 
 import com.boko.vimusic.R;
 import com.boko.vimusic.cache.ImageCache;
-import com.boko.vimusic.service.MusicPlaybackService;
 import com.boko.vimusic.ui.fragments.ThemeFragment;
 import com.boko.vimusic.utils.ApolloUtils;
 import com.boko.vimusic.utils.MusicUtils;

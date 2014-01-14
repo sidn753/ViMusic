@@ -11,6 +11,8 @@
 
 package com.boko.vimusic.widgets;
 
+import java.util.Locale;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Color;
@@ -26,8 +28,6 @@ import com.boko.vimusic.R;
 import com.boko.vimusic.utils.ApolloUtils;
 import com.boko.vimusic.utils.PreferenceUtils;
 import com.boko.vimusic.widgets.ColorPickerView.OnColorChangedListener;
-
-import java.util.Locale;
 
 /**
  * Shows the {@link ColorPanelView} in a new {@link AlertDialog}.

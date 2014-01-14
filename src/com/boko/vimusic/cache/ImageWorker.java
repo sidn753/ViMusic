@@ -11,6 +11,8 @@
 
 package com.boko.vimusic.cache;
 
+import java.lang.ref.WeakReference;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -25,8 +27,6 @@ import android.widget.ImageView;
 import com.boko.vimusic.R;
 import com.boko.vimusic.utils.ApolloUtils;
 import com.boko.vimusic.utils.ThemeUtils;
-
-import java.lang.ref.WeakReference;
 
 /**
  * This class wraps up completing some arbitrary long running work when loading

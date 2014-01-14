@@ -11,6 +11,8 @@
 
 package com.boko.vimusic.adapters;
 
+import java.util.List;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,8 +30,6 @@ import com.boko.vimusic.ui.fragments.profile.LastAddedFragment;
 import com.boko.vimusic.ui.fragments.profile.PlaylistSongFragment;
 import com.boko.vimusic.utils.Lists;
 import com.boko.vimusic.utils.MusicUtils;
-
-import java.util.List;
 
 /**
  * This {@link ArrayAdapter} is used to display the songs for a particular

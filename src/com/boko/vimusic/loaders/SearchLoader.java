@@ -11,6 +11,9 @@
 
 package com.boko.vimusic.loaders;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
@@ -20,9 +23,6 @@ import android.text.TextUtils;
 
 import com.boko.vimusic.model.Song;
 import com.boko.vimusic.utils.Lists;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Andrew Neal (andrewdneal@gmail.com)

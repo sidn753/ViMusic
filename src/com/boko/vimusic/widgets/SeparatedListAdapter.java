@@ -1,5 +1,8 @@
 package com.boko.vimusic.widgets;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,9 +11,6 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 
 import com.boko.vimusic.R;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 public class SeparatedListAdapter extends BaseAdapter {
 

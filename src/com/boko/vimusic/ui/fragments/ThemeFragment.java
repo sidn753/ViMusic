@@ -11,6 +11,8 @@
 
 package com.boko.vimusic.ui.fragments;
 
+import java.util.List;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -38,8 +40,6 @@ import com.boko.vimusic.recycler.RecycleHolder;
 import com.boko.vimusic.ui.MusicHolder;
 import com.boko.vimusic.utils.ThemeUtils;
 import com.devspark.appmsg.AppMsg;
-
-import java.util.List;
 
 /**
  * Used to show all of the available themes on a user's device.

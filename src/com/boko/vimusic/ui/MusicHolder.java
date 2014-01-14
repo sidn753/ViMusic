@@ -11,6 +11,8 @@
 
 package com.boko.vimusic.ui;
 
+import java.lang.ref.WeakReference;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.view.View;
@@ -20,8 +22,6 @@ import android.widget.TextView;
 
 import com.boko.vimusic.R;
 import com.boko.vimusic.appwidgets.RecentWidgetService;
-
-import java.lang.ref.WeakReference;
 
 /**
  * Used to efficiently cache and recyle the {@link View}s used in the artist,

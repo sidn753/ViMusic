@@ -21,7 +21,6 @@ import android.provider.MediaStore;
 
 import com.boko.vimusic.Config;
 import com.boko.vimusic.R;
-import com.boko.vimusic.model.Album;
 import com.boko.vimusic.ui.activities.AudioPlayerActivity;
 import com.boko.vimusic.ui.activities.HomeActivity;
 import com.boko.vimusic.ui.activities.ProfileActivity;

@@ -24,14 +24,11 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.text.TextUtils;
-import android.util.Log;
 import android.widget.ImageView;
 
 import com.boko.vimusic.Config;
 import com.boko.vimusic.api.lastfm.Album;
 import com.boko.vimusic.api.lastfm.Artist;
-import com.boko.vimusic.api.lastfm.ImageSize;
-import com.boko.vimusic.model.Media;
 import com.boko.vimusic.service.MusicPlaybackService;
 import com.boko.vimusic.utils.MusicUtils;
 import com.boko.vimusic.utils.PreferenceUtils;

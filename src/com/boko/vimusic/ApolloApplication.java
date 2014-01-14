@@ -11,14 +11,13 @@
 
 package com.boko.vimusic;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import android.app.Application;
 import android.os.StrictMode;
 
 import com.boko.vimusic.cache.ImageCache;
-import com.boko.vimusic.utils.ApolloUtils;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Used to turn off logging for jaudiotagger and free up memory when

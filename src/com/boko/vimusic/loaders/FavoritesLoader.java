@@ -11,6 +11,9 @@
 
 package com.boko.vimusic.loaders;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.content.Context;
 import android.database.Cursor;
 
@@ -18,9 +21,6 @@ import com.boko.vimusic.model.Song;
 import com.boko.vimusic.provider.FavoritesStore;
 import com.boko.vimusic.provider.FavoritesStore.FavoritesTable;
 import com.boko.vimusic.utils.Lists;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Used to query the {@link FavoritesStore} for the tracks marked as favorites.

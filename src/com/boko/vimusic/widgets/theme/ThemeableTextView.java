@@ -11,6 +11,8 @@
 
 package com.boko.vimusic.widgets.theme;
 
+import java.util.WeakHashMap;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
@@ -20,8 +22,6 @@ import android.widget.TextView;
 
 import com.boko.vimusic.R;
 import com.boko.vimusic.utils.ThemeUtils;
-
-import java.util.WeakHashMap;
 
 /**
  * A custom {@link TextView} that is made themeable for developers. It allows a

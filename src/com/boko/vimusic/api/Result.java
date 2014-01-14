@@ -22,15 +22,12 @@
 package com.boko.vimusic.api;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 /**
  * The <code>Result</code> class contains the response sent by the server, i.e.

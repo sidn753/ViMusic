@@ -13,8 +13,6 @@ package com.boko.vimusic.utils;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
 
 /**

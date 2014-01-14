@@ -48,7 +48,6 @@ import android.os.PowerManager.WakeLock;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.provider.MediaStore;
-import android.provider.MediaStore.Audio.AudioColumns;
 import android.util.Log;
 
 import com.boko.vimusic.MediaButtonIntentReceiver;

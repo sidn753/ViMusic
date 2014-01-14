@@ -11,6 +11,9 @@
 
 package com.boko.vimusic.loaders;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -21,9 +24,6 @@ import android.provider.MediaStore.Audio.PlaylistsColumns;
 import com.boko.vimusic.R;
 import com.boko.vimusic.model.Playlist;
 import com.boko.vimusic.utils.Lists;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Used to query {@link MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI} and

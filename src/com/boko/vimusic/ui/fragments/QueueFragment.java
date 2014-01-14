@@ -11,11 +11,12 @@
 
 package com.boko.vimusic.ui.fragments;
 
+import java.util.List;
+
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
-import android.text.TextUtils;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -46,8 +47,6 @@ import com.boko.vimusic.recycler.RecycleHolder;
 import com.boko.vimusic.utils.MusicUtils;
 import com.boko.vimusic.utils.NavUtils;
 import com.viewpagerindicator.TitlePageIndicator;
-
-import java.util.List;
 
 /**
  * This class is used to display all of the songs in the queue.

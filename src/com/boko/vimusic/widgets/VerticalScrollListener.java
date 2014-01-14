@@ -16,8 +16,6 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 
-import com.boko.vimusic.utils.ApolloUtils;
-
 @SuppressLint("NewApi")
 public class VerticalScrollListener implements OnScrollListener {
 
