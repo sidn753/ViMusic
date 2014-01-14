@@ -192,7 +192,7 @@ public class ArtistAlbumFragment extends Fragment implements LoaderCallbacks<Lis
         // Create a new album
         mAlbum = mAdapter.getItem(info.position - 1);
         // Create a list of the album's songs
-        mAlbumList = MusicUtils.getSongListForAlbum(getActivity(), mAlbum.mAlbumId);
+        mAlbumList = MusicUtils.getSongListForAlbum(getActivity(), mAlbum.getId());
 
         // Play the album
         menu.add(GROUP_ID, FragmentMenuItems.PLAY_SELECTION, Menu.NONE,
@@ -257,7 +257,7 @@ public class ArtistAlbumFragment extends Fragment implements LoaderCallbacks<Lis
         }
         mAlbum = mAdapter.getItem(position - 1);
         NavUtils.openAlbumProfile(getActivity(), mAlbum.getName(),
-                mAlbum.mArtistName, mAlbum.mAlbumId);
+                mAlbum.mArtistName, mAlbum.getId());
         getActivity().finish();
     }
 

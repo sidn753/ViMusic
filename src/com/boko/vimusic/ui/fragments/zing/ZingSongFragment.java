@@ -175,7 +175,7 @@ public class ZingSongFragment extends Fragment implements LoaderCallbacks<List<S
         mSelectedPosition = info.position;
         // Creat a new song
         mSong = mAdapter.getItem(mSelectedPosition);
-        mSelectedId = mSong.mSongId;
+        mSelectedId = mSong.getId();
         mSongName = mSong.getName();
         mAlbumName = mSong.mAlbumName;
         mArtistName = mSong.mArtistName;
@@ -339,7 +339,7 @@ public class ZingSongFragment extends Fragment implements LoaderCallbacks<List<S
             return 0;
         }
         for (int i = 0; i < mAdapter.getCount(); i++) {
-            if (mAdapter.getItem(i).mSongId.equals(trackId)) {
+            if (mAdapter.getItem(i).getId().equals(trackId)) {
                 return i;
             }
         }

@@ -118,7 +118,7 @@ public class GenreAdapter extends ArrayAdapter<Genre> {
             // Build the data holder
             mData[i] = new DataHolder();
             // Genre Id
-            mData[i].mItemId = genre.mGenreId;
+            mData[i].mItemId = genre.getId();
             // Genre names (line one)
             mData[i].mLineOne = genre.getName();
         }

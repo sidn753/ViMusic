@@ -192,7 +192,7 @@ public class AlbumSongFragment extends Fragment implements LoaderCallbacks<List<
         mSelectedPosition = info.position - 1;
         // Creat a new song
         mSong = mAdapter.getItem(mSelectedPosition);
-        mSelectedId = mSong.mSongId;
+        mSelectedId = mSong.getId();
         mSongName = mSong.getName();
         mAlbumName = mSong.mAlbumName;
         mArtistName = mSong.mArtistName;

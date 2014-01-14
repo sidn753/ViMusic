@@ -197,7 +197,7 @@ public class QueueFragment extends Fragment implements LoaderCallbacks<List<Song
         mSelectedPosition = info.position;
         // Creat a new song
         mSong = mAdapter.getItem(mSelectedPosition);
-        mSelectedId = mSong.mSongId;
+        mSelectedId = mSong.getId();
         mSongName = mSong.getName();
         mAlbumName = mSong.mAlbumName;
         mArtistName = mSong.mArtistName;
@@ -352,7 +352,7 @@ public class QueueFragment extends Fragment implements LoaderCallbacks<List<Song
         mSong = mAdapter.getItem(which);
         mAdapter.remove(mSong);
         mAdapter.notifyDataSetChanged();
-        MusicUtils.removeTrack(mSong.mSongId);
+        MusicUtils.removeTrack(mSong.getId());
         // Build the cache
         mAdapter.buildCache();
     }
@@ -393,7 +393,7 @@ public class QueueFragment extends Fragment implements LoaderCallbacks<List<Song
             return 0;
         }
         for (int i = 0; i < mAdapter.getCount(); i++) {
-            if (mAdapter.getItem(i).mSongId.equals(trackId)) {
+            if (mAdapter.getItem(i).getId().equals(trackId)) {
                 return i;
             }
         }

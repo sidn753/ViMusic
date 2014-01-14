@@ -8,11 +8,6 @@ package com.boko.vimusic.model;
 public class Artist extends Media {
 
     /**
-     * The unique Id of the artist
-     */
-    public String mArtistId;
-
-    /**
      * The number of albums for the artist
      */
     public int mAlbumNumber;
@@ -33,7 +28,7 @@ public class Artist extends Media {
     public Artist(final String artistId, final String artistName, final int songNumber,
             final int albumNumber) {
         super();
-        mArtistId = artistId;
+        setId(artistId);
         setName(artistName);
         mSongNumber = songNumber;
         mAlbumNumber = albumNumber;

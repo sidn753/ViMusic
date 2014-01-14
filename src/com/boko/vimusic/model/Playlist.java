@@ -7,11 +7,6 @@ package com.boko.vimusic.model;
 public class Playlist extends Media {
 
 	/**
-	 * The unique Id of the playlist
-	 */
-	public String mPlaylistId;
-
-	/**
 	 * Constructor of <code>Genre</code>
 	 * 
 	 * @param playlistId
@@ -21,7 +16,7 @@ public class Playlist extends Media {
 	 */
 	public Playlist(final String playlistId, final String playlistName) {
 		super();
-		mPlaylistId = playlistId;
+		setId(playlistId);
 		setName(playlistName);
 	}
 }

@@ -8,11 +8,6 @@ package com.boko.vimusic.model;
 public class Song extends Media {
 
     /**
-     * The unique Id of the song
-     */
-    public String mSongId;
-
-    /**
      * The song artist
      */
     public String mArtistName;
@@ -45,7 +40,7 @@ public class Song extends Media {
      */
     public Song(final String songId, final String songName, final String artistName,
             final String albumName, final int duration) {
-        mSongId = songId;
+        setId(songId);
         setName(songName);
         mArtistName = artistName;
         mAlbumName = albumName;

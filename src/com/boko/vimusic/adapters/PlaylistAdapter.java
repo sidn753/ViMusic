@@ -118,7 +118,7 @@ public class PlaylistAdapter extends ArrayAdapter<Playlist> {
             // Build the data holder
             mData[i] = new DataHolder();
             // Playlist Id
-            mData[i].mItemId = playlist.mPlaylistId;
+            mData[i].mItemId = playlist.getId();
             // Playlist names (line one)
             mData[i].mLineOne = playlist.getName();
         }

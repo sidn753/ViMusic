@@ -133,7 +133,7 @@ public class ArtistAlbumAdapter extends ArrayAdapter<Album> {
         // Set the album year (line three)
         holder.mLineThree.get().setText(album.mYear);
         // Asynchronously load the album images into the adapter
-        mImageFetcher.loadAlbumImage(album.mArtistName, albumName, album.mAlbumId,
+        mImageFetcher.loadAlbumImage(album.mArtistName, albumName, album.getId(),
                 holder.mImage.get());
         // Play the album when the artwork is touched
         playAlbum(holder.mImage.get(), position);
@@ -198,7 +198,7 @@ public class ArtistAlbumAdapter extends ArrayAdapter<Album> {
 
             @Override
             public void onClick(final View v) {
-                final String id = getItem(position - 1).mAlbumId;
+                final String id = getItem(position - 1).getId();
                 final String[] list = MusicUtils.getSongListForAlbum(getContext(), id);
                 MusicUtils.playAll(getContext(), list, 0, false);
             }

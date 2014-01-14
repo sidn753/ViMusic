@@ -152,7 +152,7 @@ public class ArtistAdapter extends ArrayAdapter<Artist> {
             // Build the data holder
             mData[i] = new DataHolder();
             // Artist Id
-            mData[i].mItemId = artist.mArtistId;
+            mData[i].mItemId = artist.getId();
             // Artist names (line one)
             mData[i].mLineOne = artist.getName();
             // Number of albums (line two)
@@ -176,7 +176,7 @@ public class ArtistAdapter extends ArrayAdapter<Artist> {
 
             @Override
             public void onClick(final View v) {
-                final String id = getItem(position).mArtistId;
+                final String id = getItem(position).getId();
                 final String[] list = MusicUtils.getSongListForArtist(getContext(), id);
                 MusicUtils.playAll(getContext(), list, 0, false);
             }

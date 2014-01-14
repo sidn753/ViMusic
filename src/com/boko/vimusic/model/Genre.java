@@ -8,11 +8,6 @@ package com.boko.vimusic.model;
 public class Genre extends Media {
 
     /**
-     * The unique Id of the genre
-     */
-    public String mGenreId;
-
-    /**
      * Constructor of <code>Genre</code>
      * 
      * @param genreId The Id of the genre
@@ -20,7 +15,7 @@ public class Genre extends Media {
      */
     public Genre(final String genreId, final String genreName) {
         super();
-        mGenreId = genreId;
+        setId(genreId);
         setName(genreName);
     }
 

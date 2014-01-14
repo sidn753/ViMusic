@@ -193,7 +193,7 @@ public class AlbumFragment extends Fragment implements LoaderCallbacks<List<Albu
         // Create a new album
         mAlbum = mAdapter.getItem(info.position);
         // Create a list of the album's songs
-        mAlbumList = MusicUtils.getSongListForAlbum(getActivity(), mAlbum.mAlbumId);
+        mAlbumList = MusicUtils.getSongListForAlbum(getActivity(), mAlbum.getId());
 
         // Play the album
         menu.add(GROUP_ID, FragmentMenuItems.PLAY_SELECTION, Menu.NONE,
@@ -278,7 +278,7 @@ public class AlbumFragment extends Fragment implements LoaderCallbacks<List<Albu
     public void onItemClick(final AdapterView<?> parent, final View view, final int position,
             final long id) {
         mAlbum = mAdapter.getItem(position);
-        NavUtils.openAlbumProfile(getActivity(), mAlbum.getName(), mAlbum.mArtistName, mAlbum.mAlbumId);
+        NavUtils.openAlbumProfile(getActivity(), mAlbum.getName(), mAlbum.mArtistName, mAlbum.getId());
     }
 
     /**
@@ -352,7 +352,7 @@ public class AlbumFragment extends Fragment implements LoaderCallbacks<List<Albu
             return 0;
         }
         for (int i = 0; i < mAdapter.getCount(); i++) {
-            if (mAdapter.getItem(i).mAlbumId.equals(albumId)) {
+            if (mAdapter.getItem(i).getId().equals(albumId)) {
                 return i;
             }
         }

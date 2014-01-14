@@ -187,7 +187,7 @@ public class PlaylistFragment extends Fragment implements LoaderCallbacks<List<P
                     } else if (info.position == 1) {
                         MusicUtils.playLastAdded(getActivity());
                     } else {
-                        MusicUtils.playPlaylist(getActivity(), mPlaylist.mPlaylistId);
+                        MusicUtils.playPlaylist(getActivity(), mPlaylist.getId());
                     }
                     return true;
                 case FragmentMenuItems.ADD_TO_QUEUE:
@@ -198,12 +198,12 @@ public class PlaylistFragment extends Fragment implements LoaderCallbacks<List<P
                         list = MusicUtils.getSongListForLastAdded(getActivity());
                     } else {
                         list = MusicUtils.getSongListForPlaylist(getActivity(),
-                                mPlaylist.mPlaylistId);
+                                mPlaylist.getId());
                     }
                     MusicUtils.addToQueue(getActivity(), list);
                     return true;
                 case FragmentMenuItems.RENAME_PLAYLIST:
-                    RenamePlaylist.getInstance(mPlaylist.mPlaylistId).show(
+                    RenamePlaylist.getInstance(mPlaylist.getId()).show(
                             getFragmentManager(), "RenameDialog");
                     return true;
                 case FragmentMenuItems.DELETE:
@@ -237,8 +237,8 @@ public class PlaylistFragment extends Fragment implements LoaderCallbacks<List<P
             // User created
             playlistName = mPlaylist.getName();
             bundle.putString(Config.MIME_TYPE, MediaStore.Audio.Playlists.CONTENT_TYPE);
-            if (mPlaylist.mPlaylistId != null) {
-            	bundle.putString(Config.ID, mPlaylist.mPlaylistId);	
+            if (mPlaylist.getId() != null) {
+            	bundle.putString(Config.ID, mPlaylist.getId());	
             }
         }
 
@@ -321,7 +321,7 @@ public class PlaylistFragment extends Fragment implements LoaderCallbacks<List<P
                     public void onClick(final DialogInterface dialog, final int which) {
                         final Uri mUri = ContentUris.withAppendedId(
                                 MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI,
-                                Long.valueOf(mPlaylist.mPlaylistId));
+                                Long.valueOf(mPlaylist.getId()));
                         getActivity().getContentResolver().delete(mUri, null, null);
                         MusicUtils.refresh();
                     }

@@ -197,7 +197,7 @@ public class ArtistFragment extends Fragment implements LoaderCallbacks<List<Art
         // Creat a new model
         mArtist = mAdapter.getItem(info.position);
         // Create a list of the artist's songs
-        mArtistList = MusicUtils.getSongListForArtist(getActivity(), mArtist.mArtistId);
+        mArtistList = MusicUtils.getSongListForArtist(getActivity(), mArtist.getId());
 
         // Play the artist
         menu.add(GROUP_ID, FragmentMenuItems.PLAY_SELECTION, Menu.NONE,
@@ -348,7 +348,7 @@ public class ArtistFragment extends Fragment implements LoaderCallbacks<List<Art
             return 0;
         }
         for (int i = 0; i < mAdapter.getCount(); i++) {
-            if (mAdapter.getItem(i).mArtistId.equals(artistId)) {
+            if (mAdapter.getItem(i).getId().equals(artistId)) {
                 return i;
             }
         }

@@ -5,9 +5,24 @@ package com.boko.vimusic.model;
  */
 public class Media {
 
+	/**
+	 * Host's unique id of a media.
+	 */
 	private String mId;
+	
+	/**
+	 * Media host.
+	 */
 	private String mHost;
+	
+	/**
+	 * Media name.
+	 */
 	private String mName;
+	
+	/**
+	 * Media avatar url.
+	 */
 	private String mAvatarUrl;
 
 	public String getId() {

@@ -210,7 +210,7 @@ public class PlaylistSongFragment extends Fragment implements LoaderCallbacks<Li
         mSelectedPosition = info.position - 1;
         // Creat a new song
         mSong = mAdapter.getItem(mSelectedPosition);
-        mSelectedId = mSong.mSongId;
+        mSelectedId = mSong.getId();
         mSongName = mSong.getName();
         mAlbumName = mSong.mAlbumName;
         mArtistName = mSong.mArtistName;
@@ -300,7 +300,7 @@ public class PlaylistSongFragment extends Fragment implements LoaderCallbacks<Li
                 case FragmentMenuItems.REMOVE_FROM_PLAYLIST:
                     mAdapter.remove(mSong);
                     mAdapter.notifyDataSetChanged();
-                    MusicUtils.removeFromPlaylist(getActivity(), mSong.mSongId, mPlaylistId);
+                    MusicUtils.removeFromPlaylist(getActivity(), mSong.getId(), mPlaylistId);
                     getLoaderManager().restartLoader(LOADER, null, this);
                     return true;
                 default:
@@ -386,7 +386,7 @@ public class PlaylistSongFragment extends Fragment implements LoaderCallbacks<Li
         mAdapter.notifyDataSetChanged();
         final Uri uri = MediaStore.Audio.Playlists.Members.getContentUri("external", Long.valueOf(mPlaylistId));
         getActivity().getContentResolver().delete(uri,
-                MediaStore.Audio.Playlists.Members.AUDIO_ID + "=" + mSong.mSongId,
+                MediaStore.Audio.Playlists.Members.AUDIO_ID + "=" + mSong.getId(),
                 null);
     }
 

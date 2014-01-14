@@ -187,7 +187,7 @@ public class FavoriteFragment extends Fragment implements LoaderCallbacks<List<S
         mSelectedPosition = info.position - 1;
         // Creat a new song
         mSong = mAdapter.getItem(mSelectedPosition);
-        mSelectedId = mSong.mSongId;
+        mSelectedId = mSong.getId();
         mArtistName = mSong.mArtistName;
 
         // Play the song

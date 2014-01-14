@@ -192,7 +192,7 @@ public class RecentFragment extends Fragment implements LoaderCallbacks<List<Alb
         // Create a new album
         mAlbum = mAdapter.getItem(info.position);
         // Create a list of the album's songs
-        mAlbumList = MusicUtils.getSongListForAlbum(getActivity(), mAlbum.mAlbumId);
+        mAlbumList = MusicUtils.getSongListForAlbum(getActivity(), mAlbum.getId());
 
         // Play the album
         menu.add(GROUP_ID, FragmentMenuItems.PLAY_SELECTION, Menu.NONE,
@@ -247,7 +247,7 @@ public class RecentFragment extends Fragment implements LoaderCallbacks<List<Alb
                     return true;
                 case FragmentMenuItems.REMOVE_FROM_RECENT:
                     mShouldRefresh = true;
-                    RecentStore.getInstance(getActivity()).removeAlbum(mAlbum.mAlbumId, "");
+                    RecentStore.getInstance(getActivity()).removeAlbum(mAlbum.getId(), "");
                     MusicUtils.refresh();
                     return true;
                 case FragmentMenuItems.DELETE:
@@ -286,7 +286,7 @@ public class RecentFragment extends Fragment implements LoaderCallbacks<List<Alb
     public void onItemClick(final AdapterView<?> parent, final View view, final int position,
             final long id) {
         mAlbum = mAdapter.getItem(position);
-        NavUtils.openAlbumProfile(getActivity(), mAlbum.getName(), mAlbum.mArtistName, mAlbum.mAlbumId);
+        NavUtils.openAlbumProfile(getActivity(), mAlbum.getName(), mAlbum.mArtistName, mAlbum.getId());
     }
 
     /**

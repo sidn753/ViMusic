@@ -145,7 +145,7 @@ public class GenreFragment extends Fragment implements LoaderCallbacks<List<Genr
         // Create a new genre
         mGenre = mAdapter.getItem(info.position);
         // Create a list of the genre's songs
-        mGenreList = MusicUtils.getSongListForGenre(getActivity(), mGenre.mGenreId);
+        mGenreList = MusicUtils.getSongListForGenre(getActivity(), mGenre.getId());
 
         // Play the genre
         menu.add(GROUP_ID, FragmentMenuItems.PLAY_SELECTION, Menu.NONE,
@@ -183,8 +183,8 @@ public class GenreFragment extends Fragment implements LoaderCallbacks<List<Genr
         mGenre = mAdapter.getItem(position);
         // Create a new bundle to transfer the artist info
         final Bundle bundle = new Bundle();
-        if (mGenre.mGenreId != null) {
-        	bundle.putString(Config.ID, mGenre.mGenreId);	
+        if (mGenre.getId() != null) {
+        	bundle.putString(Config.ID, mGenre.getId());	
         }
         bundle.putString(Config.MIME_TYPE, MediaStore.Audio.Genres.CONTENT_TYPE);
         bundle.putString(Config.NAME, mGenre.getName());
