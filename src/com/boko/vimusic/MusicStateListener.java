@@ -1,6 +1,6 @@
 package com.boko.vimusic;
 
-import com.boko.vimusic.service.MusicPlaybackService;
+import com.boko.vimusic.service.MediaPlaybackService;
 
 /**
  * Listens for playback changes to send the the fragments bound to this activity
@@ -8,12 +8,12 @@ import com.boko.vimusic.service.MusicPlaybackService;
 public interface MusicStateListener {
 
 	/**
-	 * Called when {@link MusicPlaybackService#REFRESH} is invoked
+	 * Called when {@link MediaPlaybackService#REFRESH} is invoked
 	 */
 	public void restartLoader();
 
 	/**
-	 * Called when {@link MusicPlaybackService#META_CHANGED} is invoked
+	 * Called when {@link MediaPlaybackService#META_CHANGED} is invoked
 	 */
 	public void onMetaChanged();
 
