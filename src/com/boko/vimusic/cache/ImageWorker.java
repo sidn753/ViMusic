@@ -25,7 +25,7 @@ import android.os.AsyncTask;
 import android.widget.ImageView;
 
 import com.boko.vimusic.R;
-import com.boko.vimusic.utils.ApolloUtils;
+import com.boko.vimusic.utils.CommonUtils;
 import com.boko.vimusic.utils.ThemeUtils;
 
 /**
@@ -239,7 +239,7 @@ public abstract class ImageWorker {
 			}
 
 			// Third, by now we need to download the image
-			if (bitmap == null && ApolloUtils.isOnline(mContext)
+			if (bitmap == null && CommonUtils.isOnline(mContext)
 					&& !isCancelled() && getAttachedImageView() != null) {
 				// Now define what the artist name, album name, and url are.
 				mArtistName = params[1];
@@ -420,7 +420,7 @@ public abstract class ImageWorker {
 			final AsyncDrawable asyncDrawable = new AsyncDrawable(mResources,
 					mDefault, bitmapWorkerTask);
 			imageView.setImageDrawable(asyncDrawable);
-			ApolloUtils.execute(false, bitmapWorkerTask, key, artistName,
+			CommonUtils.execute(false, bitmapWorkerTask, key, artistName,
 					albumName, albumId);
 		}
 	}

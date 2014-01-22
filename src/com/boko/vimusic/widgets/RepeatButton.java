@@ -21,7 +21,7 @@ import android.widget.ImageButton;
 
 import com.boko.vimusic.R;
 import com.boko.vimusic.service.MediaPlaybackService;
-import com.boko.vimusic.utils.ApolloUtils;
+import com.boko.vimusic.utils.CommonUtils;
 import com.boko.vimusic.utils.MusicUtils;
 import com.boko.vimusic.utils.ThemeUtils;
 import com.boko.vimusic.widgets.theme.HoloSelector;
@@ -90,7 +90,7 @@ public class RepeatButton extends ImageButton implements OnClickListener,
 		if (TextUtils.isEmpty(view.getContentDescription())) {
 			return false;
 		} else {
-			ApolloUtils.showCheatSheet(view);
+			CommonUtils.showCheatSheet(view);
 			return true;
 		}
 	}
