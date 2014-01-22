@@ -35,7 +35,9 @@ import com.boko.vimusic.format.Capitalize;
 import com.boko.vimusic.loaders.AsyncHandler;
 import com.boko.vimusic.loaders.LastAddedLoader;
 import com.boko.vimusic.loaders.SearchLoader;
+import com.boko.vimusic.model.HostType;
 import com.boko.vimusic.model.Song;
+import com.boko.vimusic.model.SongFactory;
 import com.boko.vimusic.service.IMediaPlaybackService;
 import com.boko.vimusic.utils.Lists;
 import com.boko.vimusic.utils.MusicUtils;
@@ -287,7 +289,7 @@ public class ShortcutActivity extends FragmentActivity implements
 			final String id = mSong.get(0).getId();
 			// First, try to play a song
 			if (mList == null && song != null) {
-				mList = new Song[] { new Song(id, "", null, null, 0) };
+				mList = new Song[] { SongFactory.newSong(HostType.LOCAL, id) };
 			} else
 			// Second, try to play an album
 			if (mList == null && album != null) {

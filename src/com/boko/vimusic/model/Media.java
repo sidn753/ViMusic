@@ -6,57 +6,49 @@ import android.text.TextUtils;
  * A class that represents a generic media.
  */
 public abstract class Media {
-
-	/**
-	 * Host's unique id of a media.
-	 */
-	private String mId;
-
+	
 	/**
 	 * Media host.
 	 */
-	private String mHost;
+	protected HostType mHost;
+	
+	/**
+	 * Host's unique id of a media.
+	 */
+	protected String mId;
 
 	/**
 	 * Media name.
 	 */
-	private String mName;
+	protected String mName;
 
 	/**
 	 * Media avatar url.
 	 */
-	private String mAvatarUrl;
-
-	public String getId() {
-		return mId;
-	}
-
-	public void setId(String id) {
-		this.mId = id;
-	}
-
-	public String getHost() {
+	protected String mAvatarUrl;
+	
+	public HostType getHost() {
 		return mHost;
 	}
 
-	public void setHost(String host) {
-		this.mHost = host;
+	public String getId() {
+		return mId;
 	}
 
 	public String getName() {
 		return mName;
 	}
 
-	public void setName(String name) {
-		this.mName = name;
-	}
-
 	public String getAvatarUrl() {
 		return mAvatarUrl;
 	}
+	
+	public void setName(String mName) {
+		this.mName = mName;
+	}
 
-	public void setAvatarUrl(String avatarUrl) {
-		this.mAvatarUrl = avatarUrl;
+	public void setAvatarUrl(String mAvatarUrl) {
+		this.mAvatarUrl = mAvatarUrl;
 	}
 
 	@Override
@@ -65,7 +57,7 @@ public abstract class Media {
 			return false;
 		}
 		final Media other = (Media) obj;
-		if (!TextUtils.equals(getHost(), other.getHost())) {
+		if (getHost().getCode() != other.getHost().getCode()) {
 			return false;
 		}
 		if (!TextUtils.equals(getId(), other.getId())) {

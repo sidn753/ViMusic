@@ -30,7 +30,9 @@ import com.boko.vimusic.api.Caller;
 import com.boko.vimusic.api.DomElement;
 import com.boko.vimusic.api.Result;
 import com.boko.vimusic.loaders.WrappedAsyncTaskLoader;
+import com.boko.vimusic.model.HostType;
 import com.boko.vimusic.model.Song;
+import com.boko.vimusic.model.SongFactory;
 import com.boko.vimusic.utils.Lists;
 
 /**
@@ -67,7 +69,7 @@ public class ZingSongLoader extends WrappedAsyncTaskLoader<List<Song>> {
 	 */
 	@Override
 	public List<Song> loadInBackground() {
-		final Result rs = Caller.getInstance(getContext()).call(
+		final Result rs = Caller.getInstance().call(
 				SEARCH_URL + "o");
 		String raw = rs.getResultRaw();
 		JSONObject obj;
@@ -80,7 +82,9 @@ public class ZingSongLoader extends WrappedAsyncTaskLoader<List<Song>> {
 			List<DomElement> links = new DomElement(doc.getDocumentElement())
 					.getChildren("a");
 			for (DomElement link : links) {
-				Song song = new Song();
+				String href = link.getAttribute("href");
+				String id = href.substring(href.lastIndexOf("/") + 1, href.lastIndexOf("."));
+				Song song = SongFactory.newSong(HostType.ZING, id);
 				song.mArtistName = link.getChild("h4").removeChild("span")
 						.getText().trim();
 				song.setName(link.getChildText("h3").trim());

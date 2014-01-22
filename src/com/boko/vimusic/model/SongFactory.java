@@ -1,14 +1,16 @@
 package com.boko.vimusic.model;
 
+import com.boko.vimusic.api.zing.ZingSong;
+
 public class SongFactory {
-	public static AbstractSong newSongFromHost(HostType host) {
-		switch (HostType) {
-			LOCAL:
-				return new Song();
-			ZING:
-				return new com.boko.vimusic.api.zing.Song();
-			default:
-				throw new IllegalArgumentException();
+	public static Song newSong(HostType host, String id) {
+		switch (host) {
+		case LOCAL:
+			return new LocalSong(id);
+		case ZING:
+			return new ZingSong(id);
+		default:
+			throw new IllegalArgumentException();
 		}
 	}
 }

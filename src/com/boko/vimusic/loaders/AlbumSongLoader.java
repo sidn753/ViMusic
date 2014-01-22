@@ -20,7 +20,9 @@ import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Audio.AudioColumns;
 
+import com.boko.vimusic.model.HostType;
 import com.boko.vimusic.model.Song;
+import com.boko.vimusic.model.SongFactory;
 import com.boko.vimusic.utils.Lists;
 import com.boko.vimusic.utils.PreferenceUtils;
 
@@ -72,24 +74,13 @@ public class AlbumSongLoader extends WrappedAsyncTaskLoader<List<Song>> {
 			do {
 				// Copy the song Id
 				final String id = mCursor.getString(0);
-
-				// Copy the song name
-				final String songName = mCursor.getString(1);
-
-				// Copy the artist name
-				final String artist = mCursor.getString(2);
-
-				// Copy the album name
-				final String album = mCursor.getString(3);
-
-				// Copy the duration
-				final long duration = mCursor.getLong(4);
-
-				// Make the duration label
-				final int seconds = (int) (duration / 1000);
-
+				
 				// Create a new song
-				final Song song = new Song(id, songName, artist, album, seconds);
+				final Song song = SongFactory.newSong(HostType.LOCAL, id);
+				song.setName(mCursor.getString(1));
+				song.setArtistName(mCursor.getString(2));
+				song.setAlbumName(mCursor.getString(3));
+				song.setDuration((int) (mCursor.getLong(4) / 1000));
 
 				// Add everything up
 				mSongList.add(song);
