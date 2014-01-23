@@ -1389,7 +1389,6 @@ public class MediaPlaybackService extends Service {
        mDelayedStopHandler.removeCallbacksAndMessages(null);
        Message msg = mDelayedStopHandler.obtainMessage();
        mDelayedStopHandler.sendMessageDelayed(msg, IDLE_DELAY);
-       stopForeground(true);
    }
    
    // Make sure there are at least 5 items after the currently playing item
