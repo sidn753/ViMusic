@@ -76,6 +76,10 @@ import com.boko.vimusic.utils.MusicUtils;
  * Provides "background" audio playback capabilities, allowing the
  * user to switch between activities without stopping playback.
  */
+/**
+ * @author Phung Duc Kien
+ *
+ */
 @SuppressLint("NewApi")
 public class MediaPlaybackService extends Service {
 	private static final boolean DEBUG = false;
@@ -512,41 +516,39 @@ public class MediaPlaybackService extends Service {
             if (shufmode != SHUFFLE_AUTO && shufmode != SHUFFLE_NORMAL) {
                 shufmode = SHUFFLE_NONE;
             }
-            if (shufmode != SHUFFLE_NONE) {
-                // in shuffle mode we need to restore the history too
-                q = mPreferences.getString("history", "");
-                qlen = q != null ? q.length() : 0;
-                if (qlen > 1) {
-                    plen = 0;
-                    n = 0;
-                    shift = 0;
-                    mHistory.clear();
-                    for (int i = 0; i < qlen; i++) {
-                        char c = q.charAt(i);
-                        if (c == ';') {
-                            if (n >= mPlayListLen) {
-                                // bogus history data
-                                mHistory.clear();
-                                break;
-                            }
-                            mHistory.add(n);
-                            n = 0;
-                            shift = 0;
-                        } else {
-                            if (c >= '0' && c <= '9') {
-                                n += ((c - '0') << shift);
-                            } else if (c >= 'a' && c <= 'f') {
-                                n += ((10 + c - 'a') << shift);
-                            } else {
-                                // bogus history data
-                                mHistory.clear();
-                                break;
-                            }
-                            shift += 4;
-                        }
-                    }
-                }
-            }
+			if (shufmode != SHUFFLE_NONE) {
+				// in shuffle mode we need to restore the history too
+				q = mPreferences.getString("history", "");
+				qlen = q != null ? q.length() : 0;
+				if (qlen > 1) {
+					plen = 0;
+					n = 0;
+					shift = 0;
+					mHistory.clear();
+					for (int i = 0; i < qlen; i++) {
+						final char c = q.charAt(i);
+						if (c == ';') {
+							if (n >= mPlayListLen) {
+								mHistory.clear();
+								break;
+							}
+							mHistory.add(n);
+							n = 0;
+							shift = 0;
+						} else {
+							if (c >= '0' && c <= '9') {
+								n += c - '0' << shift;
+							} else if (c >= 'a' && c <= 'f') {
+								n += 10 + c - 'a' << shift;
+							} else {
+								mHistory.clear();
+								break;
+							}
+							shift += 4;
+						}
+					}
+				}
+			}
             if (shufmode == SHUFFLE_AUTO) {
                 if (! makeAutoShuffleList()) {
                     shufmode = SHUFFLE_NONE;
@@ -622,6 +624,7 @@ public class MediaPlaybackService extends Service {
 			pause();
 			mPausedByTransientLossOfFocus = false;
 			seek(0);
+			releaseServiceUiAndStop();
 		} else if (REPEAT_ACTION.equals(action)) {
 			cycleRepeat();
 		} else if (SHUFFLE_ACTION.equals(action)) {
@@ -655,6 +658,10 @@ public class MediaPlaybackService extends Service {
         // No active playlist, OK to stop the service right now
         stopSelf(mServiceStartId);
         return true;
+	}
+
+	private void releaseServiceUiAndStop() {
+
 	}
 	
     /**
@@ -980,7 +987,7 @@ public class MediaPlaybackService extends Service {
 	
     /**
      * Returns the current play list
-     * @return An array of the tracks in the play list
+     * @return An array of integers containing the IDs of the tracks in the play list
      */
 	public Song[] getQueue() {
         synchronized (this) {
