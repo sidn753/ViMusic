@@ -266,11 +266,8 @@ public class ZingSongFragment extends Fragment implements
 	@Override
 	public void onItemClick(final AdapterView<?> parent, final View view,
 			final int position, final long id) {
-		// Cursor cursor = SongLoader.makeSongCursor(getActivity());
-		// final long[] list = MusicUtils.getSongListForCursor(cursor);
-		// MusicUtils.playAll(getActivity(), list, position, false);
-		// cursor.close();
-		// cursor = null;
+		MusicUtils.playAll(getActivity(), new Song[] { mAdapter.getItem(position) },
+				0, false);
 	}
 
 	/**

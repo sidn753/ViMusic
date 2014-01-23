@@ -24,7 +24,7 @@ public class LocalSong extends Song {
 
 	protected void doQuery(final Context context) {
 		synchronized (this) {
-			if (getId() != null && TextUtils.isDigitsOnly(getId())) {
+			if (getId() != null && getId().length() > 0 && TextUtils.isDigitsOnly(getId())) {
 				if (context != null) {
 					Cursor c = context.getContentResolver().query(
 							MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
