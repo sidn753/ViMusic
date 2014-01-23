@@ -19,7 +19,9 @@ import android.database.Cursor;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Audio.AudioColumns;
 
+import com.boko.vimusic.model.HostType;
 import com.boko.vimusic.model.Song;
+import com.boko.vimusic.model.SongFactory;
 import com.boko.vimusic.utils.Lists;
 
 /**
@@ -73,20 +75,14 @@ public class PlaylistSongLoader extends WrappedAsyncTaskLoader<List<Song>> {
 						.getString(mCursor
 								.getColumnIndexOrThrow(MediaStore.Audio.Playlists.Members.AUDIO_ID));
 
-				// Copy the song name
-				final String songName = mCursor.getString(mCursor
-						.getColumnIndexOrThrow(AudioColumns.TITLE));
-
-				// Copy the artist name
-				final String artist = mCursor.getString(mCursor
-						.getColumnIndexOrThrow(AudioColumns.ARTIST));
-
-				// Copy the album name
-				final String album = mCursor.getString(mCursor
-						.getColumnIndexOrThrow(AudioColumns.ALBUM));
-
 				// Create a new song
-				final Song song = new Song(id, songName, artist, album, -1);
+				final Song song = SongFactory.newSong(HostType.LOCAL, id);
+				song.setName(mCursor.getString(mCursor
+						.getColumnIndexOrThrow(AudioColumns.TITLE)));
+				song.setArtistName(mCursor.getString(mCursor
+						.getColumnIndexOrThrow(AudioColumns.ARTIST)));
+				song.setAlbumName(mCursor.getString(mCursor
+						.getColumnIndexOrThrow(AudioColumns.ALBUM)));
 
 				// Add everything up
 				mSongList.add(song);

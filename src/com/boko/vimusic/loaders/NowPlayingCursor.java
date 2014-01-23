@@ -13,7 +13,9 @@ import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Audio.AudioColumns;
 
+import com.boko.vimusic.model.HostType;
 import com.boko.vimusic.model.Song;
+import com.boko.vimusic.model.SongFactory;
 import com.boko.vimusic.utils.MusicUtils;
 
 /**
@@ -243,8 +245,7 @@ public class NowPlayingCursor extends AbstractCursor {
 		final int columnIndex = mQueueCursor
 				.getColumnIndexOrThrow(MediaStore.Audio.Media._ID);
 		for (int i = 0; i < playlistSize; i++) {
-			mCursorIndexes[i] = new Song(mQueueCursor.getString(columnIndex),
-					"", null, null, 0);
+			mCursorIndexes[i] = SongFactory.newSong(HostType.LOCAL, mQueueCursor.getString(columnIndex));
 			mQueueCursor.moveToNext();
 		}
 		mQueueCursor.moveToFirst();
