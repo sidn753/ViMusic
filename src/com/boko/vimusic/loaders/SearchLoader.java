@@ -21,9 +21,7 @@ import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 
-import com.boko.vimusic.model.HostType;
 import com.boko.vimusic.model.Song;
-import com.boko.vimusic.model.SongFactory;
 import com.boko.vimusic.utils.Lists;
 
 /**
@@ -100,10 +98,7 @@ public class SearchLoader extends WrappedAsyncTaskLoader<List<Song>> {
 				}
 
 				// Create a new song
-				final Song song = SongFactory.newSong(HostType.LOCAL, id);
-				song.setName(songName);
-				song.setArtistName(artist);
-				song.setAlbumName(album);
+				final Song song = new Song(id, songName, artist, album, -1);
 
 				// Add everything up
 				mSongList.add(song);

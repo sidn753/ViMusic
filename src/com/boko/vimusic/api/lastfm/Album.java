@@ -85,7 +85,7 @@ public class Album extends com.boko.vimusic.model.Album {
 		params.put("album", albumOrMbid);
 		params.put("username", username);
 		params.put("api_key", apiKey);
-		final Result result = Caller.getInstance().call(
+		final Result result = Caller.getInstance(context).call(
 				"http://ws.audioscrobbler.com/2.0/", params);
 		return createItemFromElement(result.getContentElement());
 	}
@@ -111,7 +111,7 @@ public class Album extends com.boko.vimusic.model.Album {
 				}
 			}
 			if (size == ImageSize.EXTRALARGE) {
-				album.mAvatarUrl = image.getText();
+				album.setAvatarUrl(image.getText());
 			}
 		}
 

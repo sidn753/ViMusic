@@ -42,6 +42,8 @@ import java.util.zip.GZIPInputStream;
 
 import org.xml.sax.SAXException;
 
+import android.content.Context;
+
 /**
  * The <code>Caller</code> class handles the low-level communication between the
  * client and last.fm.<br/>
@@ -60,15 +62,21 @@ public class Caller {
 
 	private Result lastResult;
 
-	private Caller() {
+	/**
+	 * @param context
+	 *            The {@link Context} to use
+	 */
+	private Caller(final Context context) {
 	}
 
 	/**
+	 * @param context
+	 *            The {@link Context} to use
 	 * @return A new instance of this class
 	 */
-	public final static synchronized Caller getInstance() {
+	public final static synchronized Caller getInstance(final Context context) {
 		if (mInstance == null) {
-			mInstance = new Caller();
+			mInstance = new Caller(context.getApplicationContext());
 		}
 		return mInstance;
 	}

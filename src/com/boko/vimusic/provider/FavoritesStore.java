@@ -6,8 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.boko.vimusic.model.HostType;
-
 /**
  * This class is used to to create the database used to make the Favorites
  * playlist.
@@ -40,11 +38,12 @@ public class FavoritesStore extends SQLiteOpenHelper {
 	public void onCreate(final SQLiteDatabase db) {
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + FavoritesTable.TABLE_NAME
 				+ " (" + FavoritesTable.SID + " TEXT NOT NULL," // Song ID
-				+ FavoritesTable.HOST + " INTEGER DEFAULT 0," // Song Host
+				+ FavoritesTable.HOST + " TEXT NOT NULL," // Song Host
 				+ FavoritesTable.NAME + " TEXT NOT NULL," // Song Name
 				+ FavoritesTable.ALBUM + " TEXT NOT NULL," // Song Album
 				+ FavoritesTable.ARTIST + " TEXT NOT NULL," // Song Artist
-				+ FavoritesTable.PLAY_COUNT + " LONG NOT NULL);"); // Song Play count
+				+ FavoritesTable.PLAY_COUNT + " LONG NOT NULL);"); // Song Play
+																	// count
 	}
 
 	/**
@@ -84,7 +83,7 @@ public class FavoritesStore extends SQLiteOpenHelper {
 	 * @param artistName
 	 *            The artist name
 	 */
-	public void addSong(final String songId, final HostType songHost,
+	public void addSong(final String songId, final String songHost,
 			final String songName, final String albumName,
 			final String artistName) {
 		if (songId == null || songHost == null || songName == null
@@ -99,7 +98,7 @@ public class FavoritesStore extends SQLiteOpenHelper {
 		database.beginTransaction();
 
 		values.put(FavoritesTable.SID, songId);
-		values.put(FavoritesTable.HOST, songHost.getCode());
+		values.put(FavoritesTable.HOST, songHost);
 		values.put(FavoritesTable.NAME, songName);
 		values.put(FavoritesTable.ALBUM, albumName);
 		values.put(FavoritesTable.ARTIST, artistName);
@@ -107,8 +106,8 @@ public class FavoritesStore extends SQLiteOpenHelper {
 				: 1);
 
 		database.delete(FavoritesTable.TABLE_NAME, FavoritesTable.SID
-				+ " = ? AND " + FavoritesTable.HOST + " = " + songHost.getCode(), new String[] {
-				songId});
+				+ " = ? AND " + FavoritesTable.HOST + " = ?", new String[] {
+				songId, songHost });
 		database.insert(FavoritesTable.TABLE_NAME, null, values);
 		database.setTransactionSuccessful();
 		database.endTransaction();
@@ -118,11 +117,11 @@ public class FavoritesStore extends SQLiteOpenHelper {
 	 * @param item
 	 *            The song Id to remove
 	 */
-	public void removeSong(final String songId, final HostType songHost) {
+	public void removeSong(final String songId, final String songHost) {
 		final SQLiteDatabase database = getReadableDatabase();
 		database.delete(FavoritesTable.TABLE_NAME, FavoritesTable.SID
-				+ " = ? AND " + FavoritesTable.HOST + " = " + songHost.getCode(), new String[] {
-				songId });
+				+ " = ? AND " + FavoritesTable.HOST + " = ?", new String[] {
+				songId, songHost });
 	}
 
 	/**
@@ -134,7 +133,7 @@ public class FavoritesStore extends SQLiteOpenHelper {
 	 *            The song Host to reference
 	 * @return The play count for a song
 	 */
-	public Long getPlayCount(final String songId, final HostType songHost) {
+	public Long getPlayCount(final String songId, final String songHost) {
 		if (songId == null || songHost == null) {
 			return null;
 		}
@@ -142,8 +141,8 @@ public class FavoritesStore extends SQLiteOpenHelper {
 		final SQLiteDatabase database = getReadableDatabase();
 		final String[] projection = new String[] { FavoritesTable.PLAY_COUNT };
 		final String selection = FavoritesTable.SID + " = ? AND "
-				+ FavoritesTable.HOST + " = " + songHost.getCode();
-		final String[] having = new String[] { songId };
+				+ FavoritesTable.HOST + " = ?";
+		final String[] having = new String[] { songId, songHost };
 		Cursor cursor = database.query(FavoritesTable.TABLE_NAME, projection,
 				selection, having, null, null, null, null);
 		if (cursor != null && cursor.moveToFirst()) {
@@ -163,7 +162,7 @@ public class FavoritesStore extends SQLiteOpenHelper {
 	/**
 	 * Toggle the current song as favorite
 	 */
-	public void toggleSong(final String songId, final HostType songHost,
+	public void toggleSong(final String songId, final String songHost,
 			final String songName, final String albumName,
 			final String artistName) {
 		if (isFavoriteSong(songId, songHost)) {
@@ -182,7 +181,7 @@ public class FavoritesStore extends SQLiteOpenHelper {
 	 *            The song Host to reference
 	 * @return Favorite or not
 	 */
-	public boolean isFavoriteSong(final String songId, final HostType songHost) {
+	public boolean isFavoriteSong(final String songId, final String songHost) {
 		if (songId == null || songHost == null) {
 			return false;
 		}
@@ -190,8 +189,8 @@ public class FavoritesStore extends SQLiteOpenHelper {
 		final SQLiteDatabase database = getReadableDatabase();
 		final String[] projection = new String[] { FavoritesTable.SID };
 		final String selection = FavoritesTable.SID + " = ? AND "
-				+ FavoritesTable.HOST + " = " + songHost.getCode();
-		final String[] having = new String[] { songId };
+				+ FavoritesTable.HOST + " = ?";
+		final String[] having = new String[] { songId, songHost };
 		Cursor cursor = database.query(FavoritesTable.TABLE_NAME, projection,
 				selection, having, null, null, null, null);
 		if (cursor != null && cursor.moveToFirst()) {

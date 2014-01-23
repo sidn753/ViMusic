@@ -31,8 +31,8 @@ public class Artist extends Media {
 	public Artist(final String artistId, final String artistName,
 			final int songNumber, final int albumNumber) {
 		super();
-		mId = artistId;
-		mName = artistName;
+		setId(artistId);
+		setName(artistName);
 		mSongNumber = songNumber;
 		mAlbumNumber = albumNumber;
 	}

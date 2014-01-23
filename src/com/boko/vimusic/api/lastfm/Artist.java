@@ -87,7 +87,7 @@ public class Artist extends com.boko.vimusic.model.Artist {
 			mParams.put("lang", locale.getLanguage());
 		}
 		mParams.put("api_key", apiKey);
-		final Result mResult = Caller.getInstance().call(
+		final Result mResult = Caller.getInstance(context).call(
 				"http://ws.audioscrobbler.com/2.0/", mParams);
 		return createItemFromElement(mResult.getContentElement());
 	}
@@ -106,7 +106,7 @@ public class Artist extends com.boko.vimusic.model.Artist {
 			final String artist) {
 		Result result = null;
 		try {
-			result = Caller.getInstance().call("artist.getCorrection",
+			result = Caller.getInstance(context).call("artist.getCorrection",
 					Config.LASTFM_API_KEY, "artist", artist);
 			final DomElement correctionElement = result.getContentElement()
 					.getChild("correction");
@@ -140,7 +140,7 @@ public class Artist extends com.boko.vimusic.model.Artist {
 				}
 			}
 			if (size == ImageSize.EXTRALARGE) {
-				artist.mAvatarUrl = image.getText();
+				artist.setAvatarUrl(image.getText());
 			}
 		}
 		return artist;

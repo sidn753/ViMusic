@@ -54,9 +54,7 @@ import com.boko.vimusic.R;
 import com.boko.vimusic.adapters.PagerAdapter;
 import com.boko.vimusic.cache.ImageFetcher;
 import com.boko.vimusic.menu.DeleteDialog;
-import com.boko.vimusic.model.HostType;
 import com.boko.vimusic.model.Song;
-import com.boko.vimusic.model.SongFactory;
 import com.boko.vimusic.service.IMediaPlaybackService;
 import com.boko.vimusic.service.MediaPlaybackService;
 import com.boko.vimusic.ui.fragments.QueueFragment;
@@ -389,7 +387,8 @@ public class AudioPlayerActivity extends FragmentActivity implements
 			// Delete current song
 			DeleteDialog.newInstance(
 					MusicUtils.getTrackName(),
-					new Song[] { SongFactory.newSong(HostType.LOCAL, MusicUtils.getCurrentAudioId())}, null).show(
+					new Song[] { new Song(MusicUtils.getCurrentAudioId(), "",
+							null, null, 0) }, null).show(
 					getSupportFragmentManager(), "DeleteDialog");
 			return true;
 		default:

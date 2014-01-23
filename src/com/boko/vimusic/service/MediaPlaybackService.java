@@ -66,9 +66,7 @@ import com.boko.vimusic.appwidgets.AppWidgetSmall;
 import com.boko.vimusic.appwidgets.RecentWidgetProvider;
 import com.boko.vimusic.cache.ImageCache;
 import com.boko.vimusic.cache.ImageFetcher;
-import com.boko.vimusic.model.HostType;
 import com.boko.vimusic.model.Song;
-import com.boko.vimusic.model.SongFactory;
 import com.boko.vimusic.provider.FavoritesStore;
 import com.boko.vimusic.provider.RecentStore;
 import com.boko.vimusic.utils.CommonUtils;
@@ -80,7 +78,7 @@ import com.boko.vimusic.utils.MusicUtils;
  */
 @SuppressLint("NewApi")
 public class MediaPlaybackService extends Service {
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
     /** used to specify whether enqueue() should start playing
      * the new list of files right away, next or once all the currently
      * queued files have been played
@@ -88,6 +86,7 @@ public class MediaPlaybackService extends Service {
     public static final int NOW = 1;
     public static final int NEXT = 2;
     public static final int LAST = 3;
+    public static final int PLAYBACKSERVICE_STATUS = 1;
     
     public static final int SHUFFLE_NONE = 0;
     public static final int SHUFFLE_NORMAL = 1;
@@ -318,7 +317,6 @@ public class MediaPlaybackService extends Service {
 		thread.start();
 
 		// Initialize the handler
-		mDelayedStopHandler = new DelayedStopHandler(this);
 		mMediaplayerHandler = new MediaPlayerHandler(this, thread.getLooper());
 		
 		mPlayer = new MultiPlayer(this);
@@ -345,6 +343,7 @@ public class MediaPlaybackService extends Service {
         
         // If the service was idle, but got killed before it stopped itself, the
         // system will relaunch it. Make sure it gets stopped again in that case.
+        mDelayedStopHandler = new DelayedStopHandler(this);
         Message msg = mDelayedStopHandler.obtainMessage();
         mDelayedStopHandler.sendMessageDelayed(msg, IDLE_DELAY);
 	}
@@ -446,9 +445,10 @@ public class MediaPlaybackService extends Service {
 				if (parts != null && parts.length > 0) {
 					ensurePlayListCapacity(plen + 1);
 					if (parts.length == 1 || parts[1] == null) {
-						mPlayList[plen] = SongFactory.newSong(HostType.LOCAL, parts[0]);
+						mPlayList[plen] = new Song(parts[0], "", null, null, 0);
 					} else {
-						mPlayList[plen] = SongFactory.newSong(HostType.getHost(Integer.valueOf(parts[0])), parts[1]);
+						mPlayList[plen] = new Song(parts[0], parts[1], null,
+								null, 0);
 					}
 					plen++;
 				}
@@ -574,8 +574,6 @@ public class MediaPlaybackService extends Service {
 			if (intent.hasExtra(NOW_IN_FOREGROUND)) {
 				mAnyActivityInForeground = intent.getBooleanExtra(
 						NOW_IN_FOREGROUND, false);
-				if (DEBUG)
-					Log.d(LOGTAG, "mAnyActivityInForeground " + mAnyActivityInForeground);
 				updateNotification();
 			}
 
@@ -739,8 +737,8 @@ public class MediaPlaybackService extends Service {
 			return;
 		} else if (what.equals(META_CHANGED)) {
 			// Increase the play count for favorite songs.
-			if (!mFavoritesCache.isFavoriteSong(getAudioId(), HostType.LOCAL)) {
-				mFavoritesCache.addSong(getAudioId(), HostType.LOCAL, getTrackName(),
+			if (!mFavoritesCache.isFavoriteSong(getAudioId(), "")) {
+				mFavoritesCache.addSong(getAudioId(), "", getTrackName(),
 						getAlbumName(), getArtistName());
 			}
 			// Add the track to the recently played list.
@@ -998,9 +996,6 @@ public class MediaPlaybackService extends Service {
             stop(false);
 
             while(true) {
-            	if (!mPlayList[mPlayPos].isQueried()) {
-            		prepareSong(mPlayList[mPlayPos]);
-            	}
 				if (open(mPlayList[mPlayPos].getLinkPlay())) {
 					break;
 				}
@@ -1045,9 +1040,6 @@ public class MediaPlaybackService extends Service {
 			Log.d(LOGTAG, "setNextTrack: next play position = " + mNextPlayPos);
 		if (mPlayList != null && mNextPlayPos >= 0) {
 			final Song song = mPlayList[mNextPlayPos];
-        	if (!song.isQueried()) {
-        		prepareSong(song);
-        	}
 			mPlayer.setNextDataSource(song.getLinkPlay());
 		} else {
 			mPlayer.setNextDataSource(null);
@@ -1090,7 +1082,8 @@ public class MediaPlaybackService extends Service {
                             c.moveToNext();
                             ensurePlayListCapacity(1);
                             mPlayListLen = 1;
-                            mPlayList[0] = SongFactory.newSong(HostType.LOCAL, c.getString(0));
+                            mPlayList[0] = new Song(c.getString(0), "", null,
+									null, 0);
                             mPlayPos = 0;
                         }
                         c.close();
@@ -1142,12 +1135,12 @@ public class MediaPlaybackService extends Service {
 			mMediaplayerHandler.removeMessages(FADEDOWN);
 			mMediaplayerHandler.sendEmptyMessage(FADEUP);
 
+			updateNotification();
             if (!mIsSupposedToBePlaying) {
                 mIsSupposedToBePlaying = true;
                 notifyChange(PLAYSTATE_CHANGED);
             }
-            
-            updateNotification();
+
         } else if (mPlayListLen <= 0) {
             // This is mostly so that if you press 'play' on a bluetooth headset
             // without every having played anything before, it will still play
@@ -1158,7 +1151,6 @@ public class MediaPlaybackService extends Service {
 
 	private void updateNotification() {
 		if (!mAnyActivityInForeground && isPlaying()) {
-			if (DEBUG) Log.d(LOGTAG, "Building Notification");
 			mNotificationHelper.buildNotification(getAlbumName(),
 					getArtistName(), getTrackName(), getAlbumId(),
 					getAlbumArt(), isPlaying());
@@ -1467,7 +1459,7 @@ public class MediaPlaybackService extends Service {
             Song [] list = new Song[len];
             for (int i = 0; i < len; i++) {
                 c.moveToNext();
-                list[i] = SongFactory.newSong(HostType.LOCAL, c.getString(0));
+                list[i] = new Song(c.getString(0), "", null, null, 0);
             }
             mAutoShuffleList = list;
             return true;
@@ -1656,9 +1648,6 @@ public class MediaPlaybackService extends Service {
 	public String getArtistName() {
 		synchronized (this) {
 			if (mPlayPos >= 0 && mPlayer.isInitialized()) {
-				if (!mPlayList[mPlayPos].isQueried()) {
-					prepareSong(mPlayList[mPlayPos]);
-				}
 				return mPlayList[mPlayPos].mArtistName;
 			}
 		}
@@ -1668,9 +1657,6 @@ public class MediaPlaybackService extends Service {
 	public String getArtistId() {
 		synchronized (this) {
 			if (mPlayPos >= 0 && mPlayer.isInitialized()) {
-				if (!mPlayList[mPlayPos].isQueried()) {
-					prepareSong(mPlayList[mPlayPos]);
-				}
 				return null;
 			}
 		}
@@ -1680,9 +1666,6 @@ public class MediaPlaybackService extends Service {
 	public String getAlbumName() {
 		synchronized (this) {
 			if (mPlayPos >= 0 && mPlayer.isInitialized()) {
-				if (!mPlayList[mPlayPos].isQueried()) {
-					prepareSong(mPlayList[mPlayPos]);
-				}
 				return mPlayList[mPlayPos].mAlbumName;
 			}
 		}
@@ -1692,9 +1675,6 @@ public class MediaPlaybackService extends Service {
 	public String getAlbumId() {
 		synchronized (this) {
 			if (mPlayPos >= 0 && mPlayer.isInitialized()) {
-				if (!mPlayList[mPlayPos].isQueried()) {
-					prepareSong(mPlayList[mPlayPos]);
-				}
 				return null;
 			}
 		}
@@ -1704,9 +1684,6 @@ public class MediaPlaybackService extends Service {
 	public String getAlbumArtistName() {
 		synchronized (this) {
 			if (mPlayPos >= 0 && mPlayer.isInitialized()) {
-				if (!mPlayList[mPlayPos].isQueried()) {
-					prepareSong(mPlayList[mPlayPos]);
-				}
 				return null;
 			}
 		}
@@ -1716,9 +1693,6 @@ public class MediaPlaybackService extends Service {
 	public String getTrackName() {
 		synchronized (this) {
 			if (mPlayPos >= 0 && mPlayer.isInitialized()) {
-				if (!mPlayList[mPlayPos].isQueried()) {
-					prepareSong(mPlayList[mPlayPos]);
-				}
 				return mPlayList[mPlayPos].getName();
 			}
 		}
@@ -1788,7 +1762,7 @@ public class MediaPlaybackService extends Service {
 	public boolean isFavorite() {
 		synchronized (this) {
 			if (mFavoritesCache != null) {
-				return mFavoritesCache.isFavoriteSong(getAudioId(), HostType.LOCAL);
+				return mFavoritesCache.isFavoriteSong(getAudioId(), "");
 			}
 		}
 		return false;
@@ -1800,7 +1774,7 @@ public class MediaPlaybackService extends Service {
 	public void toggleFavorite() {
 		synchronized (this) {
 			if (mFavoritesCache != null) {
-				mFavoritesCache.toggleSong(getAudioId(), HostType.LOCAL, getTrackName(),
+				mFavoritesCache.toggleSong(getAudioId(), "", getTrackName(),
 						getAlbumName(), getArtistName());
 			}
 		}
@@ -1852,12 +1826,6 @@ public class MediaPlaybackService extends Service {
 		final Bitmap bitmap = mImageFetcher.getArtwork(getAlbumName(),
 				getAlbumId(), getArtistName());
 		return bitmap;
-	}
-	
-	public void prepareSong(Song song) {
-		synchronized (this) {
-			song.query(this);
-		}
 	}
 	
 	private static final class DelayedStopHandler extends Handler {

@@ -17,9 +17,7 @@ import java.util.List;
 import android.content.Context;
 import android.database.Cursor;
 
-import com.boko.vimusic.model.HostType;
 import com.boko.vimusic.model.Song;
-import com.boko.vimusic.model.SongFactory;
 import com.boko.vimusic.provider.FavoritesStore;
 import com.boko.vimusic.provider.FavoritesStore.FavoritesTable;
 import com.boko.vimusic.utils.Lists;
@@ -65,15 +63,21 @@ public class FavoritesLoader extends WrappedAsyncTaskLoader<List<Song>> {
 				// Copy the song Id
 				final String id = mCursor.getString(mCursor
 						.getColumnIndexOrThrow(FavoritesTable.SID));
-				
+
+				// Copy the song name
+				final String songName = mCursor.getString(mCursor
+						.getColumnIndexOrThrow(FavoritesTable.NAME));
+
+				// Copy the artist name
+				final String artist = mCursor.getString(mCursor
+						.getColumnIndexOrThrow(FavoritesTable.ARTIST));
+
+				// Copy the album name
+				final String album = mCursor.getString(mCursor
+						.getColumnIndexOrThrow(FavoritesTable.ALBUM));
+
 				// Create a new song
-				final Song song = SongFactory.newSong(HostType.LOCAL, id);
-				song.setName(mCursor.getString(mCursor
-						.getColumnIndexOrThrow(FavoritesTable.NAME)));
-				song.setArtistName(mCursor.getString(mCursor
-						.getColumnIndexOrThrow(FavoritesTable.ARTIST)));
-				song.setAlbumName( mCursor.getString(mCursor
-						.getColumnIndexOrThrow(FavoritesTable.ALBUM)));
+				final Song song = new Song(id, songName, artist, album, -1);
 
 				// Add everything up
 				mSongList.add(song);

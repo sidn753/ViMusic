@@ -50,8 +50,8 @@ public class Album extends Media {
 			final String artistName, final int songNumber,
 			final String albumYear) {
 		super();
-		mId = albumId;
-		mName = albumName;
+		setId(albumId);
+		setName(albumName);
 		mArtistName = artistName;
 		mSongNumber = songNumber;
 		mYear = albumYear;

@@ -16,7 +16,7 @@ public class Playlist extends Media {
 	 */
 	public Playlist(final String playlistId, final String playlistName) {
 		super();
-		mId = playlistId;
-		mName = playlistName;
+		setId(playlistId);
+		setName(playlistName);
 	}
 }

@@ -25,7 +25,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.boko.vimusic.service.MediaPlaybackService;
@@ -87,7 +86,7 @@ public class NotificationHelper {
 	public void buildNotification(final String albumName,
 			final String artistName, final String trackName,
 			final String albumId, final Bitmap albumArt, final boolean isPlaying) {
-Log.d("MediaPlaybackService", "build");
+
 		// Default notfication layout
 		mNotificationTemplate = new RemoteViews(mService.getPackageName(),
 				R.layout.notification_template_base);
@@ -120,7 +119,6 @@ Log.d("MediaPlaybackService", "build");
 	 * Remove notification
 	 */
 	public void killNotification() {
-		Log.d("MediaPlaybackService", "kill");
 		mService.stopForeground(true);
 		mNotification = null;
 	}
@@ -132,7 +130,6 @@ Log.d("MediaPlaybackService", "build");
 	 *            True if music is playing, false otherwise
 	 */
 	public void updatePlayState(final boolean isPlaying) {
-		Log.d("MediaPlaybackService", "update");
 		if (mNotification == null || mNotificationManager == null) {
 			return;
 		}

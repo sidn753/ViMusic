@@ -2,13 +2,17 @@ package com.boko.vimusic.model;
 
 import java.io.Serializable;
 
-import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.provider.MediaStore;
+import android.text.TextUtils;
 
-public abstract class Song extends Media implements Parcelable, Serializable,
+/**
+ * A class that represents a song.
+ * 
+ */
+public class Song extends Media implements Parcelable, Serializable,
 		Comparable<Song> {
-	private static final long serialVersionUID = 1L;
 
 	/**
 	 * The song artist
@@ -25,84 +29,46 @@ public abstract class Song extends Media implements Parcelable, Serializable,
 	 */
 	public int mDuration;
 
-	/**
-	 * Link for play
-	 */
 	public String mLinkPlay;
 
-	/**
-	 * Link for download
-	 */
 	public String mLinkDownload;
 
+	public Song() {
+	}
+
 	/**
-	 * Data query executed or not
+	 * Constructor of <code>Song</code>
+	 * 
+	 * @param songId
+	 *            The Id of the song
+	 * @param songName
+	 *            The name of the song
+	 * @param artistName
+	 *            The song artist
+	 * @param albumName
+	 *            The song album
+	 * @param duration
+	 *            The duration of a song in seconds
 	 */
-	private boolean queried = false;
-
-	public Song(String id) {
-		this.mId = id;
-	}
-
-	public void query(final Context context) {
-		doQuery(context);
-		queried = true;
-	}
-
-	protected abstract void doQuery(final Context context);
-
-	public String getArtistName() {
-		return mArtistName;
-	}
-
-	public String getAlbumName() {
-		return mAlbumName;
-	}
-
-	public int getDuration() {
-		return mDuration;
-	}
-
-	public String getLinkPlay() {
-		return mLinkPlay;
-	}
-
-	public String getLinkDownload() {
-		return mLinkDownload;
-	}
-	
-	public void setArtistName(String mArtistName) {
-		this.mArtistName = mArtistName;
-	}
-
-	public void setAlbumName(String mAlbumName) {
-		this.mAlbumName = mAlbumName;
-	}
-
-	public void setDuration(int mDuration) {
-		this.mDuration = mDuration;
-	}
-
-	public void setLinkPlay(String mLinkPlay) {
-		this.mLinkPlay = mLinkPlay;
-	}
-
-	public void setLinkDownload(String mLinkDownload) {
-		this.mLinkDownload = mLinkDownload;
-	}
-	
-	public boolean isQueried() {
-		return queried;
+	public Song(final String songId, final String songName,
+			final String artistName, final String albumName, final int duration) {
+		setId(songId);
+		setName(songName);
+		mArtistName = artistName;
+		mAlbumName = albumName;
+		mDuration = duration;
 	}
 
 	public static final Parcelable.Creator<Song> CREATOR = new Parcelable.Creator<Song>() {
 
 		@Override
 		public Song createFromParcel(Parcel src) {
-			int host = src.readInt();
+
 			String id = src.readString();
 
-			return SongFactory.newSong(HostType.getHost(host), id);
+			String host = src.readString();
+
+			return new Song(id, host, null, null, 0);
 		}
 
 		@Override
@@ -118,8 +84,19 @@ public abstract class Song extends Media implements Parcelable, Serializable,
 
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
-		dest.writeInt(getHost().getCode());
 		dest.writeString(getId());
+		dest.writeString(getHost());
+	}
+
+	public String getLinkPlay() {
+		if (mLinkPlay != null) {
+			return mLinkPlay;
+		}
+		if (getId() != null && TextUtils.isDigitsOnly(getId())) {
+			mLinkPlay = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI + "/"
+					+ getId();
+		}
+		return mLinkPlay;
 	}
 
 	@Override
@@ -133,10 +110,8 @@ public abstract class Song extends Media implements Parcelable, Serializable,
 				return -1;
 			}
 		} else {
-			if (getHost().getCode() > obj.getHost().getCode()) {
-				return 1;
-			} else if (getHost().getCode() < obj.getHost().getCode()) {
-				return -1;
+			if (getHost().compareTo(obj.getHost()) != 0) {
+				return getHost().compareTo(obj.getHost());
 			}
 		}
 

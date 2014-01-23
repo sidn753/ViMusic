@@ -16,8 +16,8 @@ public class Genre extends Media {
 	 */
 	public Genre(final String genreId, final String genreName) {
 		super();
-		mId = genreId;
-		mName = genreName;
+		setId(genreId);
+		setName(genreName);
 	}
 
 }

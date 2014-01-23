@@ -52,9 +52,7 @@ import com.boko.vimusic.loaders.LastAddedLoader;
 import com.boko.vimusic.loaders.PlaylistLoader;
 import com.boko.vimusic.loaders.SongLoader;
 import com.boko.vimusic.menu.FragmentMenuItems;
-import com.boko.vimusic.model.HostType;
 import com.boko.vimusic.model.Song;
-import com.boko.vimusic.model.SongFactory;
 import com.boko.vimusic.provider.FavoritesStore;
 import com.boko.vimusic.provider.FavoritesStore.FavoritesTable;
 import com.boko.vimusic.provider.RecentStore;
@@ -511,7 +509,7 @@ public final class MusicUtils {
 			columnIndex = cursor.getColumnIndexOrThrow(BaseColumns._ID);
 		}
 		for (int i = 0; i < len; i++) {
-			list[i] = SongFactory.newSong(HostType.LOCAL, cursor.getString(columnIndex));
+			list[i] = new Song(cursor.getString(columnIndex), "", null, null, 0);
 			cursor.moveToNext();
 		}
 		cursor.close();
@@ -1153,7 +1151,7 @@ public final class MusicUtils {
 		} catch (final Exception ignored) {
 		}
 		for (int i = 0; i < len; i++) {
-			list[i] = SongFactory.newSong(HostType.LOCAL, cursor.getString(colidx));
+			list[i] = new Song(cursor.getString(colidx), "", null, null, 0);
 			cursor.moveToNext();
 		}
 		cursor.close();
@@ -1199,7 +1197,7 @@ public final class MusicUtils {
 			final Song[] list = new Song[count];
 			for (int i = 0; i < count; i++) {
 				cursor.moveToNext();
-				list[i] = SongFactory.newSong(HostType.LOCAL, cursor.getString(0));
+				list[i] = new Song(cursor.getString(0), "", null, null, 0);
 			}
 			return list;
 		}
@@ -1406,9 +1404,9 @@ public final class MusicUtils {
 			while (!c.isAfterLast()) {
 				// Remove from current playlist
 				final String id = c.getString(0);
-				removeTrack(SongFactory.newSong(HostType.LOCAL, id));
+				removeTrack(new Song(id, "", null, null, 0));
 				// Remove from the favorites playlist
-				FavoritesStore.getInstance(context).removeSong(id, HostType.LOCAL);
+				FavoritesStore.getInstance(context).removeSong(id, "");
 				// Remove any items in the recents database
 				RecentStore.getInstance(context)
 						.removeAlbum(c.getString(2), "");
