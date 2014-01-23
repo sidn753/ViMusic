@@ -21,7 +21,7 @@ import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 
 import com.boko.vimusic.R;
-import com.boko.vimusic.utils.ApolloUtils;
+import com.boko.vimusic.utils.CommonUtils;
 import com.boko.vimusic.utils.MusicUtils;
 import com.boko.vimusic.utils.ThemeUtils;
 import com.boko.vimusic.widgets.theme.HoloSelector;
@@ -111,7 +111,7 @@ public class RepeatingImageButton extends ImageButton implements
 	@Override
 	public boolean performLongClick() {
 		if (mListener == null) {
-			ApolloUtils.showCheatSheet(this);
+			CommonUtils.showCheatSheet(this);
 		}
 		mStartTime = SystemClock.elapsedRealtime();
 		mRepeatCount = 0;

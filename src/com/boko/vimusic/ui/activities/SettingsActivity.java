@@ -26,7 +26,7 @@ import android.view.MenuItem;
 import com.boko.vimusic.R;
 import com.boko.vimusic.cache.ImageCache;
 import com.boko.vimusic.ui.fragments.ThemeFragment;
-import com.boko.vimusic.utils.ApolloUtils;
+import com.boko.vimusic.utils.CommonUtils;
 import com.boko.vimusic.utils.MusicUtils;
 import com.boko.vimusic.utils.PreferenceUtils;
 import com.boko.vimusic.widgets.ColorSchemeDialog;
@@ -137,7 +137,7 @@ public class SettingsActivity extends PreferenceActivity {
 				.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 					@Override
 					public boolean onPreferenceClick(final Preference preference) {
-						ApolloUtils.showColorPicker(SettingsActivity.this);
+						CommonUtils.showColorPicker(SettingsActivity.this);
 						return true;
 					}
 				});
@@ -206,7 +206,7 @@ public class SettingsActivity extends PreferenceActivity {
 
 					@Override
 					public boolean onPreferenceClick(final Preference preference) {
-						ApolloUtils.createOpenSourceDialog(
+						CommonUtils.createOpenSourceDialog(
 								SettingsActivity.this).show();
 						return true;
 					}

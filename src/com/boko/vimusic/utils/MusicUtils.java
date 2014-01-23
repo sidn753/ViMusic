@@ -51,7 +51,7 @@ import com.boko.vimusic.model.Song;
 import com.boko.vimusic.provider.FavoritesStore;
 import com.boko.vimusic.provider.FavoritesStore.FavoritesTable;
 import com.boko.vimusic.provider.RecentStore;
-import com.boko.vimusic.service.IService;
+import com.boko.vimusic.service.IMediaPlaybackService;
 import com.boko.vimusic.service.MediaPlaybackService;
 import com.devspark.appmsg.AppMsg;
 
@@ -62,7 +62,7 @@ import com.devspark.appmsg.AppMsg;
  */
 public final class MusicUtils {
 
-	public static IService mService = null;
+	public static IMediaPlaybackService mService = null;
 
 	private static int sForegroundActivities = 0;
 
@@ -141,7 +141,7 @@ public final class MusicUtils {
 		@Override
 		public void onServiceConnected(final ComponentName className,
 				final IBinder service) {
-			mService = IService.Stub.asInterface(service);
+			mService = IMediaPlaybackService.Stub.asInterface(service);
 			if (mCallback != null) {
 				mCallback.onServiceConnected(className, service);
 			}
@@ -1445,4 +1445,16 @@ public final class MusicUtils {
 		// Notify the lists to update
 		refresh();
 	}
+	
+    public static int getCardId(Context context) {
+        ContentResolver res = context.getContentResolver();
+        Cursor c = res.query(Uri.parse("content://media/external/fs_id"), null, null, null, null);
+        int id = -1;
+        if (c != null) {
+            c.moveToFirst();
+            id = c.getInt(0);
+            c.close();
+        }
+        return id;
+    }
 }

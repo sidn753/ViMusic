@@ -56,9 +56,9 @@ import com.boko.vimusic.cache.ImageFetcher;
 import com.boko.vimusic.format.PrefixHighlighter;
 import com.boko.vimusic.model.Song;
 import com.boko.vimusic.recycler.RecycleHolder;
-import com.boko.vimusic.service.IService;
+import com.boko.vimusic.service.IMediaPlaybackService;
 import com.boko.vimusic.ui.MusicHolder;
-import com.boko.vimusic.utils.ApolloUtils;
+import com.boko.vimusic.utils.CommonUtils;
 import com.boko.vimusic.utils.MusicUtils;
 import com.boko.vimusic.utils.MusicUtils.ServiceToken;
 import com.boko.vimusic.utils.NavUtils;
@@ -161,7 +161,7 @@ public class SearchActivity extends Activity implements
 		// Seepd up scrolling
 		mGridView.setOnScrollListener(this);
 		mGridView.setOnItemClickListener(this);
-		if (ApolloUtils.isLandscape(this)) {
+		if (CommonUtils.isLandscape(this)) {
 			mGridView.setNumColumns(TWO);
 		} else {
 			mGridView.setNumColumns(ONE);
@@ -402,7 +402,7 @@ public class SearchActivity extends Activity implements
 	@Override
 	public void onServiceConnected(final ComponentName name,
 			final IBinder service) {
-		mService = IService.Stub.asInterface(service);
+		mService = IMediaPlaybackService.Stub.asInterface(service);
 	}
 
 	/**
@@ -447,7 +447,7 @@ public class SearchActivity extends Activity implements
 		public SearchAdapter(final Activity context) {
 			super(context, null, false);
 			// Initialize the cache & image fetcher
-			mImageFetcher = ApolloUtils.getImageFetcher(context);
+			mImageFetcher = CommonUtils.getImageFetcher(context);
 			// Create the prefix highlighter
 			mHighlighter = new PrefixHighlighter(context);
 		}

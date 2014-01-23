@@ -23,7 +23,7 @@ import com.boko.vimusic.Config;
 import com.boko.vimusic.R;
 import com.boko.vimusic.cache.ImageFetcher;
 import com.boko.vimusic.model.Song;
-import com.boko.vimusic.utils.ApolloUtils;
+import com.boko.vimusic.utils.CommonUtils;
 import com.boko.vimusic.utils.MusicUtils;
 
 /**
@@ -91,7 +91,7 @@ public class DeleteDialog extends DialogFragment {
 		final String dialogTitle = getString(R.string.delete_dialog_title,
 				title);
 		// Initialize the image cache
-		mFetcher = ApolloUtils.getImageFetcher(getActivity());
+		mFetcher = CommonUtils.getImageFetcher(getActivity());
 		// Build the dialog
 		return new AlertDialog.Builder(getActivity()).setTitle(dialogTitle)
 				.setMessage(R.string.cannot_be_undone)

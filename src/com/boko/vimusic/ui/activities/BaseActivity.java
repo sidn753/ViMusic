@@ -39,9 +39,9 @@ import android.widget.TextView;
 
 import com.boko.vimusic.MusicStateListener;
 import com.boko.vimusic.R;
-import com.boko.vimusic.service.IService;
+import com.boko.vimusic.service.IMediaPlaybackService;
 import com.boko.vimusic.service.MediaPlaybackService;
-import com.boko.vimusic.utils.ApolloUtils;
+import com.boko.vimusic.utils.CommonUtils;
 import com.boko.vimusic.utils.Lists;
 import com.boko.vimusic.utils.MusicUtils;
 import com.boko.vimusic.utils.MusicUtils.ServiceToken;
@@ -160,7 +160,7 @@ public abstract class BaseActivity extends FragmentActivity implements
 	@Override
 	public void onServiceConnected(final ComponentName name,
 			final IBinder service) {
-		mService = IService.Stub.asInterface(service);
+		mService = IMediaPlaybackService.Stub.asInterface(service);
 		// Set the playback drawables
 		updatePlaybackControls();
 		// Current info
@@ -339,7 +339,7 @@ public abstract class BaseActivity extends FragmentActivity implements
 		// Set the artist name
 		mArtistName.setText(MusicUtils.getArtistName());
 		// Set the album art
-		ApolloUtils.getImageFetcher(this).loadCurrentArtwork(mAlbumArt);
+		CommonUtils.getImageFetcher(this).loadCurrentArtwork(mAlbumArt);
 	}
 
 	/**

@@ -25,7 +25,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.boko.vimusic.R;
-import com.boko.vimusic.utils.ApolloUtils;
+import com.boko.vimusic.utils.CommonUtils;
 import com.boko.vimusic.utils.PreferenceUtils;
 import com.boko.vimusic.widgets.ColorPickerView.OnColorChangedListener;
 
@@ -70,7 +70,7 @@ public class ColorSchemeDialog extends AlertDialog implements
 	@Override
 	public void onAttachedToWindow() {
 		super.onAttachedToWindow();
-		ApolloUtils.removeHardwareAccelerationSupport(mColorPicker);
+		CommonUtils.removeHardwareAccelerationSupport(mColorPicker);
 	}
 
 	/*

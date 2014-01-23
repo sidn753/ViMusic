@@ -25,7 +25,7 @@ import android.widget.TextView;
 import com.boko.vimusic.R;
 import com.boko.vimusic.cache.ImageFetcher;
 import com.boko.vimusic.model.Song;
-import com.boko.vimusic.utils.ApolloUtils;
+import com.boko.vimusic.utils.CommonUtils;
 import com.boko.vimusic.utils.BitmapUtils;
 import com.boko.vimusic.utils.MusicUtils;
 
@@ -55,7 +55,7 @@ public class CarouselTab extends FrameLayoutWithOverlay {
 	 */
 	public CarouselTab(final Context context, final AttributeSet attrs) {
 		super(context, attrs);
-		mFetcher = ApolloUtils.getImageFetcher((Activity) context);
+		mFetcher = CommonUtils.getImageFetcher((Activity) context);
 	}
 
 	/**
