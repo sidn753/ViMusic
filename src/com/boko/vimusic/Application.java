@@ -14,7 +14,6 @@ package com.boko.vimusic;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import android.app.Application;
 import android.os.StrictMode;
 
 import com.boko.vimusic.cache.ImageCache;
@@ -26,8 +25,8 @@ import com.boko.vimusic.cache.ImageCache;
  * 
  * @author Andrew Neal (andrewdneal@gmail.com)
  */
-public class ApolloApplication extends Application {
-	private static final boolean DEBUG = false;
+public class Application extends android.app.Application {
+	public static final boolean DEBUG = false;
 
 	/**
 	 * {@inheritDoc}

@@ -1,12 +1,17 @@
 /*
- * Copyright (C) 2012 Andrew Neal Licensed under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with the
- * License. You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law
- * or agreed to in writing, software distributed under the License is
- * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language
- * governing permissions and limitations under the License.
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.boko.vimusic.service;
@@ -16,6 +21,7 @@ import java.lang.ref.WeakReference;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.TreeSet;
+import java.util.Vector;
 
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
@@ -50,6 +56,7 @@ import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.util.Log;
 
+import com.boko.vimusic.Application;
 import com.boko.vimusic.MediaButtonIntentReceiver;
 import com.boko.vimusic.NotificationHelper;
 import com.boko.vimusic.appwidgets.AppWidgetLarge;
@@ -62,101 +69,94 @@ import com.boko.vimusic.model.Song;
 import com.boko.vimusic.provider.FavoritesStore;
 import com.boko.vimusic.provider.RecentStore;
 import com.boko.vimusic.utils.ApolloUtils;
-import com.boko.vimusic.utils.Lists;
 import com.boko.vimusic.utils.MusicUtils;
 
 /**
- * A backbround {@link Service} used to keep music playing between activities
- * and when the user moves Apollo into the background.
+ * Provides "background" audio playback capabilities, allowing the
+ * user to switch between activities without stopping playback.
  */
 @SuppressLint("NewApi")
 public class MusicPlaybackService extends Service {
-	private static final String TAG = "MusicPlaybackService";
-	private static final boolean D = false;
-
-	/**
-	 * Indicates that the music has paused or resumed
-	 */
-	public static final String PLAYSTATE_CHANGED = "com.boko.vimusic.playstatechanged";
-
-	/**
-	 * Indicates that music playback position within a title was changed
-	 */
-	public static final String POSITION_CHANGED = "com.android.apollo.positionchanged";
-
-	/**
-	 * Indicates the meta data has changed in some way, like a track change
-	 */
-	public static final String META_CHANGED = "com.boko.vimusic.metachanged";
-
-	/**
-	 * Indicates the queue has been updated
-	 */
-	public static final String QUEUE_CHANGED = "com.boko.vimusic.queuechanged";
-
-	/**
-	 * Indicates the repeat mode chaned
-	 */
-	public static final String REPEATMODE_CHANGED = "com.boko.vimusic.repeatmodechanged";
-
-	/**
-	 * Indicates the shuffle mode chaned
-	 */
-	public static final String SHUFFLEMODE_CHANGED = "com.boko.vimusic.shufflemodechanged";
-
+	private static final String TAG = MusicPlaybackService.class.getSimpleName();
+	private static final boolean DEBUG = Application.DEBUG;
+	
+    /** used to specify whether enqueue() should start playing
+     * the new list of files right away, next or once all the currently
+     * queued files have been played
+     */
+    public static final int NOW = 1;
+    public static final int NEXT = 2;
+    public static final int LAST = 3;
+    
+    public static final int SHUFFLE_NONE = 0;
+    public static final int SHUFFLE_NORMAL = 1;
+    public static final int SHUFFLE_AUTO = 2;
+    
+    public static final int REPEAT_NONE = 0;
+    public static final int REPEAT_CURRENT = 1;
+    public static final int REPEAT_ALL = 2;
+	
 	/**
 	 * For backwards compatibility reasons, also provide sticky broadcasts under
 	 * the music package
 	 */
-	public static final String APOLLO_PACKAGE_NAME = "com.boko.vimusic";
-	public static final String MUSIC_PACKAGE_NAME = "com.android.music";
+	public static final String VIMUSIC_PACKAGE_NAME = "com.boko.vimusic";
+	public static final String ANDROID_PACKAGE_NAME = "com.android.music";
+	
+    public static final String PLAYSTATE_CHANGED = VIMUSIC_PACKAGE_NAME + ".playstatechanged";
+    public static final String META_CHANGED = VIMUSIC_PACKAGE_NAME + ".metachanged";
+    public static final String QUEUE_CHANGED = VIMUSIC_PACKAGE_NAME + ".queuechanged";
+    public static final String POSITION_CHANGED = VIMUSIC_PACKAGE_NAME + ".positionchanged";
+    public static final String REPEATMODE_CHANGED = VIMUSIC_PACKAGE_NAME + ".repeatmodechanged";
+    public static final String SHUFFLEMODE_CHANGED = VIMUSIC_PACKAGE_NAME + ".shufflemodechanged";
 
-	/**
-	 * Called to indicate a general service commmand. Used in
-	 * {@link MediaButtonIntentReceiver}
-	 */
-	public static final String SERVICECMD = "com.boko.vimusic.musicservicecommand";
-
-	/**
-	 * Called to go toggle between pausing and playing the music
-	 */
-	public static final String TOGGLEPAUSE_ACTION = "com.boko.vimusic.togglepause";
-
-	/**
-	 * Called to go to pause the playback
-	 */
-	public static final String PAUSE_ACTION = "com.boko.vimusic.pause";
-
-	/**
-	 * Called to go to stop the playback
-	 */
-	public static final String STOP_ACTION = "com.boko.vimusic.stop";
-
-	/**
-	 * Called to go to the previous track
-	 */
-	public static final String PREVIOUS_ACTION = "com.boko.vimusic.previous";
-
-	/**
-	 * Called to go to the next track
-	 */
-	public static final String NEXT_ACTION = "com.boko.vimusic.next";
-
-	/**
-	 * Called to change the repeat mode
-	 */
-	public static final String REPEAT_ACTION = "com.boko.vimusic.repeat";
-
-	/**
-	 * Called to change the shuffle mode
-	 */
-	public static final String SHUFFLE_ACTION = "com.boko.vimusic.shuffle";
+    public static final String SERVICECMD = VIMUSIC_PACKAGE_NAME + ".musicservicecommand";
+    public static final String CMDNAME = "command";
+    public static final String CMDTOGGLEPAUSE = "togglepause";
+    public static final String CMDSTOP = "stop";
+    public static final String CMDPAUSE = "pause";
+    public static final String CMDPLAY = "play";
+    public static final String CMDPREVIOUS = "previous";
+    public static final String CMDNEXT = "next";
+    public static final String CMDNOTIF = "buttonId";
+    
+    public static final String TOGGLEPAUSE_ACTION = SERVICECMD + ".togglepause";
+    public static final String PAUSE_ACTION = SERVICECMD + ".pause";
+    public static final String PREVIOUS_ACTION = SERVICECMD + ".previous";
+    public static final String NEXT_ACTION = SERVICECMD + ".next";
+    public static final String STOP_ACTION = SERVICECMD + ".stop";
+	public static final String REPEAT_ACTION = SERVICECMD + ".repeat";
+	public static final String SHUFFLE_ACTION = SERVICECMD + ".shuffle";
+	
+    private static final int TRACK_ENDED = 1;
+    private static final int RELEASE_WAKELOCK = 2;
+    private static final int SERVER_DIED = 3;
+    private static final int FOCUSCHANGE = 4;
+    private static final int FADEDOWN = 5;
+    private static final int FADEUP = 6;
+    private static final int TRACK_WENT_TO_NEXT = 7;
+    private static final int MAX_HISTORY_SIZE = 100;
+    
+    private MultiPlayer mPlayer;
+    private String mFileToPlay;
+    private int mShuffleMode = SHUFFLE_NONE;
+    private int mRepeatMode = REPEAT_NONE;
+    private int mMediaMountedCount = 0;
+    private Song [] mAutoShuffleList = null;
+    private Song [] mPlayList = null;
+    private int mPlayListLen = 0;
+    private Vector<Integer> mHistory = new Vector<Integer>(MAX_HISTORY_SIZE);
+    private int mPlayPos = -1;
+    private int mNextPlayPos = -1;
+    private static final String LOGTAG = "MediaPlaybackService";
+    private final Shuffler mRand = new Shuffler();
+    private int mOpenFailedCounter = 0;
 
 	/**
 	 * Called to update the service about the foreground state of Apollo's
 	 * activities
 	 */
-	public static final String FOREGROUND_STATE_CHANGED = "com.boko.vimusic.fgstatechanged";
+	public static final String FOREGROUND_STATE_CHANGED = VIMUSIC_PACKAGE_NAME + ".fgstatechanged";
 
 	public static final String NOW_IN_FOREGROUND = "nowinforeground";
 
@@ -164,128 +164,25 @@ public class MusicPlaybackService extends Service {
 	 * Used to easily notify a list that it should refresh. i.e. A playlist
 	 * changes
 	 */
-	public static final String REFRESH = "com.boko.vimusic.refresh";
+	public static final String REFRESH = VIMUSIC_PACKAGE_NAME + ".refresh";
 
 	/**
 	 * Used by the alarm intent to shutdown the service after being idle
 	 */
-	private static final String SHUTDOWN = "com.boko.vimusic.shutdown";
+	private static final String SHUTDOWN = VIMUSIC_PACKAGE_NAME + ".shutdown";
 
 	/**
 	 * Called to update the remote control client
 	 */
-	public static final String UPDATE_LOCKSCREEN = "com.boko.vimusic.updatelockscreen";
+	public static final String UPDATE_LOCKSCREEN = VIMUSIC_PACKAGE_NAME + ".updatelockscreen";
 
-	public static final String CMDNAME = "command";
+	
 
-	public static final String CMDTOGGLEPAUSE = "togglepause";
-
-	public static final String CMDSTOP = "stop";
-
-	public static final String CMDPAUSE = "pause";
-
-	public static final String CMDPLAY = "play";
-
-	public static final String CMDPREVIOUS = "previous";
-
-	public static final String CMDNEXT = "next";
-
-	public static final String CMDNOTIF = "buttonId";
-
-	/**
-	 * Moves a list to the front of the queue
-	 */
-	public static final int NOW = 1;
-
-	/**
-	 * Moves a list to the next position in the queue
-	 */
-	public static final int NEXT = 2;
-
-	/**
-	 * Moves a list to the last position in the queue
-	 */
-	public static final int LAST = 3;
-
-	/**
-	 * Shuffles no songs, turns shuffling off
-	 */
-	public static final int SHUFFLE_NONE = 0;
-
-	/**
-	 * Shuffles all songs
-	 */
-	public static final int SHUFFLE_NORMAL = 1;
-
-	/**
-	 * Party shuffle
-	 */
-	public static final int SHUFFLE_AUTO = 2;
-
-	/**
-	 * Turns repeat off
-	 */
-	public static final int REPEAT_NONE = 0;
-
-	/**
-	 * Repeats the current track in a list
-	 */
-	public static final int REPEAT_CURRENT = 1;
-
-	/**
-	 * Repeats all the tracks in a list
-	 */
-	public static final int REPEAT_ALL = 2;
-
-	/**
-	 * Indicates when the track ends
-	 */
-	private static final int TRACK_ENDED = 1;
-
-	/**
-	 * Indicates that the current track was changed the next track
-	 */
-	private static final int TRACK_WENT_TO_NEXT = 2;
-
-	/**
-	 * Indicates when the release the wake lock
-	 */
-	private static final int RELEASE_WAKELOCK = 3;
-
-	/**
-	 * Indicates the player died
-	 */
-	private static final int SERVER_DIED = 4;
-
-	/**
-	 * Indicates some sort of focus change, maybe a phone call
-	 */
-	private static final int FOCUSCHANGE = 5;
-
-	/**
-	 * Indicates to fade the volume down
-	 */
-	private static final int FADEDOWN = 6;
-
-	/**
-	 * Indicates to fade the volume back up
-	 */
-	private static final int FADEUP = 7;
 
 	/**
 	 * Idle time before stopping the foreground notfication (1 minute)
 	 */
 	private static final int IDLE_DELAY = 60000;
-
-	/**
-	 * The max size allowed for the track history
-	 */
-	private static final int MAX_HISTORY_SIZE = 100;
-
-	/**
-	 * Keeps a mapping of the track history
-	 */
-	private static final LinkedList<Integer> mHistory = Lists.newLinkedList();
 
 	/**
 	 * Used to shuffle the tracks
@@ -327,16 +224,6 @@ public class MusicPlaybackService extends Service {
 	 */
 	private final RecentWidgetProvider mRecentWidgetProvider = RecentWidgetProvider
 			.getInstance();
-
-	/**
-	 * The media player
-	 */
-	private MultiPlayer mPlayer;
-
-	/**
-	 * The path of the current file to play
-	 */
-	private String mFileToPlay;
 
 	/**
 	 * Keeps the service running when the screen is off
@@ -397,25 +284,7 @@ public class MusicPlaybackService extends Service {
 	// playlists
 	private int mCardId;
 
-	private int mPlayListLen = 0;
-
-	private int mPlayPos = -1;
-
-	private int mNextPlayPos = -1;
-
-	private int mOpenFailedCounter = 0;
-
-	private int mMediaMountedCount = 0;
-
-	private int mShuffleMode = SHUFFLE_NONE;
-
-	private int mRepeatMode = REPEAT_NONE;
-
 	private int mServiceStartId = -1;
-
-	private Song[] mPlayList = null;
-
-	private Song[] mAutoShuffleList = null;
 
 	private MusicPlayerHandler mPlayerHandler;
 
@@ -446,7 +315,7 @@ public class MusicPlaybackService extends Service {
 	 */
 	@Override
 	public IBinder onBind(final Intent intent) {
-		if (D)
+		if (DEBUG)
 			Log.d(TAG, "Service bound, intent = " + intent);
 		cancelShutdown();
 		mServiceInUse = true;
@@ -458,7 +327,7 @@ public class MusicPlaybackService extends Service {
 	 */
 	@Override
 	public boolean onUnbind(final Intent intent) {
-		if (D)
+		if (DEBUG)
 			Log.d(TAG, "Service unbound");
 		mServiceInUse = false;
 		saveQueue(true);
@@ -495,7 +364,7 @@ public class MusicPlaybackService extends Service {
 	 */
 	@Override
 	public void onCreate() {
-		if (D)
+		if (DEBUG)
 			Log.d(TAG, "Creating service");
 		super.onCreate();
 
@@ -625,7 +494,7 @@ public class MusicPlaybackService extends Service {
 	 */
 	@Override
 	public void onDestroy() {
-		if (D)
+		if (DEBUG)
 			Log.d(TAG, "Destroying service");
 		super.onDestroy();
 		// Remove any sound effects
@@ -668,7 +537,7 @@ public class MusicPlaybackService extends Service {
 	@Override
 	public int onStartCommand(final Intent intent, final int flags,
 			final int startId) {
-		if (D)
+		if (DEBUG)
 			Log.d(TAG, "Got new intent " + intent + ", startId = " + startId);
 		mServiceStartId = startId;
 
@@ -702,7 +571,7 @@ public class MusicPlaybackService extends Service {
 			return;
 		}
 
-		if (D)
+		if (DEBUG)
 			Log.d(TAG, "Nothing is playing anymore, releasing notification");
 		mNotificationHelper.killNotification();
 		mAudioManager.abandonAudioFocus(mAudioFocusListener);
@@ -718,7 +587,7 @@ public class MusicPlaybackService extends Service {
 		final String command = SERVICECMD.equals(action) ? intent
 				.getStringExtra(CMDNAME) : null;
 
-		if (D)
+		if (DEBUG)
 			Log.d(TAG, "handleCommandIntent: action = " + action
 					+ ", command = " + command);
 
@@ -838,7 +707,7 @@ public class MusicPlaybackService extends Service {
 	}
 
 	private void scheduleDelayedShutdown() {
-		if (D)
+		if (DEBUG)
 			Log.v(TAG, "Scheduling shutdown in " + IDLE_DELAY + " ms");
 		mAlarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
 				SystemClock.elapsedRealtime() + IDLE_DELAY, mShutdownIntent);
@@ -846,7 +715,7 @@ public class MusicPlaybackService extends Service {
 	}
 
 	private void cancelShutdown() {
-		if (D)
+		if (DEBUG)
 			Log.d(TAG, "Cancelling delayed shutdown, scheduled = "
 					+ mShutdownScheduled);
 		if (mShutdownScheduled) {
@@ -862,7 +731,7 @@ public class MusicPlaybackService extends Service {
 	 *            True to go to the idle state, false otherwise
 	 */
 	private void stop(final boolean goToIdle) {
-		if (D)
+		if (DEBUG)
 			Log.d(TAG, "Stopping playback, goToIdle = " + goToIdle);
 		if (mPlayer.isInitialized()) {
 			mPlayer.stop();
@@ -1105,7 +974,7 @@ public class MusicPlaybackService extends Service {
 	 */
 	private void setNextTrack() {
 		mNextPlayPos = getNextPosition(false);
-		if (D)
+		if (DEBUG)
 			Log.d(TAG, "setNextTrack: next play position = " + mNextPlayPos);
 		if (mNextPlayPos >= 0 && mPlayList != null) {
 			final Song song = mPlayList[mNextPlayPos];
@@ -1224,7 +1093,7 @@ public class MusicPlaybackService extends Service {
 	 * Notify the change-receivers that something has changed.
 	 */
 	private void notifyChange(final String what) {
-		if (D)
+		if (DEBUG)
 			Log.d(TAG, "notifyChange: what = " + what);
 
 		// Update the lockscreen controls
@@ -1244,8 +1113,8 @@ public class MusicPlaybackService extends Service {
 		sendStickyBroadcast(intent);
 
 		final Intent musicIntent = new Intent(intent);
-		musicIntent.setAction(what.replace(APOLLO_PACKAGE_NAME,
-				MUSIC_PACKAGE_NAME));
+		musicIntent.setAction(what.replace(VIMUSIC_PACKAGE_NAME,
+				ANDROID_PACKAGE_NAME));
 		sendStickyBroadcast(musicIntent);
 
 		if (what.equals(META_CHANGED)) {
@@ -1432,7 +1301,7 @@ public class MusicPlaybackService extends Service {
 			final long seekpos = mPreferences.getLong("seekpos", 0);
 			seek(seekpos >= 0 && seekpos < duration() ? seekpos : 0);
 
-			if (D) {
+			if (DEBUG) {
 				Log.d(TAG, "restored queue, currently at position "
 						+ position() + "/" + duration() + " (requested "
 						+ seekpos + ")");
@@ -1496,7 +1365,7 @@ public class MusicPlaybackService extends Service {
 	 *            The path of the file to open
 	 */
 	public boolean openFile(final String path) {
-		if (D)
+		if (DEBUG)
 			Log.d(TAG, "openFile: path = " + path);
 		synchronized (this) {
 			if (path == null) {
@@ -1879,7 +1748,7 @@ public class MusicPlaybackService extends Service {
 		int status = mAudioManager.requestAudioFocus(mAudioFocusListener,
 				AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
 
-		if (D)
+		if (DEBUG)
 			Log.d(TAG, "Starting playback: audio focus request status = "
 					+ status);
 
@@ -1917,7 +1786,7 @@ public class MusicPlaybackService extends Service {
 	 * Temporarily pauses playback.
 	 */
 	public void pause() {
-		if (D)
+		if (DEBUG)
 			Log.d(TAG, "Pausing playback");
 		synchronized (this) {
 			mPlayerHandler.removeMessages(FADEUP);
@@ -1934,11 +1803,11 @@ public class MusicPlaybackService extends Service {
 	 * Changes from the current track to the next track
 	 */
 	public void gotoNext(final boolean force) {
-		if (D)
+		if (DEBUG)
 			Log.d(TAG, "Going to next track");
 		synchronized (this) {
 			if (mPlayListLen <= 0) {
-				if (D)
+				if (DEBUG)
 					Log.d(TAG, "No play queue");
 				scheduleDelayedShutdown();
 				return;
@@ -1965,7 +1834,7 @@ public class MusicPlaybackService extends Service {
 	 * Changes from the current track to the previous played track
 	 */
 	public void prev() {
-		if (D)
+		if (DEBUG)
 			Log.d(TAG, "Going to previous track");
 		synchronized (this) {
 			if (mShuffleMode == SHUFFLE_NORMAL) {
@@ -2315,7 +2184,7 @@ public class MusicPlaybackService extends Service {
 				service.mWakeLock.release();
 				break;
 			case FOCUSCHANGE:
-				if (D)
+				if (DEBUG)
 					Log.d(TAG, "Received audio focus change event " + msg.arg1);
 				switch (msg.arg1) {
 				case AudioManager.AUDIOFOCUS_LOSS:
@@ -2595,16 +2464,6 @@ public class MusicPlaybackService extends Service {
 		 */
 		public void setVolume(final float vol) {
 			mCurrentMediaPlayer.setVolume(vol, vol);
-		}
-
-		/**
-		 * Sets the audio session ID.
-		 * 
-		 * @param sessionId
-		 *            The audio session ID
-		 */
-		public void setAudioSessionId(final int sessionId) {
-			mCurrentMediaPlayer.setAudioSessionId(sessionId);
 		}
 
 		/**
