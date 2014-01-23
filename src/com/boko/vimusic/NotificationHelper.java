@@ -1,17 +1,12 @@
 /*
- * Copyright (C) 2007 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2012 Andrew Neal Licensed under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law
+ * or agreed to in writing, software distributed under the License is
+ * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the specific language
+ * governing permissions and limitations under the License.
  */
 
 package com.boko.vimusic;
@@ -27,13 +22,14 @@ import android.graphics.Bitmap;
 import android.support.v4.app.NotificationCompat;
 import android.widget.RemoteViews;
 
-import com.boko.vimusic.service.MediaPlaybackService;
+import com.boko.vimusic.service.MusicPlaybackService;
 import com.boko.vimusic.utils.ApolloUtils;
 
 /**
- * Builds the notification for media service. Jelly Bean and higher uses the
+ * Builds the notification for Apollo's service. Jelly Bean and higher uses the
  * expanded notification by default.
  * 
+ * @author Andrew Neal (andrewdneal@gmail.com)
  */
 @SuppressLint("NewApi")
 public class NotificationHelper {
@@ -51,7 +47,7 @@ public class NotificationHelper {
 	/**
 	 * Context
 	 */
-	private final MediaPlaybackService mService;
+	private final MusicPlaybackService mService;
 
 	/**
 	 * Custom notification layout
@@ -74,7 +70,7 @@ public class NotificationHelper {
 	 * @param service
 	 *            The {@link Context} to use
 	 */
-	public NotificationHelper(final MediaPlaybackService service) {
+	public NotificationHelper(final MusicPlaybackService service) {
 		mService = service;
 		mNotificationManager = (NotificationManager) service
 				.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -225,29 +221,29 @@ public class NotificationHelper {
 		Intent action;
 		PendingIntent pendingIntent;
 		final ComponentName serviceName = new ComponentName(mService,
-				MediaPlaybackService.class);
+				MusicPlaybackService.class);
 		switch (which) {
 		case 1:
 			// Play and pause
-			action = new Intent(MediaPlaybackService.TOGGLEPAUSE_ACTION);
+			action = new Intent(MusicPlaybackService.TOGGLEPAUSE_ACTION);
 			action.setComponent(serviceName);
 			pendingIntent = PendingIntent.getService(mService, 1, action, 0);
 			return pendingIntent;
 		case 2:
 			// Skip tracks
-			action = new Intent(MediaPlaybackService.NEXT_ACTION);
+			action = new Intent(MusicPlaybackService.NEXT_ACTION);
 			action.setComponent(serviceName);
 			pendingIntent = PendingIntent.getService(mService, 2, action, 0);
 			return pendingIntent;
 		case 3:
 			// Previous tracks
-			action = new Intent(MediaPlaybackService.PREVIOUS_ACTION);
+			action = new Intent(MusicPlaybackService.PREVIOUS_ACTION);
 			action.setComponent(serviceName);
 			pendingIntent = PendingIntent.getService(mService, 3, action, 0);
 			return pendingIntent;
 		case 4:
 			// Stop and collapse the notification
-			action = new Intent(MediaPlaybackService.STOP_ACTION);
+			action = new Intent(MusicPlaybackService.STOP_ACTION);
 			action.setComponent(serviceName);
 			pendingIntent = PendingIntent.getService(mService, 4, action, 0);
 			return pendingIntent;

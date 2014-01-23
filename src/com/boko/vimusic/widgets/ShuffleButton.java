@@ -20,7 +20,7 @@ import android.view.View.OnLongClickListener;
 import android.widget.ImageButton;
 
 import com.boko.vimusic.R;
-import com.boko.vimusic.service.MediaPlaybackService;
+import com.boko.vimusic.service.MusicPlaybackService;
 import com.boko.vimusic.utils.ApolloUtils;
 import com.boko.vimusic.utils.MusicUtils;
 import com.boko.vimusic.utils.ThemeUtils;
@@ -93,17 +93,17 @@ public class ShuffleButton extends ImageButton implements OnClickListener,
 	 */
 	public void updateShuffleState() {
 		switch (MusicUtils.getShuffleMode()) {
-		case MediaPlaybackService.SHUFFLE_NORMAL:
+		case MusicPlaybackService.SHUFFLE_NORMAL:
 			setContentDescription(getResources().getString(
 					R.string.accessibility_shuffle_all));
 			setImageDrawable(mResources.getDrawable(SHUFFLE_ALL));
 			break;
-		case MediaPlaybackService.SHUFFLE_AUTO:
+		case MusicPlaybackService.SHUFFLE_AUTO:
 			setContentDescription(getResources().getString(
 					R.string.accessibility_shuffle_all));
 			setImageDrawable(mResources.getDrawable(SHUFFLE_ALL));
 			break;
-		case MediaPlaybackService.SHUFFLE_NONE:
+		case MusicPlaybackService.SHUFFLE_NONE:
 			setContentDescription(getResources().getString(
 					R.string.accessibility_shuffle));
 			setImageDrawable(mResources.getDrawable(SHUFFLE));

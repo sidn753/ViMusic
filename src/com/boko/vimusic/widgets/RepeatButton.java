@@ -20,7 +20,7 @@ import android.view.View.OnLongClickListener;
 import android.widget.ImageButton;
 
 import com.boko.vimusic.R;
-import com.boko.vimusic.service.MediaPlaybackService;
+import com.boko.vimusic.service.MusicPlaybackService;
 import com.boko.vimusic.utils.ApolloUtils;
 import com.boko.vimusic.utils.MusicUtils;
 import com.boko.vimusic.utils.ThemeUtils;
@@ -100,17 +100,17 @@ public class RepeatButton extends ImageButton implements OnClickListener,
 	 */
 	public void updateRepeatState() {
 		switch (MusicUtils.getRepeatMode()) {
-		case MediaPlaybackService.REPEAT_ALL:
+		case MusicPlaybackService.REPEAT_ALL:
 			setContentDescription(getResources().getString(
 					R.string.accessibility_repeat_all));
 			setImageDrawable(mResources.getDrawable(REPEAT_ALL));
 			break;
-		case MediaPlaybackService.REPEAT_CURRENT:
+		case MusicPlaybackService.REPEAT_CURRENT:
 			setContentDescription(getResources().getString(
 					R.string.accessibility_repeat_one));
 			setImageDrawable(mResources.getDrawable(REPEAT_CURRENT));
 			break;
-		case MediaPlaybackService.REPEAT_NONE:
+		case MusicPlaybackService.REPEAT_NONE:
 			setContentDescription(getResources().getString(
 					R.string.accessibility_repeat));
 			setImageDrawable(mResources.getDrawable(REPEAT_NONE));

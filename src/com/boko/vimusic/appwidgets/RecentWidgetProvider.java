@@ -27,7 +27,7 @@ import android.widget.RemoteViews;
 
 import com.boko.vimusic.Config;
 import com.boko.vimusic.R;
-import com.boko.vimusic.service.MediaPlaybackService;
+import com.boko.vimusic.service.MusicPlaybackService;
 import com.boko.vimusic.ui.activities.AudioPlayerActivity;
 import com.boko.vimusic.ui.activities.HomeActivity;
 import com.boko.vimusic.ui.activities.ProfileActivity;
@@ -102,8 +102,8 @@ public class RecentWidgetProvider extends AppWidgetBase {
 			compatSetRemoteAdapter(mViews, appWidgetId, intent);
 
 			final Intent updateIntent = new Intent(
-					MediaPlaybackService.SERVICECMD);
-			updateIntent.putExtra(MediaPlaybackService.CMDNAME,
+					MusicPlaybackService.SERVICECMD);
+			updateIntent.putExtra(MusicPlaybackService.CMDNAME,
 					RecentWidgetProvider.CMDAPPWIDGETUPDATE);
 			updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS,
 					appWidgetIds);
@@ -216,14 +216,14 @@ public class RecentWidgetProvider extends AppWidgetBase {
 
 	/**
 	 * Handle a change notification coming over from
-	 * {@link MediaPlaybackService}
+	 * {@link MusicPlaybackService}
 	 */
-	public void notifyChange(final MediaPlaybackService service,
+	public void notifyChange(final MusicPlaybackService service,
 			final String what) {
 		if (hasInstances(service)) {
-			if (MediaPlaybackService.PLAYSTATE_CHANGED.equals(what)) {
+			if (MusicPlaybackService.PLAYSTATE_CHANGED.equals(what)) {
 				performUpdate(service, null);
-			} else if (MediaPlaybackService.META_CHANGED.equals(what)) {
+			} else if (MusicPlaybackService.META_CHANGED.equals(what)) {
 				synchronized (service) {
 					sWorkerQueue.post(new Runnable() {
 						@Override
@@ -246,7 +246,7 @@ public class RecentWidgetProvider extends AppWidgetBase {
 	/**
 	 * Update all active widget instances by pushing changes
 	 */
-	public void performUpdate(final MediaPlaybackService service,
+	public void performUpdate(final MusicPlaybackService service,
 			final int[] appWidgetIds) {
 		mViews = new RemoteViews(service.getPackageName(),
 				R.layout.app_widget_recents);
@@ -282,7 +282,7 @@ public class RecentWidgetProvider extends AppWidgetBase {
 		PendingIntent pendingIntent;
 
 		final ComponentName serviceName = new ComponentName(context,
-				MediaPlaybackService.class);
+				MusicPlaybackService.class);
 
 		// Now playing
 		if (playerActive) {
@@ -300,19 +300,19 @@ public class RecentWidgetProvider extends AppWidgetBase {
 
 		// Previous track
 		pendingIntent = buildPendingIntent(context,
-				MediaPlaybackService.PREVIOUS_ACTION, serviceName);
+				MusicPlaybackService.PREVIOUS_ACTION, serviceName);
 		views.setOnClickPendingIntent(R.id.app_widget_recents_previous,
 				pendingIntent);
 
 		// Play and pause
 		pendingIntent = buildPendingIntent(context,
-				MediaPlaybackService.TOGGLEPAUSE_ACTION, serviceName);
+				MusicPlaybackService.TOGGLEPAUSE_ACTION, serviceName);
 		views.setOnClickPendingIntent(R.id.app_widget_recents_play,
 				pendingIntent);
 
 		// Next track
 		pendingIntent = buildPendingIntent(context,
-				MediaPlaybackService.NEXT_ACTION, serviceName);
+				MusicPlaybackService.NEXT_ACTION, serviceName);
 		views.setOnClickPendingIntent(R.id.app_widget_recents_next,
 				pendingIntent);
 	}

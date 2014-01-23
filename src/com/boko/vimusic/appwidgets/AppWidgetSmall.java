@@ -23,7 +23,7 @@ import android.view.View;
 import android.widget.RemoteViews;
 
 import com.boko.vimusic.R;
-import com.boko.vimusic.service.MediaPlaybackService;
+import com.boko.vimusic.service.MusicPlaybackService;
 import com.boko.vimusic.ui.activities.AudioPlayerActivity;
 import com.boko.vimusic.ui.activities.HomeActivity;
 import com.boko.vimusic.utils.ApolloUtils;
@@ -54,8 +54,8 @@ public class AppWidgetSmall extends AppWidgetBase {
 	public void onUpdate(final Context context,
 			final AppWidgetManager appWidgetManager, final int[] appWidgetIds) {
 		defaultAppWidget(context, appWidgetIds);
-		final Intent updateIntent = new Intent(MediaPlaybackService.SERVICECMD);
-		updateIntent.putExtra(MediaPlaybackService.CMDNAME,
+		final Intent updateIntent = new Intent(MusicPlaybackService.SERVICECMD);
+		updateIntent.putExtra(MusicPlaybackService.CMDNAME,
 				AppWidgetSmall.CMDAPPWIDGETUPDATE);
 		updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS,
 				appWidgetIds);
@@ -103,13 +103,13 @@ public class AppWidgetSmall extends AppWidgetBase {
 
 	/**
 	 * Handle a change notification coming over from
-	 * {@link MediaPlaybackService}
+	 * {@link MusicPlaybackService}
 	 */
-	public void notifyChange(final MediaPlaybackService service,
+	public void notifyChange(final MusicPlaybackService service,
 			final String what) {
 		if (hasInstances(service)) {
-			if (MediaPlaybackService.META_CHANGED.equals(what)
-					|| MediaPlaybackService.PLAYSTATE_CHANGED.equals(what)) {
+			if (MusicPlaybackService.META_CHANGED.equals(what)
+					|| MusicPlaybackService.PLAYSTATE_CHANGED.equals(what)) {
 				performUpdate(service, null);
 			}
 		}
@@ -118,7 +118,7 @@ public class AppWidgetSmall extends AppWidgetBase {
 	/**
 	 * Update all active widget instances by pushing changes
 	 */
-	public void performUpdate(final MediaPlaybackService service,
+	public void performUpdate(final MusicPlaybackService service,
 			final int[] appWidgetIds) {
 		final RemoteViews appWidgetView = new RemoteViews(
 				service.getPackageName(), R.layout.app_widget_small);
@@ -180,7 +180,7 @@ public class AppWidgetSmall extends AppWidgetBase {
 		PendingIntent pendingIntent;
 
 		final ComponentName serviceName = new ComponentName(context,
-				MediaPlaybackService.class);
+				MusicPlaybackService.class);
 
 		// Now playing
 		if (playerActive) {
@@ -202,18 +202,18 @@ public class AppWidgetSmall extends AppWidgetBase {
 
 		// Previous track
 		pendingIntent = buildPendingIntent(context,
-				MediaPlaybackService.PREVIOUS_ACTION, serviceName);
+				MusicPlaybackService.PREVIOUS_ACTION, serviceName);
 		views.setOnClickPendingIntent(R.id.app_widget_small_previous,
 				pendingIntent);
 
 		// Play and pause
 		pendingIntent = buildPendingIntent(context,
-				MediaPlaybackService.TOGGLEPAUSE_ACTION, serviceName);
+				MusicPlaybackService.TOGGLEPAUSE_ACTION, serviceName);
 		views.setOnClickPendingIntent(R.id.app_widget_small_play, pendingIntent);
 
 		// Next track
 		pendingIntent = buildPendingIntent(context,
-				MediaPlaybackService.NEXT_ACTION, serviceName);
+				MusicPlaybackService.NEXT_ACTION, serviceName);
 		views.setOnClickPendingIntent(R.id.app_widget_small_next, pendingIntent);
 	}
 

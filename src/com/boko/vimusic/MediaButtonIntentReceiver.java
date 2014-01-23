@@ -19,7 +19,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.view.KeyEvent;
 
-import com.boko.vimusic.service.MediaPlaybackService;
+import com.boko.vimusic.service.MusicPlaybackService;
 
 /**
  * Used to control headset playback. Single press: pause/resume. Double press:
@@ -70,10 +70,10 @@ public class MediaButtonIntentReceiver extends BroadcastReceiver {
 	public void onReceive(final Context context, final Intent intent) {
 		final String intentAction = intent.getAction();
 		if (AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(intentAction)) {
-			final Intent i = new Intent(context, MediaPlaybackService.class);
-			i.setAction(MediaPlaybackService.SERVICECMD);
-			i.putExtra(MediaPlaybackService.CMDNAME,
-					MediaPlaybackService.CMDPAUSE);
+			final Intent i = new Intent(context, MusicPlaybackService.class);
+			i.setAction(MusicPlaybackService.SERVICECMD);
+			i.putExtra(MusicPlaybackService.CMDNAME,
+					MusicPlaybackService.CMDPAUSE);
 			context.startService(i);
 		} else if (Intent.ACTION_MEDIA_BUTTON.equals(intentAction)) {
 			final KeyEvent event = (KeyEvent) intent
@@ -89,30 +89,30 @@ public class MediaButtonIntentReceiver extends BroadcastReceiver {
 			String command = null;
 			switch (keycode) {
 			case KeyEvent.KEYCODE_MEDIA_STOP:
-				command = MediaPlaybackService.CMDSTOP;
+				command = MusicPlaybackService.CMDSTOP;
 				break;
 			case KeyEvent.KEYCODE_HEADSETHOOK:
 			case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
-				command = MediaPlaybackService.CMDTOGGLEPAUSE;
+				command = MusicPlaybackService.CMDTOGGLEPAUSE;
 				break;
 			case KeyEvent.KEYCODE_MEDIA_NEXT:
-				command = MediaPlaybackService.CMDNEXT;
+				command = MusicPlaybackService.CMDNEXT;
 				break;
 			case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
-				command = MediaPlaybackService.CMDPREVIOUS;
+				command = MusicPlaybackService.CMDPREVIOUS;
 				break;
 			case KeyEvent.KEYCODE_MEDIA_PAUSE:
-				command = MediaPlaybackService.CMDPAUSE;
+				command = MusicPlaybackService.CMDPAUSE;
 				break;
 			case KeyEvent.KEYCODE_MEDIA_PLAY:
-				command = MediaPlaybackService.CMDPLAY;
+				command = MusicPlaybackService.CMDPLAY;
 				break;
 			}
 			if (command != null) {
 				if (action == KeyEvent.ACTION_DOWN) {
 					if (mDown) {
-						if ((MediaPlaybackService.CMDTOGGLEPAUSE
-								.equals(command) || MediaPlaybackService.CMDPLAY
+						if ((MusicPlaybackService.CMDTOGGLEPAUSE
+								.equals(command) || MusicPlaybackService.CMDPLAY
 								.equals(command))
 								&& mLastClickTime != 0
 								&& eventtime - mLastClickTime > LONG_PRESS_DELAY) {
@@ -132,16 +132,16 @@ public class MediaButtonIntentReceiver extends BroadcastReceiver {
 						// send it
 						// a command.
 						final Intent i = new Intent(context,
-								MediaPlaybackService.class);
-						i.setAction(MediaPlaybackService.SERVICECMD);
+								MusicPlaybackService.class);
+						i.setAction(MusicPlaybackService.SERVICECMD);
 						if (keycode == KeyEvent.KEYCODE_HEADSETHOOK
 								&& eventtime - mLastClickTime < DOUBLE_CLICK) {
-							i.putExtra(MediaPlaybackService.CMDNAME,
-									MediaPlaybackService.CMDNEXT);
+							i.putExtra(MusicPlaybackService.CMDNAME,
+									MusicPlaybackService.CMDNEXT);
 							context.startService(i);
 							mLastClickTime = 0;
 						} else {
-							i.putExtra(MediaPlaybackService.CMDNAME, command);
+							i.putExtra(MusicPlaybackService.CMDNAME, command);
 							context.startService(i);
 							mLastClickTime = eventtime;
 						}

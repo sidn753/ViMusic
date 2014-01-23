@@ -21,7 +21,7 @@ import android.graphics.Bitmap;
 import android.widget.RemoteViews;
 
 import com.boko.vimusic.R;
-import com.boko.vimusic.service.MediaPlaybackService;
+import com.boko.vimusic.service.MusicPlaybackService;
 import com.boko.vimusic.ui.activities.AudioPlayerActivity;
 import com.boko.vimusic.ui.activities.HomeActivity;
 import com.boko.vimusic.utils.ApolloUtils;
@@ -52,8 +52,8 @@ public class AppWidgetLargeAlternate extends AppWidgetBase {
 	public void onUpdate(final Context context,
 			final AppWidgetManager appWidgetManager, final int[] appWidgetIds) {
 		defaultAppWidget(context, appWidgetIds);
-		final Intent updateIntent = new Intent(MediaPlaybackService.SERVICECMD);
-		updateIntent.putExtra(MediaPlaybackService.CMDNAME,
+		final Intent updateIntent = new Intent(MusicPlaybackService.SERVICECMD);
+		updateIntent.putExtra(MusicPlaybackService.CMDNAME,
 				AppWidgetLargeAlternate.CMDAPPWIDGETUPDATE);
 		updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS,
 				appWidgetIds);
@@ -99,15 +99,15 @@ public class AppWidgetLargeAlternate extends AppWidgetBase {
 
 	/**
 	 * Handle a change notification coming over from
-	 * {@link MediaPlaybackService}
+	 * {@link MusicPlaybackService}
 	 */
-	public void notifyChange(final MediaPlaybackService service,
+	public void notifyChange(final MusicPlaybackService service,
 			final String what) {
 		if (hasInstances(service)) {
-			if (MediaPlaybackService.META_CHANGED.equals(what)
-					|| MediaPlaybackService.PLAYSTATE_CHANGED.equals(what)
-					|| MediaPlaybackService.REPEATMODE_CHANGED.equals(what)
-					|| MediaPlaybackService.SHUFFLEMODE_CHANGED.equals(what)) {
+			if (MusicPlaybackService.META_CHANGED.equals(what)
+					|| MusicPlaybackService.PLAYSTATE_CHANGED.equals(what)
+					|| MusicPlaybackService.REPEATMODE_CHANGED.equals(what)
+					|| MusicPlaybackService.SHUFFLEMODE_CHANGED.equals(what)) {
 				performUpdate(service, null);
 			}
 		}
@@ -116,7 +116,7 @@ public class AppWidgetLargeAlternate extends AppWidgetBase {
 	/**
 	 * Update all active widget instances by pushing changes
 	 */
-	public void performUpdate(final MediaPlaybackService service,
+	public void performUpdate(final MusicPlaybackService service,
 			final int[] appWidgetIds) {
 		final RemoteViews appWidgetView = new RemoteViews(
 				service.getPackageName(), R.layout.app_widget_large_alternate);
@@ -160,12 +160,12 @@ public class AppWidgetLargeAlternate extends AppWidgetBase {
 
 		// Set the correct drawable for the repeat state
 		switch (service.getRepeatMode()) {
-		case MediaPlaybackService.REPEAT_ALL:
+		case MusicPlaybackService.REPEAT_ALL:
 			appWidgetView.setImageViewResource(
 					R.id.app_widget_large_alternate_repeat,
 					R.drawable.btn_playback_repeat_all);
 			break;
-		case MediaPlaybackService.REPEAT_CURRENT:
+		case MusicPlaybackService.REPEAT_CURRENT:
 			appWidgetView.setImageViewResource(
 					R.id.app_widget_large_alternate_repeat,
 					R.drawable.btn_playback_repeat_one);
@@ -179,12 +179,12 @@ public class AppWidgetLargeAlternate extends AppWidgetBase {
 
 		// Set the correct drawable for the shuffle state
 		switch (service.getShuffleMode()) {
-		case MediaPlaybackService.SHUFFLE_NONE:
+		case MusicPlaybackService.SHUFFLE_NONE:
 			appWidgetView.setImageViewResource(
 					R.id.app_widget_large_alternate_shuffle,
 					R.drawable.btn_playback_shuffle);
 			break;
-		case MediaPlaybackService.SHUFFLE_AUTO:
+		case MusicPlaybackService.SHUFFLE_AUTO:
 			appWidgetView.setImageViewResource(
 					R.id.app_widget_large_alternate_shuffle,
 					R.drawable.btn_playback_shuffle_all);
@@ -217,7 +217,7 @@ public class AppWidgetLargeAlternate extends AppWidgetBase {
 		PendingIntent pendingIntent;
 
 		final ComponentName serviceName = new ComponentName(context,
-				MediaPlaybackService.class);
+				MusicPlaybackService.class);
 
 		// Now playing
 		if (playerActive) {
@@ -240,31 +240,31 @@ public class AppWidgetLargeAlternate extends AppWidgetBase {
 		}
 		// Shuffle modes
 		pendingIntent = buildPendingIntent(context,
-				MediaPlaybackService.SHUFFLE_ACTION, serviceName);
+				MusicPlaybackService.SHUFFLE_ACTION, serviceName);
 		views.setOnClickPendingIntent(R.id.app_widget_large_alternate_shuffle,
 				pendingIntent);
 
 		// Previous track
 		pendingIntent = buildPendingIntent(context,
-				MediaPlaybackService.PREVIOUS_ACTION, serviceName);
+				MusicPlaybackService.PREVIOUS_ACTION, serviceName);
 		views.setOnClickPendingIntent(R.id.app_widget_large_alternate_previous,
 				pendingIntent);
 
 		// Play and pause
 		pendingIntent = buildPendingIntent(context,
-				MediaPlaybackService.TOGGLEPAUSE_ACTION, serviceName);
+				MusicPlaybackService.TOGGLEPAUSE_ACTION, serviceName);
 		views.setOnClickPendingIntent(R.id.app_widget_large_alternate_play,
 				pendingIntent);
 
 		// Next track
 		pendingIntent = buildPendingIntent(context,
-				MediaPlaybackService.NEXT_ACTION, serviceName);
+				MusicPlaybackService.NEXT_ACTION, serviceName);
 		views.setOnClickPendingIntent(R.id.app_widget_large_alternate_next,
 				pendingIntent);
 
 		// Repeat modes
 		pendingIntent = buildPendingIntent(context,
-				MediaPlaybackService.REPEAT_ACTION, serviceName);
+				MusicPlaybackService.REPEAT_ACTION, serviceName);
 		views.setOnClickPendingIntent(R.id.app_widget_large_alternate_repeat,
 				pendingIntent);
 	}

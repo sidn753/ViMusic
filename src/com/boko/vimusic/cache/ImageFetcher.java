@@ -29,7 +29,7 @@ import android.widget.ImageView;
 import com.boko.vimusic.Config;
 import com.boko.vimusic.api.lastfm.Album;
 import com.boko.vimusic.api.lastfm.Artist;
-import com.boko.vimusic.service.MediaPlaybackService;
+import com.boko.vimusic.service.MusicPlaybackService;
 import com.boko.vimusic.utils.MusicUtils;
 import com.boko.vimusic.utils.PreferenceUtils;
 
@@ -239,7 +239,7 @@ public class ImageFetcher extends ImageWorker {
 	}
 
 	/**
-	 * Finds cached or downloads album art. Used in {@link MediaPlaybackService}
+	 * Finds cached or downloads album art. Used in {@link MusicPlaybackService}
 	 * to set the current album art in the notification and lock screen
 	 * 
 	 * @param albumName
