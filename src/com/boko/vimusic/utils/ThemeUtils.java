@@ -143,7 +143,7 @@ public class ThemeUtils {
 	 *            The package name of the theme to be set.
 	 */
 	public void setThemePackageName(final String packageName) {
-		CommonUtils.execute(false, new AsyncTask<Void, Void, Void>() {
+		ApolloUtils.execute(false, new AsyncTask<Void, Void, Void>() {
 			@Override
 			protected Void doInBackground(final Void... unused) {
 				final SharedPreferences.Editor editor = mPreferences.edit();
@@ -208,7 +208,7 @@ public class ThemeUtils {
 	 * @return True if the action bar color is dark, false if light.
 	 */
 	public boolean isActionBarDark() {
-		return CommonUtils.isColorDark(getColor("action_bar"));
+		return ApolloUtils.isColorDark(getColor("action_bar"));
 	}
 
 	/**

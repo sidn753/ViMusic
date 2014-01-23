@@ -28,7 +28,7 @@ import com.boko.vimusic.model.Album;
 import com.boko.vimusic.model.Song;
 import com.boko.vimusic.ui.MusicHolder;
 import com.boko.vimusic.ui.fragments.profile.ArtistAlbumFragment;
-import com.boko.vimusic.utils.CommonUtils;
+import com.boko.vimusic.utils.ApolloUtils;
 import com.boko.vimusic.utils.Lists;
 import com.boko.vimusic.utils.MusicUtils;
 
@@ -97,7 +97,7 @@ public class ArtistAlbumAdapter extends ArrayAdapter<Album> {
 		// Get the layout Id
 		mLayoutId = layoutId;
 		// Initialize the cache & image fetcher
-		mImageFetcher = CommonUtils.getImageFetcher(context);
+		mImageFetcher = ApolloUtils.getImageFetcher(context);
 	}
 
 	/**

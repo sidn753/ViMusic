@@ -49,7 +49,7 @@ import com.devspark.appmsg.AppMsg;
  * 
  * @author Andrew Neal (andrewdneal@gmail.com)
  */
-public final class CommonUtils {
+public final class ApolloUtils {
 
 	/**
 	 * The threshold used calculate if a color is light or dark
@@ -57,7 +57,7 @@ public final class CommonUtils {
 	private static final int BRIGHTNESS_THRESHOLD = 130;
 
 	/* This class is never initiated */
-	public CommonUtils() {
+	public ApolloUtils() {
 	}
 
 	/**

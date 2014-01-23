@@ -36,7 +36,7 @@ import com.boko.vimusic.loaders.AsyncHandler;
 import com.boko.vimusic.loaders.LastAddedLoader;
 import com.boko.vimusic.loaders.SearchLoader;
 import com.boko.vimusic.model.Song;
-import com.boko.vimusic.service.IMediaPlaybackService;
+import com.boko.vimusic.service.IService;
 import com.boko.vimusic.utils.Lists;
 import com.boko.vimusic.utils.MusicUtils;
 import com.boko.vimusic.utils.MusicUtils.ServiceToken;
@@ -117,7 +117,7 @@ public class ShortcutActivity extends FragmentActivity implements
 	@Override
 	public void onServiceConnected(final ComponentName name,
 			final IBinder service) {
-		mService = IMediaPlaybackService.Stub.asInterface(service);
+		mService = IService.Stub.asInterface(service);
 
 		// Check for a voice query
 		if (mIntent.getAction().equals(Config.PLAY_FROM_SEARCH)) {

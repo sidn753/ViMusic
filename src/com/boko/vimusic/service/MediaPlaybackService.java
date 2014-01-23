@@ -20,9 +20,11 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.LinkedList;
 import java.util.Random;
+import java.util.TreeSet;
 import java.util.Vector;
 
 import android.annotation.SuppressLint;
+import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.appwidget.AppWidgetManager;
@@ -69,7 +71,7 @@ import com.boko.vimusic.cache.ImageFetcher;
 import com.boko.vimusic.model.Song;
 import com.boko.vimusic.provider.FavoritesStore;
 import com.boko.vimusic.provider.RecentStore;
-import com.boko.vimusic.utils.CommonUtils;
+import com.boko.vimusic.utils.ApolloUtils;
 import com.boko.vimusic.utils.MusicUtils;
 
 /**
@@ -134,6 +136,7 @@ public class MediaPlaybackService extends Service {
 	public static final String REPEAT_ACTION = SERVICECMD + ".repeat";
 	public static final String SHUFFLE_ACTION = SERVICECMD + ".shuffle";
 	public static final String REFRESH = SERVICECMD + ".refresh";
+	public static final String SHUTDOWN = SERVICECMD + ".shutdown";
 	public static final String UPDATE_LOCKSCREEN = SERVICECMD + ".updatelockscreen";
 
     private static final int TRACK_ENDED = 1;
@@ -189,8 +192,7 @@ public class MediaPlaybackService extends Service {
     private static final int IDLE_DELAY = 60000;
 
     private RemoteControlClient mRemoteControlClient;
-
-    private Handler mDelayedStopHandler;
+    
     private Handler mMediaplayerHandler;
     
 	// Image cache
@@ -211,6 +213,13 @@ public class MediaPlaybackService extends Service {
             '8', '9', 'a', 'b',
             'c', 'd', 'e', 'f'
     };
+    
+	
+	// Alarm intent for removing the notification when nothing is playing for
+	// some time
+	private AlarmManager mAlarmManager;
+	private PendingIntent mShutdownIntent;
+	private boolean mShutdownScheduled;
     
     private final IBinder mBinder = new ServiceStub(this);
     
@@ -255,18 +264,6 @@ public class MediaPlaybackService extends Service {
 			Log.d(LOGTAG, "Creating service");
 		super.onCreate();
 		
-		// Initialize the favorites and recents databases
-		mRecentsCache = RecentStore.getInstance(this);
-		mFavoritesCache = FavoritesStore.getInstance(this);
-
-		// Initialize the notification helper
-		mNotificationHelper = new NotificationHelper(this);
-
-		// Initialize the image fetcher
-		mImageFetcher = ImageFetcher.getInstance(this);
-		// Initialize the image cache
-		mImageFetcher.setImageCache(ImageCache.getInstance(this));
-		
 		// Initialize the audio manager and register any headset controls for
 		// playback
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
@@ -289,7 +286,7 @@ public class MediaPlaybackService extends Service {
                 | RemoteControlClient.FLAG_KEY_MEDIA_PLAY_PAUSE
                 | RemoteControlClient.FLAG_KEY_MEDIA_STOP;
 
-		if (CommonUtils.hasJellyBeanMR2()) {
+		if (ApolloUtils.hasJellyBeanMR2()) {
 			flags |= RemoteControlClient.FLAG_KEY_MEDIA_POSITION_UPDATE;
 
 			mRemoteControlClient
@@ -312,7 +309,7 @@ public class MediaPlaybackService extends Service {
 
 		// Initialize the preferences
 		mPreferences = getSharedPreferences("Service", 0);
-		mCardId = MusicUtils.getCardId(this);
+		mCardId = getCardId();
 
 		registerExternalStorageListener();
 
@@ -325,7 +322,7 @@ public class MediaPlaybackService extends Service {
 		thread.start();
 
 		// Initialize the handler
-		mMediaplayerHandler = new MediaPlayerHandler(this, thread.getLooper());
+		mMediaplayerHandler = new MusicPlayerHandler(this, thread.getLooper());
 		
 		// Initialize the media player
 		mPlayer = new MultiPlayer(this);
@@ -353,12 +350,29 @@ public class MediaPlaybackService extends Service {
         PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, this.getClass().getName());
         mWakeLock.setReferenceCounted(false);
-        
-        // If the service was idle, but got killed before it stopped itself, the
-        // system will relaunch it. Make sure it gets stopped again in that case.
-        mDelayedStopHandler = new DelayedStopHandler(this);
-        Message msg = mDelayedStopHandler.obtainMessage();
-        mDelayedStopHandler.sendMessageDelayed(msg, IDLE_DELAY);
+
+		// Initialize the favorites and recents databases
+		mRecentsCache = RecentStore.getInstance(this);
+		mFavoritesCache = FavoritesStore.getInstance(this);
+
+		// Initialize the notification helper
+		mNotificationHelper = new NotificationHelper(this);
+
+		// Initialize the image fetcher
+		mImageFetcher = ImageFetcher.getInstance(this);
+		// Initialize the image cache
+		mImageFetcher.setImageCache(ImageCache.getInstance(this));
+
+		// Initialize the delayed shutdown intent
+		final Intent shutdownIntent = new Intent(this,
+				MediaPlaybackService.class);
+		shutdownIntent.setAction(SHUTDOWN);
+
+		mAlarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+		mShutdownIntent = PendingIntent.getService(this, 0, shutdownIntent, 0);
+
+		// Listen for the idle state
+		scheduleDelayedShutdown();
 	}
 
 	@Override
@@ -377,7 +391,6 @@ public class MediaPlaybackService extends Service {
 		mAudioManager.unregisterRemoteControlClient(mRemoteControlClient);
 		
 		// make sure there aren't any other messages coming
-        mDelayedStopHandler.removeCallbacksAndMessages(null);
 		mMediaplayerHandler.removeCallbacksAndMessages(null);
 
         unregisterReceiver(mIntentReceiver);
@@ -386,6 +399,9 @@ public class MediaPlaybackService extends Service {
             mUnmountReceiver = null;
         }
         mWakeLock.release();
+        
+		// remove any pending alarms
+		mAlarmManager.cancel(mShutdownIntent);
         super.onDestroy();
 	}
 	
@@ -562,14 +578,14 @@ public class MediaPlaybackService extends Service {
 	public IBinder onBind(final Intent intent) {
 		if (DEBUG)
 			Log.d(LOGTAG, "Service bound, intent = " + intent);
-		mDelayedStopHandler.removeCallbacksAndMessages(null);
+		cancelShutdown();
         mServiceInUse = true;
         return mBinder;
 	}
 	
 	@Override
 	public void onRebind(final Intent intent) {
-		mDelayedStopHandler.removeCallbacksAndMessages(null);
+		cancelShutdown();
 		mServiceInUse = true;
 	}
 	
@@ -579,13 +595,21 @@ public class MediaPlaybackService extends Service {
 		if (DEBUG)
 			Log.d(LOGTAG, "Got new intent " + intent + ", startId = " + startId);
 		mServiceStartId = startId;
-		mDelayedStopHandler.removeCallbacksAndMessages(null);
+		cancelShutdown();
 
 		if (intent != null) {
+			String action = intent.getAction();
+
 			if (intent.hasExtra(NOW_IN_FOREGROUND)) {
 				mAnyActivityInForeground = intent.getBooleanExtra(
 						NOW_IN_FOREGROUND, false);
 				updateNotification();
+			}
+
+			if (SHUTDOWN.equals(action)) {
+				mShutdownScheduled = false;
+				releaseServiceUiAndStop();
+				return START_NOT_STICKY;
 			}
 
 			handleCommandIntent(intent);
@@ -593,7 +617,7 @@ public class MediaPlaybackService extends Service {
 
         // make sure the service will shut down on its own if it was
         // just started but not bound to and nothing is playing
-		gotoIdleState();
+		scheduleDelayedShutdown();
 		return START_STICKY;
 	}
 	
@@ -651,7 +675,7 @@ public class MediaPlaybackService extends Service {
         // before stopping the service, so that pause/resume isn't slow.
         // Also delay stopping the service if we're transitioning between tracks.
         if (mPlayListLen > 0  || mMediaplayerHandler.hasMessages(TRACK_ENDED)) {
-        	gotoIdleState();
+        	scheduleDelayedShutdown();
             return true;
         }
         
@@ -661,7 +685,24 @@ public class MediaPlaybackService extends Service {
 	}
 
 	private void releaseServiceUiAndStop() {
+        // Check again to make sure nothing is playing right now
+        if (isPlaying() || mPausedByTransientLossOfFocus
+                || mMediaplayerHandler.hasMessages(TRACK_ENDED)) {
+            return;
+        }
 
+		if (DEBUG)
+			Log.d(LOGTAG, "Nothing is playing anymore, releasing notification");
+		mNotificationHelper.killNotification();
+		mAudioManager.abandonAudioFocus(mAudioFocusListener);
+
+		if (!mServiceInUse) {
+            // save the queue again, because it might have changed
+            // since the user exited the music app (because of
+            // party-shuffle or because the play-position changed)
+			saveQueue(true);
+			stopSelf(mServiceStartId);
+		}
 	}
 	
     /**
@@ -693,7 +734,7 @@ public class MediaPlaybackService extends Service {
                         closeExternalStorageFiles(intent.getData().getPath());
                     } else if (action.equals(Intent.ACTION_MEDIA_MOUNTED)) {
                         mMediaMountedCount++;
-                        mCardId = MusicUtils.getCardId(MediaPlaybackService.this);
+                        mCardId = getCardId();
                         reloadQueue();
                         mQueueIsSaveable = true;
                         notifyChange(QUEUE_CHANGED);
@@ -780,47 +821,6 @@ public class MediaPlaybackService extends Service {
 		mAppWidgetLarge.notifyChange(this, what);
 		mAppWidgetLargeAlternate.notifyChange(this, what);
 		mRecentWidgetProvider.notifyChange(this, what);
-	}
-    
-	/**
-	 * Updates the lockscreen controls.
-	 * 
-	 * @param what The broadcast
-	 */
-	private void updateRemoteControlClient(final String what) {
-		int playState = isPlaying() ? RemoteControlClient.PLAYSTATE_PLAYING : RemoteControlClient.PLAYSTATE_PAUSED;
-
-		if (CommonUtils.hasJellyBeanMR2()
-				&& (what.equals(PLAYSTATE_CHANGED) || what
-						.equals(POSITION_CHANGED))) {
-			mRemoteControlClient.setPlaybackState(playState, position(), 1.0f);
-		} else if (what.equals(PLAYSTATE_CHANGED)) {
-			mRemoteControlClient.setPlaybackState(playState);
-		} else if (what.equals(META_CHANGED) || what.equals(QUEUE_CHANGED)) {
-            RemoteControlClient.MetadataEditor ed = mRemoteControlClient.editMetadata(true);
-            ed.putString(MediaMetadataRetriever.METADATA_KEY_TITLE, getTrackName());
-            ed.putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, getAlbumName());
-            ed.putString(MediaMetadataRetriever.METADATA_KEY_ARTIST, getArtistName());
-            ed.putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, duration());
-            ed.putString(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST, getAlbumArtistName());
-            Bitmap b = getAlbumArt();
-            if (b != null) {
-				// RemoteControlClient wants to recycle the bitmaps thrown at
-				// it, so we need
-				// to make sure not to hand out our cache copy
-				Bitmap.Config config = b.getConfig();
-				if (config == null) {
-					config = Bitmap.Config.ARGB_8888;
-				}
-				b = b.copy(config, false);
-				ed.putBitmap(MetadataEditor.BITMAP_KEY_ARTWORK, b);
-			}
-            ed.apply();
-
-			if (CommonUtils.hasJellyBeanMR2()) {
-				mRemoteControlClient.setPlaybackState(playState, position(), 1.0f);
-			}
-		}
 	}
     
 	private void ensurePlayListCapacity(final int size) {
@@ -1020,7 +1020,7 @@ public class MediaPlaybackService extends Service {
 				if (mOpenFailedCounter++ < 10 &&  mPlayListLen > 1) {
 					int pos = getNextPosition(false);
 					if (pos < 0) {
-						gotoIdleState();
+						scheduleDelayedShutdown();
                         if (mIsSupposedToBePlaying) {
                             mIsSupposedToBePlaying = false;
                             notifyChange(PLAYSTATE_CHANGED);
@@ -1036,7 +1036,7 @@ public class MediaPlaybackService extends Service {
                         Toast.makeText(this, R.string.playback_failed, Toast.LENGTH_SHORT).show();
                     }
                     Log.w(LOGTAG, "Failed to open file for playback");
-                    gotoIdleState();
+					scheduleDelayedShutdown();
 					if (mIsSupposedToBePlaying) {
 						mIsSupposedToBePlaying = false;
 						notifyChange(PLAYSTATE_CHANGED);
@@ -1156,7 +1156,7 @@ public class MediaPlaybackService extends Service {
                 mIsSupposedToBePlaying = true;
                 notifyChange(PLAYSTATE_CHANGED);
             }
-
+			cancelShutdown();
         } else if (mPlayListLen <= 0) {
             // This is mostly so that if you press 'play' on a bluetooth headset
             // without every having played anything before, it will still play
@@ -1183,7 +1183,7 @@ public class MediaPlaybackService extends Service {
         }
         mFileToPlay = null;
         if (goToIdle) {
-        	gotoIdleState();
+        	scheduleDelayedShutdown();
         } else {
             stopForeground(false);
         }
@@ -1209,7 +1209,7 @@ public class MediaPlaybackService extends Service {
 			mMediaplayerHandler.removeMessages(FADEUP);
 			if (isPlaying()) {
 				mPlayer.pause();
-				gotoIdleState();
+				scheduleDelayedShutdown();
 				mIsSupposedToBePlaying = false;
 				notifyChange(PLAYSTATE_CHANGED);
 			}
@@ -1371,13 +1371,13 @@ public class MediaPlaybackService extends Service {
 			if (mPlayListLen <= 0) {
 				if (DEBUG)
 					Log.d(LOGTAG, "No play queue");
-				gotoIdleState();
+				scheduleDelayedShutdown();
 				return;
 			}
 
             int pos = getNextPosition(force);
             if (pos < 0) {
-            	gotoIdleState();
+				scheduleDelayedShutdown();
                 if (mIsSupposedToBePlaying) {
                     mIsSupposedToBePlaying = false;
                     notifyChange(PLAYSTATE_CHANGED);
@@ -1393,12 +1393,13 @@ public class MediaPlaybackService extends Service {
 		}
 	}
    
-   private void gotoIdleState() {
-       mDelayedStopHandler.removeCallbacksAndMessages(null);
-       Message msg = mDelayedStopHandler.obtainMessage();
-       mDelayedStopHandler.sendMessageDelayed(msg, IDLE_DELAY);
-       stopForeground(true);
-   }
+   private void scheduleDelayedShutdown() {
+		if (DEBUG)
+			Log.d(LOGTAG, "Scheduling shutdown in " + IDLE_DELAY + " ms");
+		mAlarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+				SystemClock.elapsedRealtime() + IDLE_DELAY, mShutdownIntent);
+		mShutdownScheduled = true;
+	}
    
    // Make sure there are at least 5 items after the currently playing item
    // and no more than 10 items before.
@@ -1612,73 +1613,135 @@ public class MediaPlaybackService extends Service {
 	public int getMediaMountedCount() {
 		return mMediaMountedCount;
 	}
+
+	/**
+	 * @return A card ID used to save and restore playlists, i.e., the queue.
+	 */
+	private int getCardId() {
+		final ContentResolver resolver = getContentResolver();
+		Cursor cursor = resolver.query(
+				Uri.parse("content://media/external/fs_id"), null, null, null,
+				null);
+		int mCardId = -1;
+		if (cursor != null && cursor.moveToFirst()) {
+			mCardId = cursor.getInt(0);
+			cursor.close();
+			cursor = null;
+		}
+		return mCardId;
+	}
+
+
+
+	private void cancelShutdown() {
+		if (DEBUG)
+			Log.d(LOGTAG, "Cancelling delayed shutdown, scheduled = "
+					+ mShutdownScheduled);
+		if (mShutdownScheduled) {
+			mAlarmManager.cancel(mShutdownIntent);
+			mShutdownScheduled = false;
+		}
+	}
+
+
+
+
+
+
+
+
+
+
+
+	/**
+	 * Updates the lockscreen controls.
+	 * 
+	 * @param what
+	 *            The broadcast
+	 */
+	private void updateRemoteControlClient(final String what) {
+		int playState = isPlaying() ? RemoteControlClient.PLAYSTATE_PLAYING : RemoteControlClient.PLAYSTATE_PAUSED;
+
+		if (ApolloUtils.hasJellyBeanMR2()
+				&& (what.equals(PLAYSTATE_CHANGED) || what
+						.equals(POSITION_CHANGED))) {
+			mRemoteControlClient.setPlaybackState(playState, position(), 1.0f);
+		} else if (what.equals(PLAYSTATE_CHANGED)) {
+			mRemoteControlClient.setPlaybackState(playState);
+		} else if (what.equals(META_CHANGED) || what.equals(QUEUE_CHANGED)) {
+            RemoteControlClient.MetadataEditor ed = mRemoteControlClient.editMetadata(true);
+            ed.putString(MediaMetadataRetriever.METADATA_KEY_TITLE, getTrackName());
+            ed.putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, getAlbumName());
+            ed.putString(MediaMetadataRetriever.METADATA_KEY_ARTIST, getArtistName());
+            ed.putLong(MediaMetadataRetriever.METADATA_KEY_DURATION, duration());
+            ed.putString(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST, getAlbumArtistName());
+            Bitmap b = getAlbumArt();
+            if (b != null) {
+				// RemoteControlClient wants to recycle the bitmaps thrown at
+				// it, so we need
+				// to make sure not to hand out our cache copy
+				Bitmap.Config config = b.getConfig();
+				if (config == null) {
+					config = Bitmap.Config.ARGB_8888;
+				}
+				b = b.copy(config, false);
+				ed.putBitmap(MetadataEditor.BITMAP_KEY_ARTWORK, b);
+			}
+            ed.apply();
+
+			if (ApolloUtils.hasJellyBeanMR2()) {
+				mRemoteControlClient.setPlaybackState(playState, position(), 1.0f);
+			}
+		}
+	}
+
 	
-    /**
-     * Returns the path of the currently playing file, or null if
-     * no file is currently playing.
-     */
-    public String getPath() {
-        return mFileToPlay;
-    }
-    
-    /**
-     * Returns the id of the currently playing file, or null if
-     * no file is currently playing.
-     */
-	public String getAudioId() {
+
+	/**
+	 * Returns the audio session ID
+	 * 
+	 * @return The current media player audio session ID
+	 */
+	public int getAudioSessionId() {
+		synchronized (this) {
+			return mPlayer.getAudioSessionId();
+		}
+	}
+
+
+
+
+
+	/**
+	 * Returns the position in the queue
+	 * 
+	 * @return the current position in the queue
+	 */
+	public int getQueuePosition() {
+		synchronized (this) {
+			return mPlayPos;
+		}
+	}
+
+	/**
+	 * Returns the path to current song
+	 * 
+	 * @return The path to the current song
+	 */
+	public String getPath() {
 		synchronized (this) {
 			if (mPlayPos >= 0 && mPlayer.isInitialized()) {
-				return mPlayList[mPlayPos].getId();
+				return mPlayList[mPlayPos].getLinkPlay();
 			}
 		}
 		return null;
 	}
-	
-    /**
-     * Returns the position in the queue 
-     * @return the position in the queue
-     */
-    public int getQueuePosition() {
-        synchronized(this) {
-            return mPlayPos;
-        }
-    }
-    
-    /**
-     * Starts playing the track at the given position in the queue.
-     * @param pos The position in the queue of the track that will be played.
-     */
-    public void setQueuePosition(int pos) {
-        synchronized(this) {
-            stop(false);
-            mPlayPos = pos;
-            openCurrentAndNext();
-            play();
-            notifyChange(META_CHANGED);
-            if (mShuffleMode == SHUFFLE_AUTO) {
-                doAutoShuffleUpdate();
-            }
-        }
-    }
-    
-	public String getArtistName() {
-		synchronized (this) {
-			if (mPlayPos >= 0 && mPlayer.isInitialized()) {
-				return mPlayList[mPlayPos].mArtistName;
-			}
-		}
-		return null;
-	}
-	
-	public String getArtistId() {
-		synchronized (this) {
-			if (mPlayPos >= 0 && mPlayer.isInitialized()) {
-				return null;
-			}
-		}
-		return null;
-	}
-	
+
+	/**
+	 * Returns the album name
+	 * 
+	 * @return The current song album Name
+	 */
 	public String getAlbumName() {
 		synchronized (this) {
 			if (mPlayPos >= 0 && mPlayer.isInitialized()) {
@@ -1687,7 +1750,54 @@ public class MediaPlaybackService extends Service {
 		}
 		return null;
 	}
-	
+
+	/**
+	 * Returns the song name
+	 * 
+	 * @return The current song name
+	 */
+	public String getTrackName() {
+		synchronized (this) {
+			if (mPlayPos >= 0 && mPlayer.isInitialized()) {
+				return mPlayList[mPlayPos].getName();
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Returns the artist name
+	 * 
+	 * @return The current song artist name
+	 */
+	public String getArtistName() {
+		synchronized (this) {
+			if (mPlayPos >= 0 && mPlayer.isInitialized()) {
+				return mPlayList[mPlayPos].mArtistName;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Returns the artist name
+	 * 
+	 * @return The current song artist name
+	 */
+	public String getAlbumArtistName() {
+		synchronized (this) {
+			if (mPlayPos >= 0 && mPlayer.isInitialized()) {
+				return null;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Returns the album ID
+	 * 
+	 * @return The current song album ID
+	 */
 	public String getAlbumId() {
 		synchronized (this) {
 			if (mPlayPos >= 0 && mPlayer.isInitialized()) {
@@ -1697,7 +1807,12 @@ public class MediaPlaybackService extends Service {
 		return null;
 	}
 
-	public String getAlbumArtistName() {
+	/**
+	 * Returns the artist ID
+	 * 
+	 * @return The current song artist ID
+	 */
+	public String getArtistId() {
 		synchronized (this) {
 			if (mPlayPos >= 0 && mPlayer.isInitialized()) {
 				return null;
@@ -1705,97 +1820,121 @@ public class MediaPlaybackService extends Service {
 		}
 		return null;
 	}
-	
-	public String getTrackName() {
+
+	/**
+	 * Returns the current audio ID
+	 * 
+	 * @return The current track ID
+	 */
+	public String getAudioId() {
 		synchronized (this) {
 			if (mPlayPos >= 0 && mPlayer.isInitialized()) {
-				return mPlayList[mPlayPos].getName();
+				return mPlayList[mPlayPos].getId();
 			}
 		}
 		return null;
 	}
-	
-    /**
-     * Returns the duration of the file in milliseconds.
-     * Currently this method returns -1 for the duration of MIDI files.
-     */
-    public long duration() {
-        if (mPlayer.isInitialized()) {
-            return mPlayer.duration();
-        }
-        return -1;
-    }
 
-    /**
-     * Returns the current playback position in milliseconds
-     */
-    public long position() {
-        if (mPlayer.isInitialized()) {
-            return mPlayer.position();
-        }
-        return -1;
-    }
-    
-    /**
-     * Seeks to the position specified.
-     *
-     * @param pos The position to seek to, in milliseconds
-     */
-    public long seek(long pos) {
-    	if (mPlayer.isInitialized()) {
-    		if (pos < 0) pos = 0;
-            if (pos > mPlayer.duration()) pos = mPlayer.duration();
-			long ret = mPlayer.seek(pos);
+	/**
+	 * Seeks the current track to a specific time
+	 * 
+	 * @param position
+	 *            The time to seek to
+	 * @return The time to play the track at
+	 */
+	public long seek(long position) {
+		if (mPlayer.isInitialized()) {
+			if (position < 0) {
+				position = 0;
+			} else if (position > mPlayer.duration()) {
+				position = mPlayer.duration();
+			}
+			long result = mPlayer.seek(position);
 			notifyChange(POSITION_CHANGED);
-			return ret;
+			return result;
 		}
 		return -1;
 	}
-    
-    /**
-     * Sets the audio session ID.
-     *
-     * @param sessionId: the audio session ID.
-     */
-    public void setAudioSessionId(int sessionId) {
-        synchronized (this) {
-            mPlayer.setAudioSessionId(sessionId);
-        }
-    }
 
-    /**
-     * Returns the audio session ID.
-     */
-    public int getAudioSessionId() {
-        synchronized (this) {
-            return mPlayer.getAudioSessionId();
-        }
-    }
-    
+	/**
+	 * Returns the current position in time of the currenttrack
+	 * 
+	 * @return The current playback position in miliseconds
+	 */
+	public long position() {
+		if (mPlayer.isInitialized()) {
+			return mPlayer.position();
+		}
+		return -1;
+	}
+
+	/**
+	 * Returns the full duration of the current track
+	 * 
+	 * @return The duration of the current track in miliseconds
+	 */
+	public long duration() {
+		if (mPlayer.isInitialized()) {
+			return mPlayer.duration();
+		}
+		return -1;
+	}
+
+
 	/**
 	 * True if the current track is a "favorite", false otherwise
 	 */
 	public boolean isFavorite() {
-		synchronized (this) {
-			if (mFavoritesCache != null) {
+		if (mFavoritesCache != null) {
+			synchronized (this) {
 				return mFavoritesCache.isFavoriteSong(getAudioId(), "");
 			}
 		}
 		return false;
 	}
 
+
+
+
+
+
+
 	/**
 	 * Toggles the current song as a favorite.
 	 */
 	public void toggleFavorite() {
-		synchronized (this) {
-			if (mFavoritesCache != null) {
+		if (mFavoritesCache != null) {
+			synchronized (this) {
 				mFavoritesCache.toggleSong(getAudioId(), "", getTrackName(),
 						getAlbumName(), getArtistName());
 			}
 		}
 	}
-	
+
+
+
+
+
+	/**
+	 * Sets the position of a track in the queue
+	 * 
+	 * @param index
+	 *            The position to place the track
+	 */
+	public void setQueuePosition(final int index) {
+		synchronized (this) {
+			stop(false);
+			mPlayPos = index;
+			openCurrentAndNext();
+			play();
+			notifyChange(META_CHANGED);
+			if (mShuffleMode == SHUFFLE_AUTO) {
+				doAutoShuffleUpdate();
+			}
+		}
+	}
+
+
 	/**
 	 * Cycles through the different repeat modes
 	 */
@@ -1826,13 +1965,6 @@ public class MediaPlaybackService extends Service {
 			setShuffleMode(SHUFFLE_NONE);
 		}
 	}
-	
-	/**
-	 * Called when one of the lists should refresh or requery.
-	 */
-	public void refresh() {
-		notifyChange(REFRESH);
-	}
 
 	/**
 	 * @return The album art for the current album.
@@ -1843,58 +1975,37 @@ public class MediaPlaybackService extends Service {
 				getAlbumId(), getArtistName());
 		return bitmap;
 	}
-	
-	private static final class DelayedStopHandler extends Handler {
-		private final WeakReference<MediaPlaybackService> mService;
 
-		public DelayedStopHandler(final MediaPlaybackService service) {
-			super();
-			mService = new WeakReference<MediaPlaybackService>(service);
-		}
-
-        @Override
-        public void handleMessage(Message msg) {
-			final MediaPlaybackService service = mService.get();
-			if (service == null) {
-				return;
-			}
-            // Check again to make sure nothing is playing right now
-            if (service.isPlaying() || service.mPausedByTransientLossOfFocus
-                    || service.mMediaplayerHandler.hasMessages(TRACK_ENDED)) {
-                return;
-            }
-
-    		if (DEBUG)
-    			Log.d(LOGTAG, "Nothing is playing anymore, releasing notification");
-    		service.mNotificationHelper.killNotification();
-    		service.mAudioManager.abandonAudioFocus(service.mAudioFocusListener);
-
-    		if (!service.mServiceInUse) {
-                // save the queue again, because it might have changed
-                // since the user exited the music app (because of
-                // party-shuffle or because the play-position changed)
-    			service.saveQueue(true);
-    			service.stopSelf(service.mServiceStartId);
-    		}
-        }
+	/**
+	 * Called when one of the lists should refresh or requery.
+	 */
+	public void refresh() {
+		notifyChange(REFRESH);
 	}
 
-	private static final class MediaPlayerHandler extends Handler {
+
+
+	private static final class MusicPlayerHandler extends Handler {
 		private final WeakReference<MediaPlaybackService> mService;
 		private float mCurrentVolume = 1.0f;
 
 		/**
-		 * Constructor of <code>MediaPlayerHandler</code>
+		 * Constructor of <code>MusicPlayerHandler</code>
 		 * 
-		 * @param service The service to use.
-		 * @param looper The thread to run on.
+		 * @param service
+		 *            The service to use.
+		 * @param looper
+		 *            The thread to run on.
 		 */
-		public MediaPlayerHandler(final MediaPlaybackService service,
+		public MusicPlayerHandler(final MediaPlaybackService service,
 				final Looper looper) {
 			super(looper);
 			mService = new WeakReference<MediaPlaybackService>(service);
 		}
 
+		/**
+		 * {@inheritDoc}
+		 */
 		@Override
 		public void handleMessage(final Message msg) {
 			final MediaPlaybackService service = mService.get();
@@ -2024,60 +2135,90 @@ public class MediaPlaybackService extends Service {
 				}
 			}
 		}
-	}
+	};
 
-    /**
-     * Provides a unified interface for dealing with midi files and
-     * other media files.
-     */
-	private static final class MultiPlayer {
+	private static final class MultiPlayer implements
+			MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
+
 		private final WeakReference<MediaPlaybackService> mService;
-        private CompatMediaPlayer mCurrentMediaPlayer = new CompatMediaPlayer();
-        private CompatMediaPlayer mNextMediaPlayer;
-        private Handler mHandler;
-        private boolean mIsInitialized = false;
 
+		private MediaPlayer mCurrentMediaPlayer = new MediaPlayer();
+
+		private MediaPlayer mNextMediaPlayer;
+
+		private Handler mHandler;
+
+		private boolean mIsInitialized = false;
+
+		/**
+		 * Constructor of <code>MultiPlayer</code>
+		 */
 		public MultiPlayer(final MediaPlaybackService service) {
 			mService = new WeakReference<MediaPlaybackService>(service);
 			mCurrentMediaPlayer.setWakeMode(mService.get(),
 					PowerManager.PARTIAL_WAKE_LOCK);
 		}
-		
-        public void setDataSource(String path) {
-            mIsInitialized = setDataSourceImpl(mCurrentMediaPlayer, path);
-            if (mIsInitialized) {
-                setNextDataSource(null);
-            }
-        }
 
-        private boolean setDataSourceImpl(MediaPlayer player, String path) {
-            try {
-                player.reset();
-                player.setOnPreparedListener(null);
-                if (path.startsWith("content://")) {
-                    player.setDataSource(mService.get(), Uri.parse(path));
-                } else {
-                    player.setDataSource(path);
-                }
-                player.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                player.prepare();
-            } catch (IOException todo) {
-                // TODO: notify the user why the file couldn't be opened
-                return false;
-            } catch (IllegalArgumentException todo) {
-                // TODO: notify the user why the file couldn't be opened
-                return false;
-            }
-            player.setOnCompletionListener(listener);
-            player.setOnErrorListener(errorListener);
-            Intent i = new Intent(AudioEffect.ACTION_OPEN_AUDIO_EFFECT_CONTROL_SESSION);
-            i.putExtra(AudioEffect.EXTRA_AUDIO_SESSION, getAudioSessionId());
-            i.putExtra(AudioEffect.EXTRA_PACKAGE_NAME, mService.get().getPackageName());
-            mService.get().sendBroadcast(i);
-            return true;
+		/**
+		 * @param path
+		 *            The path of the file, or the http/rtsp URL of the stream
+		 *            you want to play
+		 */
+		public void setDataSource(final String path) {
+			mIsInitialized = setDataSourceImpl(mCurrentMediaPlayer, path);
+			if (mIsInitialized) {
+				setNextDataSource(null);
+			}
 		}
 
-        public void setNextDataSource(String path) {
+		/**
+		 * @param player
+		 *            The {@link MediaPlayer} to use
+		 * @param path
+		 *            The path of the file, or the http/rtsp URL of the stream
+		 *            you want to play
+		 * @return True if the <code>player</code> has been prepared and is
+		 *         ready to play, false otherwise
+		 */
+		private boolean setDataSourceImpl(final MediaPlayer player,
+				final String path) {
+			try {
+				player.reset();
+				player.setOnPreparedListener(null);
+				if (path.startsWith("content://")) {
+					player.setDataSource(mService.get(), Uri.parse(path));
+				} else {
+					player.setDataSource(path);
+				}
+				player.setAudioStreamType(AudioManager.STREAM_MUSIC);
+				player.prepare();
+			} catch (final IOException todo) {
+				// TODO: notify the user why the file couldn't be opened
+				return false;
+			} catch (final IllegalArgumentException todo) {
+				// TODO: notify the user why the file couldn't be opened
+				return false;
+			}
+			player.setOnCompletionListener(this);
+			player.setOnErrorListener(this);
+			final Intent intent = new Intent(
+					AudioEffect.ACTION_OPEN_AUDIO_EFFECT_CONTROL_SESSION);
+			intent.putExtra(AudioEffect.EXTRA_AUDIO_SESSION,
+					getAudioSessionId());
+			intent.putExtra(AudioEffect.EXTRA_PACKAGE_NAME, mService.get()
+					.getPackageName());
+			mService.get().sendBroadcast(intent);
+			return true;
+		}
+
+		/**
+		 * Set the MediaPlayer to start when this MediaPlayer finishes playback.
+		 * 
+		 * @param path
+		 *            The path of the file, or the http/rtsp URL of the stream
+		 *            you want to play
+		 */
+		public void setNextDataSource(final String path) {
 			try {
 				mCurrentMediaPlayer.setNextMediaPlayer(null);
 			} catch (IllegalArgumentException e) {
@@ -2086,285 +2227,458 @@ public class MediaPlaybackService extends Service {
 				Log.e(LOGTAG, "Media player not initialized!");
 				return;
 			}
-            if (mNextMediaPlayer != null) {
-                mNextMediaPlayer.release();
-                mNextMediaPlayer = null;
-            }
-            if (path == null) {
-                return;
-            }
-            mNextMediaPlayer = new CompatMediaPlayer();
-            mNextMediaPlayer.setWakeMode(mService.get(), PowerManager.PARTIAL_WAKE_LOCK);
-            mNextMediaPlayer.setAudioSessionId(getAudioSessionId());
-            if (setDataSourceImpl(mNextMediaPlayer, path)) {
-                mCurrentMediaPlayer.setNextMediaPlayer(mNextMediaPlayer);
-            } else {
-                // failed to open next, we'll transition the old fashioned way,
-                // which will skip over the faulty file
+			if (mNextMediaPlayer != null) {
+				mNextMediaPlayer.release();
+				mNextMediaPlayer = null;
+			}
+			if (path == null) {
+				return;
+			}
+			mNextMediaPlayer = new MediaPlayer();
+			mNextMediaPlayer.setWakeMode(mService.get(),
+					PowerManager.PARTIAL_WAKE_LOCK);
+			mNextMediaPlayer.setAudioSessionId(getAudioSessionId());
+			if (setDataSourceImpl(mNextMediaPlayer, path)) {
+				mCurrentMediaPlayer.setNextMediaPlayer(mNextMediaPlayer);
+			} else {
 				if (mNextMediaPlayer != null) {
 					mNextMediaPlayer.release();
 					mNextMediaPlayer = null;
 				}
 			}
 		}
-        
+
+		/**
+		 * Sets the handler
+		 * 
+		 * @param handler
+		 *            The handler to use
+		 */
+		public void setHandler(final Handler handler) {
+			mHandler = handler;
+		}
+
+		/**
+		 * @return True if the player is ready to go, false otherwise
+		 */
 		public boolean isInitialized() {
 			return mIsInitialized;
 		}
-		
-        public void start() {
-            if (DEBUG) Log.d(LOGTAG, "MultiPlayer.start called");
-            mCurrentMediaPlayer.start();
-        }
-        
+
+		/**
+		 * Starts or resumes playback.
+		 */
+		public void start() {
+			mCurrentMediaPlayer.start();
+		}
+
+		/**
+		 * Resets the MediaPlayer to its uninitialized state.
+		 */
 		public void stop() {
 			mCurrentMediaPlayer.reset();
 			mIsInitialized = false;
 		}
-		
-        /**
-         * You CANNOT use this player anymore after calling release()
-         */
-        public void release() {
-            stop();
-            mCurrentMediaPlayer.release();
-        }
-        
-        public void pause() {
-            mCurrentMediaPlayer.pause();
-        }
 
-        public void setHandler(Handler handler) {
-            mHandler = handler;
-        }
-        
-        MediaPlayer.OnCompletionListener listener = new MediaPlayer.OnCompletionListener() {
-            public void onCompletion(MediaPlayer mp) {
-                if (mp == mCurrentMediaPlayer && mNextMediaPlayer != null) {
-                    mCurrentMediaPlayer.release();
-                    mCurrentMediaPlayer = mNextMediaPlayer;
-                    mNextMediaPlayer = null;
-                    mHandler.sendEmptyMessage(TRACK_WENT_TO_NEXT);
-                } else {
-                    // Acquire a temporary wakelock, since when we return from
-                    // this callback the MediaPlayer will release its wakelock
-                    // and allow the device to go to sleep.
-                    // This temporary wakelock is released when the RELEASE_WAKELOCK
-                    // message is processed, but just in case, put a timeout on it.
-                	mService.get().mWakeLock.acquire(30000);
-                    mHandler.sendEmptyMessage(TRACK_ENDED);
-                    mHandler.sendEmptyMessage(RELEASE_WAKELOCK);
-                }
-            }
-        };
+		/**
+		 * Releases resources associated with this MediaPlayer object.
+		 */
+		public void release() {
+			stop();
+			mCurrentMediaPlayer.release();
+		}
 
-        MediaPlayer.OnErrorListener errorListener = new MediaPlayer.OnErrorListener() {
-            public boolean onError(MediaPlayer mp, int what, int extra) {
-                switch (what) {
-                case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
-                    mIsInitialized = false;
-                    mCurrentMediaPlayer.release();
-                    // Creating a new MediaPlayer and settings its wakemode does not
-                    // require the media service, so it's OK to do this now, while the
-                    // service is still being restarted
-                    mCurrentMediaPlayer = new CompatMediaPlayer(); 
-                    mCurrentMediaPlayer.setWakeMode(mService.get(), PowerManager.PARTIAL_WAKE_LOCK);
-                    mHandler.sendMessageDelayed(mHandler.obtainMessage(SERVER_DIED), 2000);
-                    return true;
-                default:
-                    if (DEBUG) Log.d("MultiPlayer", "Error: " + what + "," + extra);
-                    break;
-                }
-                return false;
-           }
-        };
+		/**
+		 * Pauses playback. Call start() to resume.
+		 */
+		public void pause() {
+			mCurrentMediaPlayer.pause();
+		}
 
-        public long duration() {
-            return mCurrentMediaPlayer.getDuration();
-        }
+		/**
+		 * Gets the duration of the file.
+		 * 
+		 * @return The duration in milliseconds
+		 */
+		public long duration() {
+			return mCurrentMediaPlayer.getDuration();
+		}
 
-        public long position() {
-            return mCurrentMediaPlayer.getCurrentPosition();
-        }
-        
-        public long seek(long whereto) {
-            mCurrentMediaPlayer.seekTo((int) whereto);
-            return whereto;
-        }
-        
-        public void setVolume(float vol) {
-            mCurrentMediaPlayer.setVolume(vol, vol);
-        }
-        
-        public void setAudioSessionId(int sessionId) {
-            mCurrentMediaPlayer.setAudioSessionId(sessionId);
-        }
+		/**
+		 * Gets the current playback position.
+		 * 
+		 * @return The current position in milliseconds
+		 */
+		public long position() {
+			return mCurrentMediaPlayer.getCurrentPosition();
+		}
 
-        public int getAudioSessionId() {
-            return mCurrentMediaPlayer.getAudioSessionId();
-        }
+		/**
+		 * Gets the current playback position.
+		 * 
+		 * @param whereto
+		 *            The offset in milliseconds from the start to seek to
+		 * @return The offset in milliseconds from the start to seek to
+		 */
+		public long seek(final long whereto) {
+			mCurrentMediaPlayer.seekTo((int) whereto);
+			return whereto;
+		}
+
+		/**
+		 * Sets the volume on this player.
+		 * 
+		 * @param vol
+		 *            Left and right volume scalar
+		 */
+		public void setVolume(final float vol) {
+			mCurrentMediaPlayer.setVolume(vol, vol);
+		}
+
+		/**
+		 * Sets the audio session ID.
+		 * 
+		 * @param sessionId
+		 *            The audio session ID
+		 */
+		public void setAudioSessionId(final int sessionId) {
+			mCurrentMediaPlayer.setAudioSessionId(sessionId);
+		}
+
+		/**
+		 * Returns the audio session ID.
+		 * 
+		 * @return The current audio session ID.
+		 */
+		public int getAudioSessionId() {
+			return mCurrentMediaPlayer.getAudioSessionId();
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public boolean onError(final MediaPlayer mp, final int what,
+				final int extra) {
+			switch (what) {
+			case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
+				mIsInitialized = false;
+				mCurrentMediaPlayer.release();
+				mCurrentMediaPlayer = new MediaPlayer();
+				mCurrentMediaPlayer.setWakeMode(mService.get(),
+						PowerManager.PARTIAL_WAKE_LOCK);
+				mHandler.sendMessageDelayed(
+						mHandler.obtainMessage(SERVER_DIED), 2000);
+				return true;
+			default:
+				break;
+			}
+			return false;
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public void onCompletion(final MediaPlayer mp) {
+			if (mp == mCurrentMediaPlayer && mNextMediaPlayer != null) {
+				mCurrentMediaPlayer.release();
+				mCurrentMediaPlayer = mNextMediaPlayer;
+				mNextMediaPlayer = null;
+				mHandler.sendEmptyMessage(TRACK_WENT_TO_NEXT);
+			} else {
+				mService.get().mWakeLock.acquire(30000);
+				mHandler.sendEmptyMessage(TRACK_ENDED);
+				mHandler.sendEmptyMessage(RELEASE_WAKELOCK);
+			}
+		}
 	}
 
-    private static final class CompatMediaPlayer extends MediaPlayer implements MediaPlayer.OnCompletionListener {
+	private static final class ServiceStub extends IService.Stub {
 
-        private boolean mCompatMode = true;
-        private MediaPlayer mNextPlayer;
-        private OnCompletionListener mCompletion;
+		private final WeakReference<MediaPlaybackService> mService;
 
-        public CompatMediaPlayer() {
-            try {
-                MediaPlayer.class.getMethod("setNextMediaPlayer", MediaPlayer.class);
-                mCompatMode = false;
-            } catch (NoSuchMethodException e) {
-                mCompatMode = true;
-                super.setOnCompletionListener(this);
-            }
-        }
-
-        public void setNextMediaPlayer(MediaPlayer next) {
-            if (mCompatMode) {
-                mNextPlayer = next;
-            } else {
-                super.setNextMediaPlayer(next);
-            }
-        }
-
-        @Override
-        public void setOnCompletionListener(OnCompletionListener listener) {
-            if (mCompatMode) {
-                mCompletion = listener;
-            } else {
-                super.setOnCompletionListener(listener);
-            }
-        }
-
-        @Override
-        public void onCompletion(MediaPlayer mp) {
-            if (mNextPlayer != null) {
-                // as it turns out, starting a new MediaPlayer on the completion
-                // of a previous player ends up slightly overlapping the two
-                // playbacks, so slightly delaying the start of the next player
-                // gives a better user experience
-                SystemClock.sleep(50);
-                mNextPlayer.start();
-            }
-            mCompletion.onCompletion(this);
-        }
-    }
-    
-    /*
-     * By making this a static class with a WeakReference to the Service, we
-     * ensure that the Service can be GCd even when the system process still
-     * has a remote reference to the stub.
-     */
-	private static final class ServiceStub extends IMediaPlaybackService.Stub {
-        private final WeakReference<MediaPlaybackService> mService;
-        
-        private ServiceStub(MediaPlaybackService service) {
-            mService = new WeakReference<MediaPlaybackService>(service);
-        }
-
-		public void openFile(String path) throws RemoteException {
-			 mService.get().open(path);
+		private ServiceStub(final MediaPlaybackService service) {
+			mService = new WeakReference<MediaPlaybackService>(service);
 		}
-        public void open(Song [] list, int position) throws RemoteException {
-            mService.get().open(list, position);
-        }
-        public int getQueuePosition() throws RemoteException {
-            return mService.get().getQueuePosition();
-        }
-        public void setQueuePosition(int index) throws RemoteException {
-            mService.get().setQueuePosition(index);
-        }
-        public boolean isPlaying() throws RemoteException {
-            return mService.get().isPlaying();
-        }
-        public void stop() throws RemoteException {
-            mService.get().stop();
-        }
-        public void pause() throws RemoteException {
-            mService.get().pause();
-        }
-        public void play() throws RemoteException {
-            mService.get().play();
-        }
-        public void prev() throws RemoteException {
-            mService.get().prev();
-        }
-        public void next() throws RemoteException {
-            mService.get().gotoNext(true);
-        }
-        public String getTrackName() throws RemoteException {
-            return mService.get().getTrackName();
-        }
-        public String getAlbumName() throws RemoteException {
-            return mService.get().getAlbumName();
-        }
-        public String getAlbumId() throws RemoteException {
-            return mService.get().getAlbumId();
-        }
-        public String getArtistName() throws RemoteException {
-            return mService.get().getArtistName();
-        }
-        public String getArtistId() throws RemoteException {
-            return mService.get().getArtistId();
-        }
-        public void enqueue(Song [] list , int action) throws RemoteException {
-            mService.get().enqueue(list, action);
-        }
-        public Song [] getQueue() throws RemoteException {
-            return mService.get().getQueue();
-        }
-        public void moveQueueItem(int from, int to) throws RemoteException {
-            mService.get().moveQueueItem(from, to);
-        }
-        public String getPath() throws RemoteException {
-            return mService.get().getPath();
-        }
-        public String getAudioId() throws RemoteException {
-            return mService.get().getAudioId();
-        }
-        public long position() throws RemoteException {
-            return mService.get().position();
-        }
-        public long duration() throws RemoteException {
-            return mService.get().duration();
-        }
-        public long seek(long pos) throws RemoteException {
-            return mService.get().seek(pos);
-        }
-        public void setShuffleMode(int shufflemode) throws RemoteException {
-            mService.get().setShuffleMode(shufflemode);
-        }
-        public int getShuffleMode() throws RemoteException {
-            return mService.get().getShuffleMode();
-        }
-        public int removeTracks(int first, int last) throws RemoteException {
-            return mService.get().removeTracks(first, last);
-        }
-        public int removeTrack(Song song) throws RemoteException {
-            return mService.get().removeTrack(song);
-        }
-        public void setRepeatMode(int repeatmode) throws RemoteException {
-            mService.get().setRepeatMode(repeatmode);
-        }
-        public int getRepeatMode() throws RemoteException {
-            return mService.get().getRepeatMode();
-        }
-        public int getMediaMountedCount() throws RemoteException {
-            return mService.get().getMediaMountedCount();
-        }
-        public int getAudioSessionId() throws RemoteException {
-            return mService.get().getAudioSessionId();
-        }
-		public boolean isFavorite() throws RemoteException {
-			return mService.get().isFavorite();
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public void openFile(final String path) throws RemoteException {
+			mService.get().open(path);
 		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public void open(final Song[] list, final int position)
+				throws RemoteException {
+			mService.get().open(list, position);
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public void stop() throws RemoteException {
+			mService.get().stop();
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public void pause() throws RemoteException {
+			mService.get().pause();
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public void play() throws RemoteException {
+			mService.get().play();
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public void prev() throws RemoteException {
+			mService.get().prev();
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public void next() throws RemoteException {
+			mService.get().gotoNext(true);
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public void enqueue(final Song[] list, final int action)
+				throws RemoteException {
+			mService.get().enqueue(list, action);
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public void setQueuePosition(final int index) throws RemoteException {
+			mService.get().setQueuePosition(index);
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public void setShuffleMode(final int shufflemode)
+				throws RemoteException {
+			mService.get().setShuffleMode(shufflemode);
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public void setRepeatMode(final int repeatmode) throws RemoteException {
+			mService.get().setRepeatMode(repeatmode);
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public void moveQueueItem(final int from, final int to)
+				throws RemoteException {
+			mService.get().moveQueueItem(from, to);
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
 		public void toggleFavorite() throws RemoteException {
 			mService.get().toggleFavorite();
 		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
 		public void refresh() throws RemoteException {
 			mService.get().refresh();
 		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public boolean isFavorite() throws RemoteException {
+			return mService.get().isFavorite();
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public boolean isPlaying() throws RemoteException {
+			return mService.get().isPlaying();
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public Song[] getQueue() throws RemoteException {
+			return mService.get().getQueue();
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public long duration() throws RemoteException {
+			return mService.get().duration();
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public long position() throws RemoteException {
+			return mService.get().position();
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public long seek(final long position) throws RemoteException {
+			return mService.get().seek(position);
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public String getAudioId() throws RemoteException {
+			return mService.get().getAudioId();
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public String getArtistId() throws RemoteException {
+			return mService.get().getArtistId();
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public String getAlbumId() throws RemoteException {
+			return mService.get().getAlbumId();
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public String getArtistName() throws RemoteException {
+			return mService.get().getArtistName();
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public String getTrackName() throws RemoteException {
+			return mService.get().getTrackName();
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public String getAlbumName() throws RemoteException {
+			return mService.get().getAlbumName();
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public String getPath() throws RemoteException {
+			return mService.get().getPath();
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public int getQueuePosition() throws RemoteException {
+			return mService.get().getQueuePosition();
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public int getShuffleMode() throws RemoteException {
+			return mService.get().getShuffleMode();
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public int getRepeatMode() throws RemoteException {
+			return mService.get().getRepeatMode();
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public int removeTracks(final int first, final int last)
+				throws RemoteException {
+			return mService.get().removeTracks(first, last);
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public int removeTrack(final Song song) throws RemoteException {
+			return mService.get().removeTrack(song);
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public int getMediaMountedCount() throws RemoteException {
+			return mService.get().getMediaMountedCount();
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public int getAudioSessionId() throws RemoteException {
+			return mService.get().getAudioSessionId();
+		}
+
 	}
+
 }

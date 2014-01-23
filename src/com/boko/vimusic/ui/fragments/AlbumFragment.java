@@ -50,7 +50,7 @@ import com.boko.vimusic.model.Album;
 import com.boko.vimusic.model.Song;
 import com.boko.vimusic.recycler.RecycleHolder;
 import com.boko.vimusic.ui.activities.BaseActivity;
-import com.boko.vimusic.utils.CommonUtils;
+import com.boko.vimusic.utils.ApolloUtils;
 import com.boko.vimusic.utils.MusicUtils;
 import com.boko.vimusic.utils.NavUtils;
 import com.boko.vimusic.utils.PreferenceUtils;
@@ -446,7 +446,7 @@ public class AlbumFragment extends Fragment implements
 		mGridView.setAdapter(mAdapter);
 		// Set up the helpers
 		initAbsListView(mGridView);
-		if (CommonUtils.isLandscape(getActivity())) {
+		if (ApolloUtils.isLandscape(getActivity())) {
 			if (isDetailedLayout()) {
 				mAdapter.setLoadExtraData(true);
 				mGridView.setNumColumns(TWO);

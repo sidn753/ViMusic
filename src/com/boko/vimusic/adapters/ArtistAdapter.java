@@ -26,7 +26,7 @@ import com.boko.vimusic.model.Artist;
 import com.boko.vimusic.model.Song;
 import com.boko.vimusic.ui.MusicHolder;
 import com.boko.vimusic.ui.MusicHolder.DataHolder;
-import com.boko.vimusic.utils.CommonUtils;
+import com.boko.vimusic.utils.ApolloUtils;
 import com.boko.vimusic.utils.MusicUtils;
 
 /**
@@ -83,7 +83,7 @@ public class ArtistAdapter extends ArrayAdapter<Artist> {
 		// Get the layout Id
 		mLayoutId = layoutId;
 		// Initialize the cache & image fetcher
-		mImageFetcher = CommonUtils.getImageFetcher(context);
+		mImageFetcher = ApolloUtils.getImageFetcher(context);
 		// Cache the transparent overlay
 		mOverlay = context.getResources()
 				.getColor(R.color.list_item_background);

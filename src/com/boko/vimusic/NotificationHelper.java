@@ -28,7 +28,7 @@ import android.support.v4.app.NotificationCompat;
 import android.widget.RemoteViews;
 
 import com.boko.vimusic.service.MediaPlaybackService;
-import com.boko.vimusic.utils.CommonUtils;
+import com.boko.vimusic.utils.ApolloUtils;
 
 /**
  * Builds the notification for media service. Jelly Bean and higher uses the
@@ -102,7 +102,7 @@ public class NotificationHelper {
 				.setContent(mNotificationTemplate).build();
 		// Control playback from the notification
 		initPlaybackActions(isPlaying);
-		if (CommonUtils.hasJellyBean()) {
+		if (ApolloUtils.hasJellyBean()) {
 			// Expanded notifiction style
 			mExpandedView = new RemoteViews(mService.getPackageName(),
 					R.layout.notification_template_expanded_base);
@@ -140,7 +140,7 @@ public class NotificationHelper {
 							: R.drawable.btn_playback_play);
 		}
 
-		if (CommonUtils.hasJellyBean() && mExpandedView != null) {
+		if (ApolloUtils.hasJellyBean() && mExpandedView != null) {
 			mExpandedView.setImageViewResource(
 					R.id.notification_expanded_base_play,
 					isPlaying ? R.drawable.btn_playback_pause

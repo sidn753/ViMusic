@@ -24,7 +24,7 @@ import android.widget.ListAdapter;
 import com.boko.vimusic.Config;
 import com.boko.vimusic.R;
 import com.boko.vimusic.ui.activities.ProfileActivity;
-import com.boko.vimusic.utils.CommonUtils;
+import com.boko.vimusic.utils.ApolloUtils;
 import com.boko.vimusic.utils.Lists;
 
 /**
@@ -126,7 +126,7 @@ public class PhotoSelectionDialog extends DialogFragment {
 	private void setArtistChoices() {
 		// Select a photo from the gallery
 		mChoices.add(NEW_PHOTO, getString(R.string.new_photo));
-		if (CommonUtils.isOnline(getActivity())) {
+		if (ApolloUtils.isOnline(getActivity())) {
 			// Option to fetch the old artist image
 			mChoices.add(OLD_PHOTO,
 					getString(R.string.context_menu_fetch_artist_image));
@@ -143,7 +143,7 @@ public class PhotoSelectionDialog extends DialogFragment {
 		mChoices.add(NEW_PHOTO, getString(R.string.new_photo));
 		// Option to fetch the old album image
 		mChoices.add(OLD_PHOTO, getString(R.string.old_photo));
-		if (CommonUtils.isOnline(getActivity())) {
+		if (ApolloUtils.isOnline(getActivity())) {
 			// Search Google for the album name
 			mChoices.add(GOOGLE_SEARCH, getString(R.string.google_search));
 			// Option to fetch the album image

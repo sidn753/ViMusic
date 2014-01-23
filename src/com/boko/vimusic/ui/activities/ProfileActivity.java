@@ -42,7 +42,7 @@ import com.boko.vimusic.ui.fragments.profile.FavoriteFragment;
 import com.boko.vimusic.ui.fragments.profile.GenreSongFragment;
 import com.boko.vimusic.ui.fragments.profile.LastAddedFragment;
 import com.boko.vimusic.ui.fragments.profile.PlaylistSongFragment;
-import com.boko.vimusic.utils.CommonUtils;
+import com.boko.vimusic.utils.ApolloUtils;
 import com.boko.vimusic.utils.MusicUtils;
 import com.boko.vimusic.utils.NavUtils;
 import com.boko.vimusic.utils.PreferenceUtils;
@@ -116,7 +116,7 @@ public class ProfileActivity extends BaseActivity implements
 		mPreferences = PreferenceUtils.getInstance(this);
 
 		// Initialze the image fetcher
-		mImageFetcher = CommonUtils.getImageFetcher(this);
+		mImageFetcher = ApolloUtils.getImageFetcher(this);
 
 		// Initialize the Bundle
 		mArguments = savedInstanceState != null ? savedInstanceState
@@ -318,7 +318,7 @@ public class ProfileActivity extends BaseActivity implements
 			// screen. Definitely one of my favorite features.
 			final String name = isArtist() ? mArtistName : mProfileName;
 			final String id = mArguments.getString(Config.ID);
-			CommonUtils
+			ApolloUtils
 					.createShortcutIntent(name, mArtistName, id, mType, this);
 			return true;
 		}

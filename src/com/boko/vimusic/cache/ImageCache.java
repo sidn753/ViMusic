@@ -41,7 +41,7 @@ import android.os.ParcelFileDescriptor;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
-import com.boko.vimusic.utils.CommonUtils;
+import com.boko.vimusic.utils.ApolloUtils;
 
 /**
  * This class holds the memory and disk bitmap caches.
@@ -135,7 +135,7 @@ public final class ImageCache {
 	 *            The cache parameters to initialize the cache
 	 */
 	private void init(final Context context) {
-		CommonUtils.execute(false, new AsyncTask<Void, Void, Void>() {
+		ApolloUtils.execute(false, new AsyncTask<Void, Void, Void>() {
 
 			@Override
 			protected Void doInBackground(final Void... unused) {
@@ -504,7 +504,7 @@ public final class ImageCache {
 	 * cache first
 	 */
 	public void flush() {
-		CommonUtils.execute(false, new AsyncTask<Void, Void, Void>() {
+		ApolloUtils.execute(false, new AsyncTask<Void, Void, Void>() {
 
 			@Override
 			protected Void doInBackground(final Void... unused) {
@@ -526,7 +526,7 @@ public final class ImageCache {
 	 * Clears the disk and memory caches
 	 */
 	public void clearCaches() {
-		CommonUtils.execute(false, new AsyncTask<Void, Void, Void>() {
+		ApolloUtils.execute(false, new AsyncTask<Void, Void, Void>() {
 
 			@Override
 			protected Void doInBackground(final Void... unused) {
@@ -552,7 +552,7 @@ public final class ImageCache {
 	 * thread.
 	 */
 	public void close() {
-		CommonUtils.execute(false, new AsyncTask<Void, Void, Void>() {
+		ApolloUtils.execute(false, new AsyncTask<Void, Void, Void>() {
 
 			@Override
 			protected Void doInBackground(final Void... unused) {

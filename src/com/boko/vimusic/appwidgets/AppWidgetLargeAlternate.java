@@ -24,7 +24,7 @@ import com.boko.vimusic.R;
 import com.boko.vimusic.service.MediaPlaybackService;
 import com.boko.vimusic.ui.activities.AudioPlayerActivity;
 import com.boko.vimusic.ui.activities.HomeActivity;
-import com.boko.vimusic.utils.CommonUtils;
+import com.boko.vimusic.utils.ApolloUtils;
 
 /**
  * 4x2 App-Widget
@@ -142,7 +142,7 @@ public class AppWidgetLargeAlternate extends AppWidgetBase {
 			appWidgetView.setImageViewResource(
 					R.id.app_widget_large_alternate_play,
 					R.drawable.btn_playback_pause);
-			if (CommonUtils.hasJellyBean()) {
+			if (ApolloUtils.hasJellyBean()) {
 				appWidgetView.setContentDescription(
 						R.id.app_widget_large_alternate_play,
 						service.getString(R.string.accessibility_pause));
@@ -151,7 +151,7 @@ public class AppWidgetLargeAlternate extends AppWidgetBase {
 			appWidgetView.setImageViewResource(
 					R.id.app_widget_large_alternate_play,
 					R.drawable.btn_playback_play);
-			if (CommonUtils.hasJellyBean()) {
+			if (ApolloUtils.hasJellyBean()) {
 				appWidgetView.setContentDescription(
 						R.id.app_widget_large_alternate_play,
 						service.getString(R.string.accessibility_play));

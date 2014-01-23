@@ -29,7 +29,7 @@ import android.widget.ImageView;
 
 import com.boko.vimusic.R;
 import com.boko.vimusic.ui.activities.ProfileActivity;
-import com.boko.vimusic.utils.CommonUtils;
+import com.boko.vimusic.utils.ApolloUtils;
 
 /**
  * A custom {@link HorizontalScrollView} that displays up to two "tabs" in the
@@ -223,7 +223,7 @@ public class ProfileTabCarousel extends HorizontalScrollView implements
 			return;
 		}
 		mScrollToCurrentTab = false;
-		CommonUtils.doAfterLayout(this, new Runnable() {
+		ApolloUtils.doAfterLayout(this, new Runnable() {
 			@Override
 			public void run() {
 				scrollTo(mCurrentTab == TAB_INDEX_FIRST ? 0

@@ -55,10 +55,10 @@ import com.boko.vimusic.adapters.PagerAdapter;
 import com.boko.vimusic.cache.ImageFetcher;
 import com.boko.vimusic.menu.DeleteDialog;
 import com.boko.vimusic.model.Song;
-import com.boko.vimusic.service.IMediaPlaybackService;
+import com.boko.vimusic.service.IService;
 import com.boko.vimusic.service.MediaPlaybackService;
 import com.boko.vimusic.ui.fragments.QueueFragment;
-import com.boko.vimusic.utils.CommonUtils;
+import com.boko.vimusic.utils.ApolloUtils;
 import com.boko.vimusic.utils.MusicUtils;
 import com.boko.vimusic.utils.MusicUtils.ServiceToken;
 import com.boko.vimusic.utils.NavUtils;
@@ -181,7 +181,7 @@ public class AudioPlayerActivity extends FragmentActivity implements
 		mToken = MusicUtils.bindToService(this, this);
 
 		// Initialize the image fetcher/cache
-		mImageFetcher = CommonUtils.getImageFetcher(this);
+		mImageFetcher = ApolloUtils.getImageFetcher(this);
 
 		// Initialize the handler used to update the current time
 		mTimeHandler = new TimeHandler(this);
@@ -216,7 +216,7 @@ public class AudioPlayerActivity extends FragmentActivity implements
 	@Override
 	public void onServiceConnected(final ComponentName name,
 			final IBinder service) {
-		mService = IMediaPlaybackService.Stub.asInterface(service);
+		mService = IService.Stub.asInterface(service);
 		// Check whether we were asked to start any playback
 		startPlayback();
 		// Set the playback drawables

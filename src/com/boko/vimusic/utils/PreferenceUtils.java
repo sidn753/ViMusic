@@ -112,7 +112,7 @@ public final class PreferenceUtils {
 	 *            {@link MusicBrowserPhoneFragment}.
 	 */
 	public void setStartPage(final int value) {
-		CommonUtils.execute(false, new AsyncTask<Void, Void, Void>() {
+		ApolloUtils.execute(false, new AsyncTask<Void, Void, Void>() {
 			@Override
 			protected Void doInBackground(final Void... unused) {
 				final SharedPreferences.Editor editor = mPreferences.edit();
@@ -140,7 +140,7 @@ public final class PreferenceUtils {
 	 *            The new theme color to use.
 	 */
 	public void setDefaultThemeColor(final int value) {
-		CommonUtils.execute(false, new AsyncTask<Void, Void, Void>() {
+		ApolloUtils.execute(false, new AsyncTask<Void, Void, Void>() {
 			@Override
 			protected Void doInBackground(final Void... unused) {
 				final SharedPreferences.Editor editor = mPreferences.edit();
@@ -197,7 +197,7 @@ public final class PreferenceUtils {
 	 *            The new sort order
 	 */
 	private void setSortOrder(final String key, final String value) {
-		CommonUtils.execute(false, new AsyncTask<Void, Void, Void>() {
+		ApolloUtils.execute(false, new AsyncTask<Void, Void, Void>() {
 			@Override
 			protected Void doInBackground(final Void... unused) {
 				final SharedPreferences.Editor editor = mPreferences.edit();
@@ -329,7 +329,7 @@ public final class PreferenceUtils {
 	 *            The new layout type
 	 */
 	private void setLayoutType(final String key, final String value) {
-		CommonUtils.execute(false, new AsyncTask<Void, Void, Void>() {
+		ApolloUtils.execute(false, new AsyncTask<Void, Void, Void>() {
 			@Override
 			protected Void doInBackground(final Void... unused) {
 				final SharedPreferences.Editor editor = mPreferences.edit();
