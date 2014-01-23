@@ -5,7 +5,7 @@ import android.text.TextUtils;
 /**
  * A class that represents a generic media.
  */
-public class Media {
+public abstract class Media {
 
 	/**
 	 * Host's unique id of a media.
