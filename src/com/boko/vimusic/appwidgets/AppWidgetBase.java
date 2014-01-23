@@ -17,7 +17,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 
-import com.boko.vimusic.service.MusicPlaybackService;
+import com.boko.vimusic.service.MediaPlaybackService;
 
 public abstract class AppWidgetBase extends AppWidgetProvider {
 
@@ -25,7 +25,7 @@ public abstract class AppWidgetBase extends AppWidgetProvider {
 			final String action, final ComponentName serviceName) {
 		Intent intent = new Intent(action);
 		intent.setComponent(serviceName);
-		intent.putExtra(MusicPlaybackService.NOW_IN_FOREGROUND, false);
+		intent.putExtra(MediaPlaybackService.NOW_IN_FOREGROUND, false);
 		return PendingIntent.getService(context, 0, intent, 0);
 	}
 
