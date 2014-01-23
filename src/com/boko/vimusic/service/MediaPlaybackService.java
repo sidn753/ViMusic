@@ -263,6 +263,8 @@ public class MediaPlaybackService extends Service {
 		// Initialize the image cache
 		mImageFetcher.setImageCache(ImageCache.getInstance(this));
 		
+		// Initialize the audio manager and register any headset controls for
+		// playback
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         ComponentName rec = new ComponentName(getPackageName(),
                 MediaButtonIntentReceiver.class.getName());
@@ -275,6 +277,7 @@ public class MediaPlaybackService extends Service {
         mRemoteControlClient = new RemoteControlClient(pi);
         mAudioManager.registerRemoteControlClient(mRemoteControlClient);
 
+		// Flags for the media transport control that this client supports.
         int flags = RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS
                 | RemoteControlClient.FLAG_KEY_MEDIA_NEXT
                 | RemoteControlClient.FLAG_KEY_MEDIA_PLAY
@@ -303,6 +306,7 @@ public class MediaPlaybackService extends Service {
 
 		mRemoteControlClient.setTransportControlFlags(flags);
 
+		// Initialize the preferences
 		mPreferences = getSharedPreferences("Service", 0);
 		mCardId = MusicUtils.getCardId(this);
 
@@ -319,13 +323,16 @@ public class MediaPlaybackService extends Service {
 		// Initialize the handler
 		mMediaplayerHandler = new MediaPlayerHandler(this, thread.getLooper());
 		
+		// Initialize the media player
 		mPlayer = new MultiPlayer(this);
 		mPlayer.setHandler(mMediaplayerHandler);
 		
+		// Bring the queue back
 		reloadQueue();
 		notifyChange(QUEUE_CHANGED);
 		notifyChange(META_CHANGED);
 
+		// Initialize the intent filter and each action
         IntentFilter commandFilter = new IntentFilter();
         commandFilter.addAction(SERVICECMD);
         commandFilter.addAction(TOGGLEPAUSE_ACTION);
@@ -335,8 +342,10 @@ public class MediaPlaybackService extends Service {
 		commandFilter.addAction(STOP_ACTION);
 		commandFilter.addAction(REPEAT_ACTION);
 		commandFilter.addAction(SHUFFLE_ACTION);
+		// Attach the broadcast listener
 		registerReceiver(mIntentReceiver, commandFilter);
 
+		// Initialize the wake lock
         PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, this.getClass().getName());
         mWakeLock.setReferenceCounted(false);
