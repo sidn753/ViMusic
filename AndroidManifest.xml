@@ -43,7 +43,7 @@
     <uses-permission android:name="android.permission.GET_TASKS" />
 
     <application
-        android:name=".Application"
+        android:name=".ApolloApplication"
         android:allowBackup="true"
         android:allowTaskReparenting="true"
         android:hardwareAccelerated="@bool/config_hardwareAccelerated"

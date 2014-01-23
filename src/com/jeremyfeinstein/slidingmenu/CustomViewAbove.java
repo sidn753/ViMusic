@@ -26,14 +26,13 @@ import android.view.ViewGroup;
 import android.view.animation.Interpolator;
 import android.widget.Scroller;
 
-import com.boko.vimusic.Application;
 import com.jeremyfeinstein.slidingmenu.SlidingMenu.OnClosedListener;
 import com.jeremyfeinstein.slidingmenu.SlidingMenu.OnOpenedListener;
 
 public class CustomViewAbove extends ViewGroup {
 
 	private static final String TAG = "CustomViewAbove";
-	private static final boolean DEBUG = Application.DEBUG;
+	private static final boolean DEBUG = false;
 
 	private static final boolean USE_CACHE = false;
 
