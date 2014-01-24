@@ -101,8 +101,13 @@ public abstract class Song extends Media implements Parcelable, Serializable,
 		public Song createFromParcel(Parcel src) {
 			int host = src.readInt();
 			String id = src.readString();
-
-			return SongFactory.newSong(HostType.getHost(host), id);
+			String name = src.readString();
+			String artistName = src.readString();
+			
+			Song song = SongFactory.newSong(HostType.getHost(host), id);
+			song.setName(name);
+			song.mArtistName = artistName;
+			return song;
 		}
 
 		@Override
@@ -120,6 +125,8 @@ public abstract class Song extends Media implements Parcelable, Serializable,
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeInt(getHost().getCode());
 		dest.writeString(getId());
+		dest.writeString(getName());
+		dest.writeString(getArtistName());
 	}
 
 	@Override

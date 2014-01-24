@@ -23,7 +23,6 @@ import org.json.JSONObject;
 import org.w3c.dom.Document;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.provider.MediaStore;
 
 import com.boko.vimusic.api.Caller;
@@ -50,11 +49,6 @@ public class ZingSongLoader extends WrappedAsyncTaskLoader<List<Song>> {
 	private final ArrayList<Song> mSongList = Lists.newArrayList();
 
 	/**
-	 * The {@link Cursor} used to run the query.
-	 */
-	private Cursor mCursor;
-
-	/**
 	 * Constructor of <code>SongLoader</code>
 	 * 
 	 * @param context
@@ -70,14 +64,14 @@ public class ZingSongLoader extends WrappedAsyncTaskLoader<List<Song>> {
 	@Override
 	public List<Song> loadInBackground() {
 		final Result rs = Caller.getInstance().call(
-				SEARCH_URL + "o");
+				SEARCH_URL + "radioactive");
 		String raw = rs.getResultRaw();
 		JSONObject obj;
 		try {
 			obj = new JSONObject(raw);
 			Document doc = newDocumentBuilder().parse(
 					new ByteArrayInputStream(("<html>"
-							+ obj.get("html").toString() + "</html>")
+							+ obj.get("html").toString().replace("&", "&amp;") + "</html>")
 							.getBytes("UTF-8")));
 			List<DomElement> links = new DomElement(doc.getDocumentElement())
 					.getChildren("a");

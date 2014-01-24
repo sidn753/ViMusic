@@ -511,7 +511,12 @@ public final class MusicUtils {
 			columnIndex = cursor.getColumnIndexOrThrow(BaseColumns._ID);
 		}
 		for (int i = 0; i < len; i++) {
-			list[i] = SongFactory.newSong(HostType.LOCAL, cursor.getString(columnIndex));
+			Song song = SongFactory.newSong(HostType.LOCAL, cursor.getString(columnIndex));
+			song.setArtistName(cursor.getString(cursor
+					.getColumnIndexOrThrow(MediaStore.Audio.Playlists.Members.ARTIST)));
+			song.setName(cursor.getString(cursor
+					.getColumnIndexOrThrow(MediaStore.Audio.Playlists.Members.TITLE)));
+			list[i] = song;
 			cursor.moveToNext();
 		}
 		cursor.close();

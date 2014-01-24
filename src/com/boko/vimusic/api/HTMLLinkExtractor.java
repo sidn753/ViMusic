@@ -7,11 +7,10 @@ import java.util.regex.Pattern;
 public class HTMLLinkExtractor {
 
 	private static Pattern patternTag;
-	private static Matcher matcherTag;
 
 	private static final String HTML_PATTERN = "(http|ftp|https):\\/\\/[\\w\\-_]+(\\.[\\w\\-_]+)+([\\w\\-\\.,@?^=%&amp;:/~\\+#]*[\\w\\-\\@?^=%&amp;/~\\+#])?";
-
-	public HTMLLinkExtractor() {
+	
+	static {
 		patternTag = Pattern.compile(HTML_PATTERN);
 	}
 
@@ -26,7 +25,7 @@ public class HTMLLinkExtractor {
 
 		Vector<String> result = new Vector<String>();
 
-		matcherTag = patternTag.matcher(html);
+		Matcher matcherTag = patternTag.matcher(html);
 
 		while (matcherTag.find()) {
 			result.add(matcherTag.group());

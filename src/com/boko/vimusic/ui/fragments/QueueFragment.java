@@ -11,12 +11,8 @@
 
 package com.boko.vimusic.ui.fragments;
 
-import java.util.List;
-
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.Loader;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -36,8 +32,6 @@ import com.boko.vimusic.dragdrop.DragSortListView;
 import com.boko.vimusic.dragdrop.DragSortListView.DragScrollProfile;
 import com.boko.vimusic.dragdrop.DragSortListView.DropListener;
 import com.boko.vimusic.dragdrop.DragSortListView.RemoveListener;
-import com.boko.vimusic.loaders.NowPlayingCursor;
-import com.boko.vimusic.loaders.QueueLoader;
 import com.boko.vimusic.menu.CreateNewPlaylist;
 import com.boko.vimusic.menu.DeleteDialog;
 import com.boko.vimusic.menu.FragmentMenuItems;
@@ -53,19 +47,13 @@ import com.viewpagerindicator.TitlePageIndicator;
  * 
  * @author Andrew Neal (andrewdneal@gmail.com)
  */
-public class QueueFragment extends Fragment implements
-		LoaderCallbacks<List<Song>>, OnItemClickListener, DropListener,
+public class QueueFragment extends Fragment implements OnItemClickListener, DropListener,
 		RemoveListener, DragScrollProfile {
 
 	/**
 	 * Used to keep context menu items from bleeding into other fragments
 	 */
 	private static final int GROUP_ID = 13;
-
-	/**
-	 * LoaderCallbacks identifier
-	 */
-	private static final int LOADER = 0;
 
 	/**
 	 * The adapter for the list
@@ -149,8 +137,7 @@ public class QueueFragment extends Fragment implements
 		super.onActivityCreated(savedInstanceState);
 		// Enable the options menu
 		setHasOptionsMenu(true);
-		// Start the loader
-		getLoaderManager().initLoader(LOADER, null, this);
+		refreshQueue();
 	}
 
 	/**
@@ -169,13 +156,8 @@ public class QueueFragment extends Fragment implements
 	public boolean onOptionsItemSelected(final MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menu_save_queue:
-			NowPlayingCursor queue = (NowPlayingCursor) QueueLoader
-					.makeQueueCursor(getActivity());
-			CreateNewPlaylist.getInstance(
-					MusicUtils.getSongListForCursor(queue)).show(
+			CreateNewPlaylist.getInstance(MusicUtils.getQueue()).show(
 					getFragmentManager(), "CreatePlaylist");
-			queue.close();
-			queue = null;
 			return true;
 		case R.id.menu_clear_queue:
 			MusicUtils.clearQueue();
@@ -239,11 +221,7 @@ public class QueueFragment extends Fragment implements
 		if (item.getGroupId() == GROUP_ID) {
 			switch (item.getItemId()) {
 			case FragmentMenuItems.PLAY_NEXT:
-				NowPlayingCursor queue = (NowPlayingCursor) QueueLoader
-						.makeQueueCursor(getActivity());
-				queue.removeItem(mSelectedPosition);
-				queue.close();
-				queue = null;
+				MusicUtils.removeTrack(mSelectedId);
 				MusicUtils.playNext(new Song[] { mSelectedId });
 				refreshQueue();
 				return true;
@@ -294,44 +272,6 @@ public class QueueFragment extends Fragment implements
 		// reloading the queue. This is both faster, and prevents accidentally
 		// dropping out of party shuffle.
 		MusicUtils.setQueuePosition(position);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Loader<List<Song>> onCreateLoader(final int id, final Bundle args) {
-		return new QueueLoader(getActivity());
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void onLoadFinished(final Loader<List<Song>> loader,
-			final List<Song> data) {
-		// Check for any errors
-		if (data.isEmpty()) {
-			return;
-		}
-
-		// Start fresh
-		mAdapter.unload();
-		// Add the data to the adpater
-		for (final Song song : data) {
-			mAdapter.add(song);
-		}
-		// Build the cache
-		mAdapter.buildCache();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void onLoaderReset(final Loader<List<Song>> loader) {
-		// Clear the data in the adapter
-		mAdapter.unload();
 	}
 
 	/**
@@ -407,7 +347,21 @@ public class QueueFragment extends Fragment implements
 	 */
 	public void refreshQueue() {
 		if (isAdded()) {
-			getLoaderManager().restartLoader(LOADER, null, this);
+			// Start fresh
+			mAdapter.unload();
+			
+			Song[] nowPlaying = MusicUtils.getQueue();
+			// Check for any errors
+			if (nowPlaying == null || nowPlaying.length == 0) {
+				return;
+			}
+
+			// Add the data to the adpater
+			for (final Song song : nowPlaying) {
+				mAdapter.add(song);
+			}
+			// Build the cache
+			mAdapter.buildCache();
 		}
 	}
 }
