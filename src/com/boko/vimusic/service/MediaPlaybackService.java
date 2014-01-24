@@ -44,6 +44,7 @@ import android.media.RemoteControlClient;
 import android.media.RemoteControlClient.MetadataEditor;
 import android.media.audiofx.AudioEffect;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
@@ -210,6 +211,9 @@ public class MediaPlaybackService extends Service {
     };
     
     private final IBinder mBinder = new ServiceStub(this);
+    
+    private static CurrentSongTask currentTask;
+    private static NextSongTask nextTask;
     
 	private final BroadcastReceiver mIntentReceiver = new BroadcastReceiver() {
 		@Override
@@ -997,45 +1001,15 @@ public class MediaPlaybackService extends Service {
             }
             stop(false);
 
-            while(true) {
-            	if (!mPlayList[mPlayPos].isQueried()) {
-            		prepareSong(mPlayList[mPlayPos]);
-            	}
-				if (open(mPlayList[mPlayPos].getLinkPlay())) {
-					break;
-				}
-				// if we get here then opening the file failed. We're
-				// either going to create a new one next, or stop trying
-				if (mOpenFailedCounter++ < 10 &&  mPlayListLen > 1) {
-					int pos = getNextPosition(false);
-					if (pos < 0) {
-						gotoIdleState();
-                        if (mIsSupposedToBePlaying) {
-                            mIsSupposedToBePlaying = false;
-                            notifyChange(PLAYSTATE_CHANGED);
-                        }
-                        return;
-					}
-                    mPlayPos = pos;
-                    stop(false);
-                    mPlayPos = pos;
-				} else {
-					mOpenFailedCounter = 0;
-                    if (!mQuietMode) {
-                        Toast.makeText(this, R.string.playback_failed, Toast.LENGTH_SHORT).show();
-                    }
-                    Log.w(LOGTAG, "Failed to open file for playback");
-                    gotoIdleState();
-					if (mIsSupposedToBePlaying) {
-						mIsSupposedToBePlaying = false;
-						notifyChange(PLAYSTATE_CHANGED);
-					}
-					return;
-				}
-			}
-            if (prepareNext) {
-            	setNextTrack();
-            }
+        	if (!mPlayList[mPlayPos].isQueried()) {
+        		if (currentTask != null) {
+        			currentTask.cancel(true);
+        		}
+        		currentTask = new CurrentSongTask();
+        		currentTask.execute(mPlayList[mPlayPos]);
+        	} else {
+        		openCurrent(mPlayList[mPlayPos]);
+        	}
 		}
 	}
     
@@ -1046,9 +1020,12 @@ public class MediaPlaybackService extends Service {
 		if (mPlayList != null && mNextPlayPos >= 0) {
 			final Song song = mPlayList[mNextPlayPos];
         	if (!song.isQueried()) {
-        		prepareSong(song);
+        		if (nextTask != null) {
+        			nextTask.cancel(true);
+        		}
+        		nextTask = new NextSongTask();
+        		nextTask.execute(mPlayList[mPlayPos]);
         	}
-			mPlayer.setNextDataSource(song.getLinkPlay());
 		} else {
 			mPlayer.setNextDataSource(null);
 		}
@@ -1655,9 +1632,6 @@ public class MediaPlaybackService extends Service {
 	public String getArtistName() {
 		synchronized (this) {
 			if (mPlayPos >= 0 && mPlayer.isInitialized()) {
-				if (!mPlayList[mPlayPos].isQueried()) {
-					prepareSong(mPlayList[mPlayPos]);
-				}
 				return mPlayList[mPlayPos].mArtistName;
 			}
 		}
@@ -1667,9 +1641,6 @@ public class MediaPlaybackService extends Service {
 	public String getArtistId() {
 		synchronized (this) {
 			if (mPlayPos >= 0 && mPlayer.isInitialized()) {
-				if (!mPlayList[mPlayPos].isQueried()) {
-					prepareSong(mPlayList[mPlayPos]);
-				}
 				return null;
 			}
 		}
@@ -1679,9 +1650,6 @@ public class MediaPlaybackService extends Service {
 	public String getAlbumName() {
 		synchronized (this) {
 			if (mPlayPos >= 0 && mPlayer.isInitialized()) {
-				if (!mPlayList[mPlayPos].isQueried()) {
-					prepareSong(mPlayList[mPlayPos]);
-				}
 				return mPlayList[mPlayPos].mAlbumName;
 			}
 		}
@@ -1691,9 +1659,6 @@ public class MediaPlaybackService extends Service {
 	public String getAlbumId() {
 		synchronized (this) {
 			if (mPlayPos >= 0 && mPlayer.isInitialized()) {
-				if (!mPlayList[mPlayPos].isQueried()) {
-					prepareSong(mPlayList[mPlayPos]);
-				}
 				return null;
 			}
 		}
@@ -1703,9 +1668,6 @@ public class MediaPlaybackService extends Service {
 	public String getAlbumArtistName() {
 		synchronized (this) {
 			if (mPlayPos >= 0 && mPlayer.isInitialized()) {
-				if (!mPlayList[mPlayPos].isQueried()) {
-					prepareSong(mPlayList[mPlayPos]);
-				}
 				return null;
 			}
 		}
@@ -1715,9 +1677,6 @@ public class MediaPlaybackService extends Service {
 	public String getTrackName() {
 		synchronized (this) {
 			if (mPlayPos >= 0 && mPlayer.isInitialized()) {
-				if (!mPlayList[mPlayPos].isQueried()) {
-					prepareSong(mPlayList[mPlayPos]);
-				}
 				return mPlayList[mPlayPos].getName();
 			}
 		}
@@ -1851,12 +1810,6 @@ public class MediaPlaybackService extends Service {
 		final Bitmap bitmap = mImageFetcher.getArtwork(getAlbumName(),
 				getAlbumId(), getArtistName());
 		return bitmap;
-	}
-	
-	public void prepareSong(Song song) {
-		synchronized (this) {
-			song.query(this);
-		}
 	}
 	
 	private static final class DelayedStopHandler extends Handler {
@@ -2381,5 +2334,76 @@ public class MediaPlaybackService extends Service {
 		public void refresh() throws RemoteException {
 			mService.get().refresh();
 		}
+	}
+	
+	private class CurrentSongTask extends AsyncTask<Song, Integer, Song> {
+
+		@Override
+		protected Song doInBackground(Song... params) {
+			if (params == null || params.length != 1 || params[0] == null) {
+				return null;
+			}
+			params[0].query(getApplicationContext());
+			return params[0];
+		}
+		
+	     protected void onPostExecute(Song result) {
+	    	 openCurrent(result);
+	     }
+	}
+	
+	private void openCurrent(Song song) {
+		if (open(song.getLinkPlay())) {
+			play();
+			notifyChange(META_CHANGED);
+			updateNotification();
+			setNextTrack();
+			return;
+		}
+		// if we get here then opening the file failed. We're
+		// either going to create a new one next, or stop trying
+		if (mOpenFailedCounter++ < 10 &&  mPlayListLen > 1) {
+			int pos = getNextPosition(false);
+			if (pos < 0) {
+				gotoIdleState();
+                if (mIsSupposedToBePlaying) {
+                    mIsSupposedToBePlaying = false;
+                    notifyChange(PLAYSTATE_CHANGED);
+                }
+                return;
+			}
+            mPlayPos = pos;
+            stop(false);
+            mPlayPos = pos;
+            openCurrentAndNext();
+		} else {
+			mOpenFailedCounter = 0;
+            if (!mQuietMode) {
+                Toast.makeText(getApplicationContext(), R.string.playback_failed, Toast.LENGTH_SHORT).show();
+            }
+            Log.w(LOGTAG, "Failed to open file for playback");
+            gotoIdleState();
+			if (mIsSupposedToBePlaying) {
+				mIsSupposedToBePlaying = false;
+				notifyChange(PLAYSTATE_CHANGED);
+			}
+			return;
+		}
+	}
+	
+	private class NextSongTask extends AsyncTask<Song, Integer, Song> {
+
+		@Override
+		protected Song doInBackground(Song... params) {
+			if (params == null || params.length != 1 || params[0] == null) {
+				return null;
+			}
+			params[0].query(getApplicationContext());
+			return params[0];
+		}
+		
+	     protected void onPostExecute(Song result) {
+	    	 mPlayer.setNextDataSource(result.getLinkPlay());
+	     }
 	}
 }
