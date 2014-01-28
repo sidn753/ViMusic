@@ -93,22 +93,15 @@ public class ShuffleButton extends ImageButton implements OnClickListener,
 	 */
 	public void updateShuffleState() {
 		switch (MusicUtils.getShuffleMode()) {
-		case MediaPlaybackService.SHUFFLE_NORMAL:
-			setContentDescription(getResources().getString(
-					R.string.accessibility_shuffle_all));
-			setImageDrawable(mResources.getDrawable(SHUFFLE_ALL));
-			break;
-		case MediaPlaybackService.SHUFFLE_AUTO:
-			setContentDescription(getResources().getString(
-					R.string.accessibility_shuffle_all));
-			setImageDrawable(mResources.getDrawable(SHUFFLE_ALL));
-			break;
 		case MediaPlaybackService.SHUFFLE_NONE:
 			setContentDescription(getResources().getString(
 					R.string.accessibility_shuffle));
 			setImageDrawable(mResources.getDrawable(SHUFFLE));
 			break;
 		default:
+			setContentDescription(getResources().getString(
+					R.string.accessibility_shuffle_all));
+			setImageDrawable(mResources.getDrawable(SHUFFLE_ALL));
 			break;
 		}
 	}

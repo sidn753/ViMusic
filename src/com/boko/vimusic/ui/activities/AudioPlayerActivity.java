@@ -759,8 +759,8 @@ public class AudioPlayerActivity extends FragmentActivity implements
 					return 500;
 				}
 			} else {
-				mCurrentTime.setText("--:--");
-				mProgress.setProgress(1000);
+				mCurrentTime.setText("0:00");
+				mProgress.setProgress(0);
 			}
 			// calculate the number of milliseconds until the next full second,
 			// so

@@ -305,13 +305,8 @@ public final class MusicUtils {
 						mService.setRepeatMode(MediaPlaybackService.REPEAT_ALL);
 					}
 					break;
-				case MediaPlaybackService.SHUFFLE_NORMAL:
-					mService.setShuffleMode(MediaPlaybackService.SHUFFLE_NONE);
-					break;
-				case MediaPlaybackService.SHUFFLE_AUTO:
-					mService.setShuffleMode(MediaPlaybackService.SHUFFLE_NONE);
-					break;
 				default:
+					mService.setShuffleMode(MediaPlaybackService.SHUFFLE_NONE);
 					break;
 				}
 			}
@@ -626,8 +621,7 @@ public final class MusicUtils {
 
 		try {
 			mService.stop();
-			mService.openFile(filename);
-			mService.play();
+			mService.playFile(filename);
 		} catch (final RemoteException ignored) {
 		}
 	}
@@ -667,7 +661,6 @@ public final class MusicUtils {
 				position = 0;
 			}
 			mService.open(list, forceShuffle ? -1 : position);
-			mService.play();
 		} catch (final RemoteException ignored) {
 		}
 	}
@@ -710,7 +703,6 @@ public final class MusicUtils {
 				}
 			}
 			mService.open(mTrackList, -1);
-			mService.play();
 			cursor.close();
 			cursor = null;
 		} catch (final RemoteException ignored) {

@@ -104,6 +104,8 @@ public class ZingSongFragment extends Fragment implements
 	 */
 	private boolean mShouldRefresh = false;
 
+	private Song[] songList;
+
 	/**
 	 * Empty constructor as per the {@link Fragment} documentation
 	 */
@@ -266,8 +268,8 @@ public class ZingSongFragment extends Fragment implements
 	@Override
 	public void onItemClick(final AdapterView<?> parent, final View view,
 			final int position, final long id) {
-		MusicUtils.playAll(getActivity(), new Song[] { mAdapter.getItem(position) },
-				0, false);
+		MusicUtils.playAll(getActivity(), songList,
+				position - 1, false);
 	}
 
 	/**
@@ -294,11 +296,14 @@ public class ZingSongFragment extends Fragment implements
 			return;
 		}
 
+		songList = new Song[data.size()];
+		int index = 0;
 		// Start fresh
 		mAdapter.unload();
 		// Add the data to the adpater
 		for (final Song song : data) {
 			mAdapter.add(song);
+			songList[index++] = song;
 		}
 		// Build the cache
 		mAdapter.buildCache();

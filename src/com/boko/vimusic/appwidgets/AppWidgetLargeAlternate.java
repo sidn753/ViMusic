@@ -184,11 +184,6 @@ public class AppWidgetLargeAlternate extends AppWidgetBase {
 					R.id.app_widget_large_alternate_shuffle,
 					R.drawable.btn_playback_shuffle);
 			break;
-		case MediaPlaybackService.SHUFFLE_AUTO:
-			appWidgetView.setImageViewResource(
-					R.id.app_widget_large_alternate_shuffle,
-					R.drawable.btn_playback_shuffle_all);
-			break;
 		default:
 			appWidgetView.setImageViewResource(
 					R.id.app_widget_large_alternate_shuffle,

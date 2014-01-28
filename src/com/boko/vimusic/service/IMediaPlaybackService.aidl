@@ -5,7 +5,7 @@ import com.boko.vimusic.model.Song;
 
 interface IMediaPlaybackService
 {
-    void openFile(String path);
+    void playFile(String path);
     void open(in Song [] list, int position);
     int getQueuePosition();
     void setQueuePosition(int index);
