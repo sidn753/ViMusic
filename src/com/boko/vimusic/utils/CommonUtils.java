@@ -11,6 +11,9 @@
 
 package com.boko.vimusic.utils;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -408,4 +411,16 @@ public final class CommonUtils {
 			v.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 		}
 	}
+	
+    public static String getUnicode(String s) {
+  	  Charset latin = Charset.forName("ISO-8859-1");
+  	  if (latin.newEncoder().canEncode(s)) {
+  		  try {
+				return new String(s.getBytes("ISO-8859-1"), "UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				return s;
+			}
+  	  }
+  	  return s;
+    }
 }

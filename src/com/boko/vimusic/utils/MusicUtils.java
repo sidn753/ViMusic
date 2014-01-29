@@ -507,10 +507,10 @@ public final class MusicUtils {
 		}
 		for (int i = 0; i < len; i++) {
 			Song song = SongFactory.newSong(HostType.LOCAL, cursor.getString(columnIndex));
-			song.setArtistName(cursor.getString(cursor
-					.getColumnIndexOrThrow(MediaStore.Audio.Playlists.Members.ARTIST)));
-			song.setName(cursor.getString(cursor
-					.getColumnIndexOrThrow(MediaStore.Audio.Playlists.Members.TITLE)));
+			song.setArtistName(CommonUtils.getUnicode(cursor.getString(cursor
+					.getColumnIndexOrThrow(MediaStore.Audio.Playlists.Members.ARTIST))));
+			song.setName(CommonUtils.getUnicode(cursor.getString(cursor
+					.getColumnIndexOrThrow(MediaStore.Audio.Playlists.Members.TITLE))));
 			list[i] = song;
 			cursor.moveToNext();
 		}

@@ -5,6 +5,8 @@ import android.database.Cursor;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 
+import com.boko.vimusic.utils.CommonUtils;
+
 /**
  * A class that represents a song.
  * 
@@ -32,9 +34,9 @@ public class LocalSong extends Song {
 					if (c != null) {
 						if (c.getCount() > 0) {
 							c.moveToNext();
-							mArtistName = c.getString(1);
-							mAlbumName = c.getString(2);
-							mName = c.getString(3);
+							mArtistName = CommonUtils.getUnicode(c.getString(1));
+							mAlbumName = CommonUtils.getUnicode(c.getString(2));
+							mName = CommonUtils.getUnicode(c.getString(3));
 							mDuration = (int) (c.getLong(4) / 1000);
 						}
 						c.close();

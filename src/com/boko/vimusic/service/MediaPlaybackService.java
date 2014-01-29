@@ -18,6 +18,7 @@ package com.boko.vimusic.service;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.Vector;
 
@@ -66,6 +67,7 @@ import com.boko.vimusic.appwidgets.AppWidgetSmall;
 import com.boko.vimusic.appwidgets.RecentWidgetProvider;
 import com.boko.vimusic.cache.ImageCache;
 import com.boko.vimusic.cache.ImageFetcher;
+import com.boko.vimusic.loaders.SongLoader;
 import com.boko.vimusic.model.HostType;
 import com.boko.vimusic.model.Song;
 import com.boko.vimusic.model.SongFactory;
@@ -993,7 +995,7 @@ public class MediaPlaybackService extends Service {
             // This is mostly so that if you press 'play' on a bluetooth headset
             // without every having played anything before, it will still play
             // something.
-        	MusicUtils.shuffleAll(getApplicationContext());
+        	shuffleAll();
 		}
 	}
 
@@ -1286,7 +1288,7 @@ public class MediaPlaybackService extends Service {
      * no file is currently playing.
      */
 	public String getAudioId() {
-		if (mPlayPos >= 0 && mPlayer.isInitialized()) {
+		if (mPlayPos >= 0) {
 			return mPlayList[mPlayPos].getId();
 		}
 		return null;
@@ -1313,7 +1315,7 @@ public class MediaPlaybackService extends Service {
     }
     
 	public String getArtistName() {
-		if (mPlayPos >= 0 && mPlayer.isInitialized()) {
+		if (mPlayPos >= 0) {
 			return mPlayList[mPlayPos].mArtistName;
 		}
 		return null;
@@ -1324,7 +1326,7 @@ public class MediaPlaybackService extends Service {
 	}
 	
 	public String getAlbumName() {
-		if (mPlayPos >= 0 && mPlayer.isInitialized()) {
+		if (mPlayPos >= 0) {
 			return mPlayList[mPlayPos].mAlbumName;
 		}
 		return null;
@@ -1339,7 +1341,7 @@ public class MediaPlaybackService extends Service {
 	}
 	
 	public String getTrackName() {
-		if (mPlayPos >= 0 && mPlayer.isInitialized()) {
+		if (mPlayPos >= 0) {
 			return mPlayList[mPlayPos].getName();
 		}
 		return null;
@@ -2061,12 +2063,16 @@ public class MediaPlaybackService extends Service {
 				@Override
 				protected void onPostExecute(Song song) {
 					if (song != null) {
+						notifyChange(META_CHANGED);
+						updateNotification();
 						playFile(song.getLinkPlay());
 					}
 				}
     		};
     		songTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, song);
     	} else {
+			notifyChange(META_CHANGED);
+			updateNotification();
     		playFile(song.getLinkPlay());
     	}
 	}
@@ -2129,6 +2135,8 @@ public class MediaPlaybackService extends Service {
 				mOpenFailedCounter = 0;
 				play();
 				setNextTrack();
+				notifyChange(META_CHANGED);
+				updateNotification();
 			}
 		});
     	mPlayer.setErrorListener(new OnErrorListener() {
@@ -2234,4 +2242,27 @@ public class MediaPlaybackService extends Service {
     	}
     	return a;
     }
+    
+	public void shuffleAll() {
+		Cursor cursor = SongLoader.makeSongCursor(getApplicationContext());
+		final Song[] mTrackList = MusicUtils.getSongListForCursor(cursor);
+		final int position = 0;
+		if (mTrackList.length == 0) {
+			return;
+		}
+		setShuffleMode(MediaPlaybackService.SHUFFLE_NORMAL);
+		final String mCurrentId = getAudioId();
+		final int mCurrentQueuePosition = getQueuePosition();
+		if (position != -1 && mCurrentQueuePosition == position
+				&& mTrackList[position].getId().equals(mCurrentId)) {
+			final Song[] mPlaylist = getQueue();
+			if (Arrays.equals(mTrackList, mPlaylist)) {
+				play();
+				return;
+			}
+		}
+		open(mTrackList, -1);
+		cursor.close();
+		cursor = null;
+	}
 }
