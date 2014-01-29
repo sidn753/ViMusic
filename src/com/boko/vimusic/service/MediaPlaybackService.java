@@ -1248,6 +1248,11 @@ public class MediaPlaybackService extends Service {
             if (mShuffleMode == shufflemode && mPlayListLen > 0) {
                 return;
             }
+            if (shufflemode == SHUFFLE_NONE) {
+            	mPlayOrder = generateArray(0, mPlayListLen);
+            } else {
+            	shuffleArray(mPlayOrder);
+            }
             mShuffleMode = shufflemode;
             saveQueue(false);
 			notifyChange(SHUFFLEMODE_CHANGED);

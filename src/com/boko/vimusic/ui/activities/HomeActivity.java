@@ -62,7 +62,7 @@ public class HomeActivity extends BaseActivity {
 			getSupportFragmentManager()
 					.beginTransaction()
 					.replace(R.id.activity_base_content,
-							new MusicBrowserZingFragment()).commit();
+							new MusicBrowserPhoneFragment()).commit();
 		}
 	}
 
