@@ -46,6 +46,7 @@ import com.boko.vimusic.menu.CreateNewPlaylist;
 import com.boko.vimusic.menu.DeleteDialog;
 import com.boko.vimusic.menu.FragmentMenuItems;
 import com.boko.vimusic.model.Album;
+import com.boko.vimusic.model.HostType;
 import com.boko.vimusic.model.Song;
 import com.boko.vimusic.provider.RecentStore;
 import com.boko.vimusic.recycler.RecycleHolder;
@@ -251,7 +252,7 @@ public class RecentFragment extends Fragment implements
 			case FragmentMenuItems.REMOVE_FROM_RECENT:
 				mShouldRefresh = true;
 				RecentStore.getInstance(getActivity()).removeAlbum(
-						mAlbum.getId(), "");
+						mAlbum.getId(), HostType.LOCAL);
 				MusicUtils.refresh();
 				return true;
 			case FragmentMenuItems.DELETE:

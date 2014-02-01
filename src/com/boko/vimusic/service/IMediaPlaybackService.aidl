@@ -34,7 +34,6 @@ interface IMediaPlaybackService
     int removeTrack(in Song song);
     void setRepeatMode(int repeatmode);
     int getRepeatMode();
-    int getMediaMountedCount();
     int getAudioSessionId();
     boolean isFavorite();
     void toggleFavorite();

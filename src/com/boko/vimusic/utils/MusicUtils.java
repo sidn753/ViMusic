@@ -1408,7 +1408,7 @@ public final class MusicUtils {
 				FavoritesStore.getInstance(context).removeSong(id, HostType.LOCAL);
 				// Remove any items in the recents database
 				RecentStore.getInstance(context)
-						.removeAlbum(c.getString(2), "");
+						.removeAlbum(c.getString(2), HostType.LOCAL);
 				c.moveToNext();
 			}
 
@@ -1449,16 +1449,4 @@ public final class MusicUtils {
 		// Notify the lists to update
 		refresh();
 	}
-	
-    public static int getCardId(Context context) {
-        ContentResolver res = context.getContentResolver();
-        Cursor c = res.query(Uri.parse("content://media/external/fs_id"), null, null, null, null);
-        int id = -1;
-        if (c != null) {
-            c.moveToFirst();
-            id = c.getInt(0);
-            c.close();
-        }
-        return id;
-    }
 }

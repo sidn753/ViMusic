@@ -7,6 +7,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.text.TextUtils;
 
+import com.boko.vimusic.model.HostType;
+
 /**
  * Keep a cache of the album ID, name, and time it was played to be retrieved
  * later.
@@ -39,7 +41,7 @@ public class RecentStore extends SQLiteOpenHelper {
 	public void onCreate(final SQLiteDatabase db) {
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + RecentTable.TABLE_NAME
 				+ " (" + RecentTable.AID + " TEXT NOT NULL," // Album ID
-				+ RecentTable.HOST + " TEXT NOT NULL," // Album Host
+				+ RecentTable.HOST + " INTEGER DEFAULT 0," // Album Host
 				+ RecentTable.NAME + " TEXT NOT NULL," // Album Name
 				+ RecentTable.ARTIST + " TEXT NOT NULL," // Album Artist
 				+ RecentTable.SONG_COUNT + " LONG NOT NULL," // Album Song count
@@ -87,7 +89,7 @@ public class RecentStore extends SQLiteOpenHelper {
 	 * @param albumYear
 	 *            The year the album was released.
 	 */
-	public void addAlbum(final String albumId, final String albumHost,
+	public void addAlbum(final String albumId, final HostType albumHost,
 			final String albumName, final String artistName,
 			final Long songCount, final String albumYear) {
 		if (albumId == null || albumHost == null || albumName == null
@@ -101,7 +103,7 @@ public class RecentStore extends SQLiteOpenHelper {
 		database.beginTransaction();
 
 		values.put(RecentTable.AID, albumId);
-		values.put(RecentTable.HOST, albumHost);
+		values.put(RecentTable.HOST, albumHost.getCode());
 		values.put(RecentTable.NAME, albumName);
 		values.put(RecentTable.ARTIST, artistName);
 		values.put(RecentTable.SONG_COUNT, songCount);
@@ -109,8 +111,8 @@ public class RecentStore extends SQLiteOpenHelper {
 		values.put(RecentTable.TIME_PLAYED, System.currentTimeMillis());
 
 		database.delete(RecentTable.TABLE_NAME, RecentTable.AID + " = ? AND "
-				+ RecentTable.HOST + " = ?",
-				new String[] { albumId, albumHost });
+				+ RecentTable.HOST + " = " + albumHost.getCode(),
+				new String[] { albumId });
 		database.insert(RecentTable.TABLE_NAME, null, values);
 		database.setTransactionSuccessful();
 		database.endTransaction();
@@ -120,11 +122,11 @@ public class RecentStore extends SQLiteOpenHelper {
 	 * @param item
 	 *            The album Id to remove.
 	 */
-	public void removeAlbum(final String albumId, final String albumHost) {
+	public void removeAlbum(final String albumId, final HostType albumHost) {
 		final SQLiteDatabase database = getReadableDatabase();
 		database.delete(RecentTable.TABLE_NAME, RecentTable.AID + " = ? AND "
-				+ RecentTable.HOST + " = ?",
-				new String[] { albumId, albumHost });
+				+ RecentTable.HOST + " = " + albumHost.getCode(),
+				new String[] { albumId });
 	}
 
 	/**
