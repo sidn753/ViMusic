@@ -52,10 +52,10 @@ public class AppWidgetLarge extends AppWidgetBase {
 	public void onUpdate(final Context context,
 			final AppWidgetManager appWidgetManager, final int[] appWidgetIds) {
 		defaultAppWidget(context, appWidgetIds);
-		final Intent updateIntent = new Intent(MediaPlaybackService.SERVICECMD);
-		updateIntent.putExtra(MediaPlaybackService.CMDNAME,
+		final Intent updateIntent = new Intent(MediaPlaybackService.ACTION_APPWIDGET_UPDATE);
+		updateIntent.putExtra(MediaPlaybackService.EXTRA_APPWIDGET_PROVIDER,
 				AppWidgetLarge.CMDAPPWIDGETUPDATE);
-		updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS,
+		updateIntent.putExtra(MediaPlaybackService.EXTRA_APPWIDGET_IDS,
 				appWidgetIds);
 		updateIntent.setFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
 		context.sendBroadcast(updateIntent);
@@ -194,18 +194,18 @@ public class AppWidgetLarge extends AppWidgetBase {
 
 		// Previous track
 		pendingIntent = buildPendingIntent(context,
-				MediaPlaybackService.PREVIOUS_ACTION, serviceName);
+				MediaPlaybackService.ACTION_PREVIOUS, serviceName);
 		views.setOnClickPendingIntent(R.id.app_widget_large_previous,
 				pendingIntent);
 
 		// Play and pause
 		pendingIntent = buildPendingIntent(context,
-				MediaPlaybackService.TOGGLEPAUSE_ACTION, serviceName);
+				MediaPlaybackService.ACTION_TOGGLEPAUSE, serviceName);
 		views.setOnClickPendingIntent(R.id.app_widget_large_play, pendingIntent);
 
 		// Next track
 		pendingIntent = buildPendingIntent(context,
-				MediaPlaybackService.NEXT_ACTION, serviceName);
+				MediaPlaybackService.ACTION_NEXT, serviceName);
 		views.setOnClickPendingIntent(R.id.app_widget_large_next, pendingIntent);
 	}
 

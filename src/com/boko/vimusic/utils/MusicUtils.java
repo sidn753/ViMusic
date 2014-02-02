@@ -247,7 +247,7 @@ public final class MusicUtils {
 	 */
 	public static void previous(final Context context) {
 		final Intent previous = new Intent(context, MediaPlaybackService.class);
-		previous.setAction(MediaPlaybackService.PREVIOUS_ACTION);
+		previous.setAction(MediaPlaybackService.ACTION_PREVIOUS);
 		context.startService(previous);
 	}
 

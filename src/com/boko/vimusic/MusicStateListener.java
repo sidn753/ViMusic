@@ -8,7 +8,7 @@ import com.boko.vimusic.service.MediaPlaybackService;
 public interface MusicStateListener {
 
 	/**
-	 * Called when {@link MediaPlaybackService#REFRESH} is invoked
+	 * Called when {@link MediaPlaybackService#ACTION_REFRESH} is invoked
 	 */
 	public void restartLoader();
 

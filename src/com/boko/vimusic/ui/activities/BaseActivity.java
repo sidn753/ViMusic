@@ -259,7 +259,7 @@ public abstract class BaseActivity extends FragmentActivity implements
 		// Track changes
 		filter.addAction(MediaPlaybackService.META_CHANGED);
 		// Update a list, probably the playlist fragment's
-		filter.addAction(MediaPlaybackService.REFRESH);
+		filter.addAction(MediaPlaybackService.ACTION_REFRESH);
 		registerReceiver(mPlaybackStatus, filter);
 		MusicUtils.notifyForegroundStateChanged(this, true);
 	}
@@ -435,7 +435,7 @@ public abstract class BaseActivity extends FragmentActivity implements
 				mReference.get().mRepeatButton.updateRepeatState();
 				// Set the shuffle image
 				mReference.get().mShuffleButton.updateShuffleState();
-			} else if (action.equals(MediaPlaybackService.REFRESH)) {
+			} else if (action.equals(MediaPlaybackService.ACTION_REFRESH)) {
 				// Let the listener know to update a list
 				for (final MusicStateListener listener : mReference.get().mMusicStateListener) {
 					if (listener != null) {

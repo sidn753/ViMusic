@@ -102,10 +102,10 @@ public class RecentWidgetProvider extends AppWidgetBase {
 			compatSetRemoteAdapter(mViews, appWidgetId, intent);
 
 			final Intent updateIntent = new Intent(
-					MediaPlaybackService.SERVICECMD);
-			updateIntent.putExtra(MediaPlaybackService.CMDNAME,
+					MediaPlaybackService.ACTION_APPWIDGET_UPDATE);
+			updateIntent.putExtra(MediaPlaybackService.EXTRA_APPWIDGET_PROVIDER,
 					RecentWidgetProvider.CMDAPPWIDGETUPDATE);
-			updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS,
+			updateIntent.putExtra(MediaPlaybackService.EXTRA_APPWIDGET_IDS,
 					appWidgetIds);
 			updateIntent.setFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
 			context.sendBroadcast(updateIntent);
@@ -183,7 +183,6 @@ public class RecentWidgetProvider extends AppWidgetBase {
 		super.onReceive(context, intent);
 	}
 
-	@SuppressWarnings("deprecation")
 	@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 	private void compatSetRemoteAdapter(final RemoteViews rv,
 			final int appWidgetId, final Intent intent) {
@@ -300,19 +299,19 @@ public class RecentWidgetProvider extends AppWidgetBase {
 
 		// Previous track
 		pendingIntent = buildPendingIntent(context,
-				MediaPlaybackService.PREVIOUS_ACTION, serviceName);
+				MediaPlaybackService.ACTION_PREVIOUS, serviceName);
 		views.setOnClickPendingIntent(R.id.app_widget_recents_previous,
 				pendingIntent);
 
 		// Play and pause
 		pendingIntent = buildPendingIntent(context,
-				MediaPlaybackService.TOGGLEPAUSE_ACTION, serviceName);
+				MediaPlaybackService.ACTION_TOGGLEPAUSE, serviceName);
 		views.setOnClickPendingIntent(R.id.app_widget_recents_play,
 				pendingIntent);
 
 		// Next track
 		pendingIntent = buildPendingIntent(context,
-				MediaPlaybackService.NEXT_ACTION, serviceName);
+				MediaPlaybackService.ACTION_NEXT, serviceName);
 		views.setOnClickPendingIntent(R.id.app_widget_recents_next,
 				pendingIntent);
 	}

@@ -24,7 +24,6 @@ import java.util.Random;
 import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.appwidget.AppWidgetManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -105,25 +104,19 @@ public class MediaPlaybackService extends Service {
 	public static final String FOREGROUND_STATE_CHANGED = "com.boko.vimusic.fgstatechanged";
 	public static final String NOW_IN_FOREGROUND = "nowinforeground";
 
-	public static final String SERVICECMD = "com.boko.vimusic.musicservicecommand";
-	public static final String CMDNAME = "command";
-	public static final String CMDTOGGLEPAUSE = "togglepause";
-	public static final String CMDSTOP = "stop";
-	public static final String CMDPAUSE = "pause";
-	public static final String CMDPLAY = "play";
-	public static final String CMDPREVIOUS = "previous";
-	public static final String CMDNEXT = "next";
-	public static final String CMDNOTIF = "buttonId";
-
-	public static final String TOGGLEPAUSE_ACTION = "com.boko.vimusic.musicservicecommand.togglepause";
-	public static final String PAUSE_ACTION = "com.boko.vimusic.musicservicecommand.pause";
-	public static final String PREVIOUS_ACTION = "com.boko.vimusic.musicservicecommand.previous";
-	public static final String NEXT_ACTION = "com.boko.vimusic.musicservicecommand.next";
-	public static final String STOP_ACTION = "com.boko.vimusic.musicservicecommand.stop";
-	public static final String REPEAT_ACTION = "com.boko.vimusic.musicservicecommand.repeat";
-	public static final String SHUFFLE_ACTION = "com.boko.vimusic.musicservicecommand.shuffle";
-	public static final String REFRESH = "com.boko.vimusic.musicservicecommand.refresh";
-	public static final String UPDATE_LOCKSCREEN = "com.boko.vimusic.musicservicecommand.updatelockscreen";
+	public static final String ACTION_TOGGLEPAUSE = "com.boko.vimusic.musicservicecommand.togglepause";
+	public static final String ACTION_PLAY = "com.boko.vimusic.musicservicecommand.play";
+	public static final String ACTION_PAUSE = "com.boko.vimusic.musicservicecommand.pause";
+	public static final String ACTION_PREVIOUS = "com.boko.vimusic.musicservicecommand.previous";
+	public static final String ACTION_NEXT = "com.boko.vimusic.musicservicecommand.next";
+	public static final String ACTION_STOP = "com.boko.vimusic.musicservicecommand.stop";
+	public static final String ACTION_REPEAT = "com.boko.vimusic.musicservicecommand.repeat";
+	public static final String ACTION_SHUFFLE = "com.boko.vimusic.musicservicecommand.shuffle";
+	public static final String ACTION_REFRESH = "com.boko.vimusic.musicservicecommand.refresh";
+	public static final String ACTION_APPWIDGET_UPDATE = "com.boko.vimusic.musicservicecommand.appwidgetupdate";
+	
+	public static final String EXTRA_APPWIDGET_PROVIDER = "appWidgetProvider";
+	public static final String EXTRA_APPWIDGET_IDS = "appWidgetIds";
 
 	private static final int TRACK_ENDED = 1;
 	private static final int RELEASE_WAKELOCK = 2;
@@ -188,9 +181,8 @@ public class MediaPlaybackService extends Service {
 	private final BroadcastReceiver mIntentReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(final Context context, final Intent intent) {
-			String cmd = intent.getStringExtra(CMDNAME);
-			int[] appWidgetIds = intent
-					.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
+			String cmd = intent.getStringExtra(EXTRA_APPWIDGET_PROVIDER);
+			int[] appWidgetIds = intent.getIntArrayExtra(EXTRA_APPWIDGET_IDS);
 			// Someone asked us to refresh a set of specific widgets, probably
 			// because they were just added.
 			if (AppWidgetSmall.CMDAPPWIDGETUPDATE.equals(cmd)) {
@@ -302,14 +294,14 @@ public class MediaPlaybackService extends Service {
 		mPlayer.setHandler(mMediaplayerHandler);
 
 		IntentFilter commandFilter = new IntentFilter();
-		commandFilter.addAction(SERVICECMD);
-		commandFilter.addAction(TOGGLEPAUSE_ACTION);
-		commandFilter.addAction(PAUSE_ACTION);
-		commandFilter.addAction(NEXT_ACTION);
-		commandFilter.addAction(PREVIOUS_ACTION);
-		commandFilter.addAction(STOP_ACTION);
-		commandFilter.addAction(REPEAT_ACTION);
-		commandFilter.addAction(SHUFFLE_ACTION);
+		commandFilter.addAction(ACTION_APPWIDGET_UPDATE);
+		commandFilter.addAction(ACTION_TOGGLEPAUSE);
+		commandFilter.addAction(ACTION_PAUSE);
+		commandFilter.addAction(ACTION_NEXT);
+		commandFilter.addAction(ACTION_PREVIOUS);
+		commandFilter.addAction(ACTION_STOP);
+		commandFilter.addAction(ACTION_REPEAT);
+		commandFilter.addAction(ACTION_SHUFFLE);
 		registerReceiver(mIntentReceiver, commandFilter);
 
 		PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -395,35 +387,33 @@ public class MediaPlaybackService extends Service {
 
 	private void handleCommandIntent(Intent intent) {
 		String action = intent.getAction();
-		String cmd = intent.getStringExtra(CMDNAME);
 		if (DEBUG)
-			Log.d(LOGTAG, "Handling intent. Action = " + action + " / " + cmd);
+			Log.d(LOGTAG, "Handling intent. Action = " + action);
 
-		if (CMDNEXT.equals(cmd) || NEXT_ACTION.equals(action)) {
+		if (ACTION_NEXT.equals(action)) {
 			gotoNext(true);
-		} else if (CMDPREVIOUS.equals(cmd) || PREVIOUS_ACTION.equals(action)) {
+		} else if (ACTION_PREVIOUS.equals(action)) {
 			prev();
-		} else if (CMDTOGGLEPAUSE.equals(cmd)
-				|| TOGGLEPAUSE_ACTION.equals(action)) {
+		} else if (ACTION_TOGGLEPAUSE.equals(action)) {
 			if (isPlaying()) {
 				pause();
 				mPausedByTransientLossOfFocus = false;
 			} else {
 				play();
 			}
-		} else if (CMDPAUSE.equals(cmd) || PAUSE_ACTION.equals(action)) {
+		} else if (ACTION_PAUSE.equals(action)) {
 			pause();
 			mPausedByTransientLossOfFocus = false;
-		} else if (CMDPLAY.equals(cmd)) {
+		} else if (ACTION_PLAY.equals(action)) {
 			play();
-		} else if (CMDSTOP.equals(cmd) || STOP_ACTION.equals(action)) {
+		} else if (ACTION_STOP.equals(action)) {
 			pause();
 			mPausedByTransientLossOfFocus = false;
 			seek(0);
 			shutdownImmediate(this);
-		} else if (REPEAT_ACTION.equals(action)) {
+		} else if (ACTION_REPEAT.equals(action)) {
 			cycleRepeat();
-		} else if (SHUFFLE_ACTION.equals(action)) {
+		} else if (ACTION_SHUFFLE.equals(action)) {
 			cycleShuffle();
 		}
 	}
@@ -1290,7 +1280,7 @@ public class MediaPlaybackService extends Service {
 	 * Called when one of the lists should refresh or requery.
 	 */
 	public void refresh() {
-		notifyChange(REFRESH);
+		notifyChange(ACTION_REFRESH);
 	}
 
 	/**

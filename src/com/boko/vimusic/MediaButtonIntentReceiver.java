@@ -71,9 +71,7 @@ public class MediaButtonIntentReceiver extends BroadcastReceiver {
 		final String intentAction = intent.getAction();
 		if (AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(intentAction)) {
 			final Intent i = new Intent(context, MediaPlaybackService.class);
-			i.setAction(MediaPlaybackService.SERVICECMD);
-			i.putExtra(MediaPlaybackService.CMDNAME,
-					MediaPlaybackService.CMDPAUSE);
+			i.setAction(MediaPlaybackService.ACTION_PAUSE);
 			context.startService(i);
 		} else if (Intent.ACTION_MEDIA_BUTTON.equals(intentAction)) {
 			final KeyEvent event = (KeyEvent) intent
@@ -83,37 +81,37 @@ public class MediaButtonIntentReceiver extends BroadcastReceiver {
 			}
 
 			final int keycode = event.getKeyCode();
-			final int action = event.getAction();
+			final int keyaction = event.getAction();
 			final long eventtime = event.getEventTime();
 
-			String command = null;
+			String action = null;
 			switch (keycode) {
 			case KeyEvent.KEYCODE_MEDIA_STOP:
-				command = MediaPlaybackService.CMDSTOP;
+				action = MediaPlaybackService.ACTION_STOP;
 				break;
 			case KeyEvent.KEYCODE_HEADSETHOOK:
 			case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
-				command = MediaPlaybackService.CMDTOGGLEPAUSE;
+				action = MediaPlaybackService.ACTION_TOGGLEPAUSE;
 				break;
 			case KeyEvent.KEYCODE_MEDIA_NEXT:
-				command = MediaPlaybackService.CMDNEXT;
+				action = MediaPlaybackService.ACTION_NEXT;
 				break;
 			case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
-				command = MediaPlaybackService.CMDPREVIOUS;
+				action = MediaPlaybackService.ACTION_PREVIOUS;
 				break;
 			case KeyEvent.KEYCODE_MEDIA_PAUSE:
-				command = MediaPlaybackService.CMDPAUSE;
+				action = MediaPlaybackService.ACTION_PAUSE;
 				break;
 			case KeyEvent.KEYCODE_MEDIA_PLAY:
-				command = MediaPlaybackService.CMDPLAY;
+				action = MediaPlaybackService.ACTION_PLAY;
 				break;
 			}
-			if (command != null) {
-				if (action == KeyEvent.ACTION_DOWN) {
+			if (action != null) {
+				if (keyaction == KeyEvent.ACTION_DOWN) {
 					if (mDown) {
-						if ((MediaPlaybackService.CMDTOGGLEPAUSE
-								.equals(command) || MediaPlaybackService.CMDPLAY
-								.equals(command))
+						if ((MediaPlaybackService.ACTION_TOGGLEPAUSE
+								.equals(action) || MediaPlaybackService.ACTION_PLAY
+								.equals(action))
 								&& mLastClickTime != 0
 								&& eventtime - mLastClickTime > LONG_PRESS_DELAY) {
 							mHandler.sendMessage(mHandler.obtainMessage(
@@ -133,15 +131,13 @@ public class MediaButtonIntentReceiver extends BroadcastReceiver {
 						// a command.
 						final Intent i = new Intent(context,
 								MediaPlaybackService.class);
-						i.setAction(MediaPlaybackService.SERVICECMD);
 						if (keycode == KeyEvent.KEYCODE_HEADSETHOOK
 								&& eventtime - mLastClickTime < DOUBLE_CLICK) {
-							i.putExtra(MediaPlaybackService.CMDNAME,
-									MediaPlaybackService.CMDNEXT);
+							i.setAction(MediaPlaybackService.ACTION_NEXT);
 							context.startService(i);
 							mLastClickTime = 0;
 						} else {
-							i.putExtra(MediaPlaybackService.CMDNAME, command);
+							i.setAction(action);
 							context.startService(i);
 							mLastClickTime = eventtime;
 						}
