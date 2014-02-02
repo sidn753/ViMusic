@@ -61,6 +61,8 @@ import com.boko.vimusic.widgets.ShuffleButton;
  */
 public abstract class BaseActivity extends FragmentActivity implements
 		ServiceConnection {
+	
+	public static final String REFRESH_REQUESTED = "com.boko.vimusic.event.REFRESH_REQUESTED";
 
 	/**
 	 * Playstate and meta change listener
@@ -259,7 +261,7 @@ public abstract class BaseActivity extends FragmentActivity implements
 		// Track changes
 		filter.addAction(MediaPlaybackService.META_CHANGED);
 		// Update a list, probably the playlist fragment's
-		filter.addAction(MediaPlaybackService.ACTION_REFRESH);
+		filter.addAction(REFRESH_REQUESTED);
 		registerReceiver(mPlaybackStatus, filter);
 		MusicUtils.notifyForegroundStateChanged(this, true);
 	}
@@ -435,7 +437,7 @@ public abstract class BaseActivity extends FragmentActivity implements
 				mReference.get().mRepeatButton.updateRepeatState();
 				// Set the shuffle image
 				mReference.get().mShuffleButton.updateShuffleState();
-			} else if (action.equals(MediaPlaybackService.ACTION_REFRESH)) {
+			} else if (action.equals(REFRESH_REQUESTED)) {
 				// Let the listener know to update a list
 				for (final MusicStateListener listener : mReference.get().mMusicStateListener) {
 					if (listener != null) {

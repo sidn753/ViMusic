@@ -112,7 +112,6 @@ public class MediaPlaybackService extends Service {
 	public static final String ACTION_STOP = "com.boko.vimusic.musicservicecommand.stop";
 	public static final String ACTION_REPEAT = "com.boko.vimusic.musicservicecommand.repeat";
 	public static final String ACTION_SHUFFLE = "com.boko.vimusic.musicservicecommand.shuffle";
-	public static final String ACTION_REFRESH = "com.boko.vimusic.musicservicecommand.refresh";
 	public static final String ACTION_APPWIDGET_UPDATE = "com.boko.vimusic.musicservicecommand.appwidgetupdate";
 	
 	public static final String EXTRA_APPWIDGET_PROVIDER = "appWidgetProvider";
@@ -1277,13 +1276,6 @@ public class MediaPlaybackService extends Service {
 	}
 
 	/**
-	 * Called when one of the lists should refresh or requery.
-	 */
-	public void refresh() {
-		notifyChange(ACTION_REFRESH);
-	}
-
-	/**
 	 * @return The album art for the current album.
 	 */
 	public Bitmap getAlbumArt() {
@@ -1888,10 +1880,6 @@ public class MediaPlaybackService extends Service {
 
 		public void toggleFavorite() throws RemoteException {
 			mService.get().toggleFavorite();
-		}
-
-		public void refresh() throws RemoteException {
-			mService.get().refresh();
 		}
 	}
 

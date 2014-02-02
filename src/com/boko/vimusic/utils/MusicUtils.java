@@ -60,6 +60,7 @@ import com.boko.vimusic.provider.FavoritesStore.FavoritesTable;
 import com.boko.vimusic.provider.RecentStore;
 import com.boko.vimusic.service.IMediaPlaybackService;
 import com.boko.vimusic.service.MediaPlaybackService;
+import com.boko.vimusic.ui.activities.BaseActivity;
 import com.devspark.appmsg.AppMsg;
 
 /**
@@ -1259,13 +1260,9 @@ public final class MusicUtils {
 	/**
 	 * Called when one of the lists should refresh or requery.
 	 */
-	public static void refresh() {
-		try {
-			if (mService != null) {
-				mService.refresh();
-			}
-		} catch (final RemoteException ignored) {
-		}
+	public static void refresh(Context context) {
+		Intent i = new Intent(BaseActivity.REFRESH_REQUESTED);
+		context.sendStickyBroadcast(i);
 	}
 
 	/**
@@ -1387,7 +1384,7 @@ public final class MusicUtils {
 		final StringBuilder selection = new StringBuilder();
 		selection.append(BaseColumns._ID + " IN (");
 		for (int i = 0; i < list.length; i++) {
-			selection.append(list[i]);
+			selection.append(list[i].getId());
 			if (i < list.length - 1) {
 				selection.append(",");
 			}
@@ -1447,6 +1444,6 @@ public final class MusicUtils {
 		context.getContentResolver().notifyChange(Uri.parse("content://media"),
 				null);
 		// Notify the lists to update
-		refresh();
+		refresh(context);
 	}
 }

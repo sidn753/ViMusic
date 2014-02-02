@@ -443,8 +443,6 @@ public class AudioPlayerActivity extends FragmentActivity implements
 		filter.addAction(MediaPlaybackService.REPEATMODE_CHANGED);
 		// Track changes
 		filter.addAction(MediaPlaybackService.META_CHANGED);
-		// Update a list, probably the playlist fragment's
-		filter.addAction(MediaPlaybackService.ACTION_REFRESH);
 		registerReceiver(mPlaybackStatus, filter);
 		// Refresh the current time
 		final long next = refreshCurrentTime();

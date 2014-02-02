@@ -253,7 +253,7 @@ public class RecentFragment extends Fragment implements
 				mShouldRefresh = true;
 				RecentStore.getInstance(getActivity()).removeAlbum(
 						mAlbum.getId(), HostType.LOCAL);
-				MusicUtils.refresh();
+				MusicUtils.refresh(getActivity());
 				return true;
 			case FragmentMenuItems.DELETE:
 				mShouldRefresh = true;

@@ -37,6 +37,5 @@ interface IMediaPlaybackService
     int getAudioSessionId();
     boolean isFavorite();
     void toggleFavorite();
-    void refresh();
 }
 

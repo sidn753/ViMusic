@@ -73,7 +73,7 @@ public abstract class BasePlaylistDialog extends DialogFragment {
 					public void onClick(final DialogInterface dialog,
 							final int which) {
 						onSaveClick();
-						MusicUtils.refresh();
+						MusicUtils.refresh(getActivity());
 						dialog.dismiss();
 					}
 				});
@@ -85,7 +85,7 @@ public abstract class BasePlaylistDialog extends DialogFragment {
 					public void onClick(final DialogInterface dialog,
 							final int which) {
 						closeKeyboard();
-						MusicUtils.refresh();
+						MusicUtils.refresh(getActivity());
 						dialog.dismiss();
 					}
 				});

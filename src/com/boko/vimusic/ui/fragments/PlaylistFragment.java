@@ -342,7 +342,7 @@ public class PlaylistFragment extends Fragment implements
 												Long.valueOf(mPlaylist.getId()));
 								getActivity().getContentResolver().delete(mUri,
 										null, null);
-								MusicUtils.refresh();
+								MusicUtils.refresh(getActivity());
 							}
 						})
 				.setNegativeButton(R.string.cancel, new OnClickListener() {
