@@ -34,8 +34,6 @@ import com.boko.vimusic.utils.CommonUtils;
 @SuppressLint("NewApi")
 public class AppWidgetLargeAlternate extends AppWidgetBase {
 
-	public static final String CMDAPPWIDGETUPDATE = "app_widget_large_alternate_update";
-
 	private static AppWidgetLargeAlternate mInstance;
 
 	public static synchronized AppWidgetLargeAlternate getInstance() {
@@ -54,7 +52,7 @@ public class AppWidgetLargeAlternate extends AppWidgetBase {
 		defaultAppWidget(context, appWidgetIds);
 		final Intent updateIntent = new Intent(MediaPlaybackService.ACTION_APPWIDGET_UPDATE);
 		updateIntent.putExtra(MediaPlaybackService.EXTRA_APPWIDGET_PROVIDER,
-				AppWidgetLargeAlternate.CMDAPPWIDGETUPDATE);
+				AppWidgetLargeAlternate.class.getName());
 		updateIntent.putExtra(MediaPlaybackService.EXTRA_APPWIDGET_IDS,
 				appWidgetIds);
 		updateIntent.setFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);

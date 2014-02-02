@@ -185,16 +185,16 @@ public class MediaPlaybackService extends Service {
 			int[] appWidgetIds = intent.getIntArrayExtra(EXTRA_APPWIDGET_IDS);
 			// Someone asked us to refresh a set of specific widgets, probably
 			// because they were just added.
-			if (AppWidgetSmall.CMDAPPWIDGETUPDATE.equals(cmd)) {
+			if (AppWidgetSmall.class.getName().equals(cmd)) {
 				mAppWidgetSmall.performUpdate(MediaPlaybackService.this,
 						appWidgetIds);
-			} else if (AppWidgetLarge.CMDAPPWIDGETUPDATE.equals(cmd)) {
+			} else if (AppWidgetLarge.class.getName().equals(cmd)) {
 				mAppWidgetLarge.performUpdate(MediaPlaybackService.this,
 						appWidgetIds);
-			} else if (AppWidgetLargeAlternate.CMDAPPWIDGETUPDATE.equals(cmd)) {
+			} else if (AppWidgetLargeAlternate.class.getName().equals(cmd)) {
 				mAppWidgetLargeAlternate.performUpdate(
 						MediaPlaybackService.this, appWidgetIds);
-			} else if (RecentWidgetProvider.CMDAPPWIDGETUPDATE.equals(cmd)) {
+			} else if (RecentWidgetProvider.class.getName().equals(cmd)) {
 				mRecentWidgetProvider.performUpdate(MediaPlaybackService.this,
 						appWidgetIds);
 			} else {

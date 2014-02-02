@@ -48,8 +48,6 @@ public class RecentWidgetProvider extends AppWidgetBase {
 
 	public static final String PLAY_ALBUM = "play_album";
 
-	public static final String CMDAPPWIDGETUPDATE = "app_widget_recents_update";
-
 	public static final String CLICK_ACTION = "com.boko.vimusic.recents.appwidget.action.CLICK";
 
 	public static final String REFRESH_ACTION = "com.boko.vimusic.recents.appwidget.action.REFRESH";
@@ -104,7 +102,7 @@ public class RecentWidgetProvider extends AppWidgetBase {
 			final Intent updateIntent = new Intent(
 					MediaPlaybackService.ACTION_APPWIDGET_UPDATE);
 			updateIntent.putExtra(MediaPlaybackService.EXTRA_APPWIDGET_PROVIDER,
-					RecentWidgetProvider.CMDAPPWIDGETUPDATE);
+					RecentWidgetProvider.class.getName());
 			updateIntent.putExtra(MediaPlaybackService.EXTRA_APPWIDGET_IDS,
 					appWidgetIds);
 			updateIntent.setFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
