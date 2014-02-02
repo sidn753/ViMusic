@@ -248,7 +248,7 @@ public final class MusicUtils {
 	 */
 	public static void previous(final Context context) {
 		final Intent previous = new Intent(context, MediaPlaybackService.class);
-		previous.setAction(MediaPlaybackService.ACTION_PREVIOUS);
+		previous.setAction(MediaPlaybackService.ACTION_PLAYER_PREVIOUS);
 		context.startService(previous);
 	}
 
@@ -1363,8 +1363,8 @@ public final class MusicUtils {
 		if (old == 0 || sForegroundActivities == 0) {
 			final Intent intent = new Intent(context,
 					MediaPlaybackService.class);
-			intent.setAction(MediaPlaybackService.FOREGROUND_STATE_CHANGED);
-			intent.putExtra(MediaPlaybackService.NOW_IN_FOREGROUND,
+			intent.setAction(MediaPlaybackService.ACTION_NOTIFICATION_TOGGLEHIDE);
+			intent.putExtra(MediaPlaybackService.ACTION_NOTIFICATION_FOREGROUND_STATE,
 					sForegroundActivities != 0);
 			context.startService(intent);
 		}

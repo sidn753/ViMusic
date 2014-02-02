@@ -254,12 +254,12 @@ public abstract class BaseActivity extends FragmentActivity implements
 		super.onStart();
 		final IntentFilter filter = new IntentFilter();
 		// Play and pause changes
-		filter.addAction(MediaPlaybackService.PLAYSTATE_CHANGED);
+		filter.addAction(MediaPlaybackService.EVENT_PLAYSTATE_CHANGED);
 		// Shuffle and repeat changes
-		filter.addAction(MediaPlaybackService.SHUFFLEMODE_CHANGED);
-		filter.addAction(MediaPlaybackService.REPEATMODE_CHANGED);
+		filter.addAction(MediaPlaybackService.EVENT_SHUFFLEMODE_CHANGED);
+		filter.addAction(MediaPlaybackService.EVENT_REPEATMODE_CHANGED);
 		// Track changes
-		filter.addAction(MediaPlaybackService.META_CHANGED);
+		filter.addAction(MediaPlaybackService.EVENT_META_CHANGED);
 		// Update a list, probably the playlist fragment's
 		filter.addAction(REFRESH_REQUESTED);
 		registerReceiver(mPlaybackStatus, filter);
@@ -417,7 +417,7 @@ public abstract class BaseActivity extends FragmentActivity implements
 		@Override
 		public void onReceive(final Context context, final Intent intent) {
 			final String action = intent.getAction();
-			if (action.equals(MediaPlaybackService.META_CHANGED)) {
+			if (action.equals(MediaPlaybackService.EVENT_META_CHANGED)) {
 				// Current info
 				mReference.get().updateBottomActionBarInfo();
 				// Update the favorites icon
@@ -428,11 +428,11 @@ public abstract class BaseActivity extends FragmentActivity implements
 						listener.onMetaChanged();
 					}
 				}
-			} else if (action.equals(MediaPlaybackService.PLAYSTATE_CHANGED)) {
+			} else if (action.equals(MediaPlaybackService.EVENT_PLAYSTATE_CHANGED)) {
 				// Set the play and pause image
 				mReference.get().mPlayPauseButton.updateState();
-			} else if (action.equals(MediaPlaybackService.REPEATMODE_CHANGED)
-					|| action.equals(MediaPlaybackService.SHUFFLEMODE_CHANGED)) {
+			} else if (action.equals(MediaPlaybackService.EVENT_REPEATMODE_CHANGED)
+					|| action.equals(MediaPlaybackService.EVENT_SHUFFLEMODE_CHANGED)) {
 				// Set the repeat image
 				mReference.get().mRepeatButton.updateRepeatState();
 				// Set the shuffle image

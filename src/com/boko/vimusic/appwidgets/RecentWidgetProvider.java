@@ -218,9 +218,9 @@ public class RecentWidgetProvider extends AppWidgetBase {
 	public void notifyChange(final MediaPlaybackService service,
 			final String what) {
 		if (hasInstances(service)) {
-			if (MediaPlaybackService.PLAYSTATE_CHANGED.equals(what)) {
+			if (MediaPlaybackService.EVENT_PLAYSTATE_CHANGED.equals(what)) {
 				performUpdate(service, null);
-			} else if (MediaPlaybackService.META_CHANGED.equals(what)) {
+			} else if (MediaPlaybackService.EVENT_META_CHANGED.equals(what)) {
 				synchronized (service) {
 					sWorkerQueue.post(new Runnable() {
 						@Override
@@ -297,19 +297,19 @@ public class RecentWidgetProvider extends AppWidgetBase {
 
 		// Previous track
 		pendingIntent = buildPendingIntent(context,
-				MediaPlaybackService.ACTION_PREVIOUS, serviceName);
+				MediaPlaybackService.ACTION_PLAYER_PREVIOUS, serviceName);
 		views.setOnClickPendingIntent(R.id.app_widget_recents_previous,
 				pendingIntent);
 
 		// Play and pause
 		pendingIntent = buildPendingIntent(context,
-				MediaPlaybackService.ACTION_TOGGLEPAUSE, serviceName);
+				MediaPlaybackService.ACTION_PLAYER_TOGGLEPAUSE, serviceName);
 		views.setOnClickPendingIntent(R.id.app_widget_recents_play,
 				pendingIntent);
 
 		// Next track
 		pendingIntent = buildPendingIntent(context,
-				MediaPlaybackService.ACTION_NEXT, serviceName);
+				MediaPlaybackService.ACTION_PLAYER_NEXT, serviceName);
 		views.setOnClickPendingIntent(R.id.app_widget_recents_next,
 				pendingIntent);
 	}

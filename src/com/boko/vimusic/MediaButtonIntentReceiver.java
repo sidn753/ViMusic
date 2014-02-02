@@ -71,7 +71,7 @@ public class MediaButtonIntentReceiver extends BroadcastReceiver {
 		final String intentAction = intent.getAction();
 		if (AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(intentAction)) {
 			final Intent i = new Intent(context, MediaPlaybackService.class);
-			i.setAction(MediaPlaybackService.ACTION_PAUSE);
+			i.setAction(MediaPlaybackService.ACTION_PLAYER_PAUSE);
 			context.startService(i);
 		} else if (Intent.ACTION_MEDIA_BUTTON.equals(intentAction)) {
 			final KeyEvent event = (KeyEvent) intent
@@ -87,30 +87,30 @@ public class MediaButtonIntentReceiver extends BroadcastReceiver {
 			String action = null;
 			switch (keycode) {
 			case KeyEvent.KEYCODE_MEDIA_STOP:
-				action = MediaPlaybackService.ACTION_STOP;
+				action = MediaPlaybackService.ACTION_PLAYER_STOP;
 				break;
 			case KeyEvent.KEYCODE_HEADSETHOOK:
 			case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
-				action = MediaPlaybackService.ACTION_TOGGLEPAUSE;
+				action = MediaPlaybackService.ACTION_PLAYER_TOGGLEPAUSE;
 				break;
 			case KeyEvent.KEYCODE_MEDIA_NEXT:
-				action = MediaPlaybackService.ACTION_NEXT;
+				action = MediaPlaybackService.ACTION_PLAYER_NEXT;
 				break;
 			case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
-				action = MediaPlaybackService.ACTION_PREVIOUS;
+				action = MediaPlaybackService.ACTION_PLAYER_PREVIOUS;
 				break;
 			case KeyEvent.KEYCODE_MEDIA_PAUSE:
-				action = MediaPlaybackService.ACTION_PAUSE;
+				action = MediaPlaybackService.ACTION_PLAYER_PAUSE;
 				break;
 			case KeyEvent.KEYCODE_MEDIA_PLAY:
-				action = MediaPlaybackService.ACTION_PLAY;
+				action = MediaPlaybackService.ACTION_PLAYER_PLAY;
 				break;
 			}
 			if (action != null) {
 				if (keyaction == KeyEvent.ACTION_DOWN) {
 					if (mDown) {
-						if ((MediaPlaybackService.ACTION_TOGGLEPAUSE
-								.equals(action) || MediaPlaybackService.ACTION_PLAY
+						if ((MediaPlaybackService.ACTION_PLAYER_TOGGLEPAUSE
+								.equals(action) || MediaPlaybackService.ACTION_PLAYER_PLAY
 								.equals(action))
 								&& mLastClickTime != 0
 								&& eventtime - mLastClickTime > LONG_PRESS_DELAY) {
@@ -133,7 +133,7 @@ public class MediaButtonIntentReceiver extends BroadcastReceiver {
 								MediaPlaybackService.class);
 						if (keycode == KeyEvent.KEYCODE_HEADSETHOOK
 								&& eventtime - mLastClickTime < DOUBLE_CLICK) {
-							i.setAction(MediaPlaybackService.ACTION_NEXT);
+							i.setAction(MediaPlaybackService.ACTION_PLAYER_NEXT);
 							context.startService(i);
 							mLastClickTime = 0;
 						} else {

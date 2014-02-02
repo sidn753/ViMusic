@@ -79,6 +79,8 @@ import com.boko.vimusic.utils.MusicUtils;
 @SuppressLint("NewApi")
 public class MediaPlaybackService extends Service {
 	public static final boolean DEBUG = true;
+	public static final String TAG = MediaPlaybackService.class
+			.getSimpleName();
 	/**
 	 * used to specify whether enqueue() should start playing the new list of
 	 * files right away, next or once all the currently queued files have been
@@ -95,25 +97,26 @@ public class MediaPlaybackService extends Service {
 	public static final int REPEAT_CURRENT = 1;
 	public static final int REPEAT_ALL = 2;
 
-	public static final String PLAYSTATE_CHANGED = "com.boko.vimusic.playstatechanged";
-	public static final String META_CHANGED = "com.boko.vimusic.metachanged";
-	public static final String QUEUE_CHANGED = "com.boko.vimusic.queuechanged";
-	public static final String POSITION_CHANGED = "com.boko.vimusic.positionchanged";
-	public static final String REPEATMODE_CHANGED = "com.boko.vimusic.repeatmodechanged";
-	public static final String SHUFFLEMODE_CHANGED = "com.boko.vimusic.shufflemodechanged";
-	public static final String FOREGROUND_STATE_CHANGED = "com.boko.vimusic.fgstatechanged";
-	public static final String NOW_IN_FOREGROUND = "nowinforeground";
+	public static final String EVENT_PLAYSTATE_CHANGED = "com.boko.vimusic.event.PLAYSTATE_CHANGED";
+	public static final String EVENT_META_CHANGED = "com.boko.vimusic.event.META_CHANGED";
+	public static final String EVENT_QUEUE_CHANGED = "com.boko.vimusic.event.QUEUE_CHANGED";
+	public static final String EVENT_POSITION_CHANGED = "com.boko.vimusic.event.POSITION_CHANGED";
+	public static final String EVENT_REPEATMODE_CHANGED = "com.boko.vimusic.event.REPEATMODE_CHANGED";
+	public static final String EVENT_SHUFFLEMODE_CHANGED = "com.boko.vimusic.event.SHUFFLEMODE_CHANGED";
 
-	public static final String ACTION_TOGGLEPAUSE = "com.boko.vimusic.musicservicecommand.togglepause";
-	public static final String ACTION_PLAY = "com.boko.vimusic.musicservicecommand.play";
-	public static final String ACTION_PAUSE = "com.boko.vimusic.musicservicecommand.pause";
-	public static final String ACTION_PREVIOUS = "com.boko.vimusic.musicservicecommand.previous";
-	public static final String ACTION_NEXT = "com.boko.vimusic.musicservicecommand.next";
-	public static final String ACTION_STOP = "com.boko.vimusic.musicservicecommand.stop";
-	public static final String ACTION_REPEAT = "com.boko.vimusic.musicservicecommand.repeat";
-	public static final String ACTION_SHUFFLE = "com.boko.vimusic.musicservicecommand.shuffle";
-	public static final String ACTION_APPWIDGET_UPDATE = "com.boko.vimusic.musicservicecommand.appwidgetupdate";
+	public static final String ACTION_PLAYER_TOGGLEPAUSE = "com.boko.vimusic.action.player.TOGGLEPAUSE";
+	public static final String ACTION_PLAYER_PLAY = "com.boko.vimusic.action.player.PLAY";
+	public static final String ACTION_PLAYER_PAUSE = "com.boko.vimusic.action.player.PAUSE";
+	public static final String ACTION_PLAYER_PREVIOUS = "com.boko.vimusic.action.player.PREVIOUS";
+	public static final String ACTION_PLAYER_NEXT = "com.boko.vimusic.action.player.NEXT";
+	public static final String ACTION_PLAYER_STOP = "com.boko.vimusic.action.player.STOP";
+	public static final String ACTION_PLAYER_TOGGLEREPEAT = "com.boko.vimusic.action.player.TOGGLEREPEAT";
+	public static final String ACTION_PLAYER_TOGGLESHUFFLE = "com.boko.vimusic.action.player.TOGGLESHUFFLE";
 	
+	public static final String ACTION_NOTIFICATION_TOGGLEHIDE = "com.boko.vimusic.action.notification.TOGGLEHIDE";
+	public static final String ACTION_NOTIFICATION_FOREGROUND_STATE = "notificationForegroundState";
+	
+	public static final String ACTION_APPWIDGET_UPDATE = "com.boko.vimusic.action.appwidget.UPDATE";
 	public static final String EXTRA_APPWIDGET_PROVIDER = "appWidgetProvider";
 	public static final String EXTRA_APPWIDGET_IDS = "appWidgetIds";
 
@@ -134,13 +137,11 @@ public class MediaPlaybackService extends Service {
 	private int mPlayListLen = 0;
 	private int mPlayPos = -1;
 	private int mNextPlayPos = -1;
-	public static final String LOGTAG = MediaPlaybackService.class
-			.getSimpleName();
 	private int mOpenFailedCounter = 0;
-	private BroadcastReceiver mUnmountReceiver = null;
+	private BroadcastReceiver mUnmountReceiver;
 	private WakeLock mWakeLock;
 	private int mServiceStartId = -1;
-	private boolean mServiceInUse = false;
+	private boolean mIsServiceBound = false;
 	private boolean mIsSupposedToBePlaying = false;
 	private AudioManager mAudioManager;
 	// used to track what type of audio focus loss caused the playback to pause
@@ -159,11 +160,10 @@ public class MediaPlaybackService extends Service {
 	// interval after which we stop the service when idle (30 minutes)
 	private static final int IDLE_DELAY = 1800000;
 
-	private RemoteControlClient mRemoteControlClient;
-
 	private Handler mDelayedStopHandler;
 	private Handler mMediaplayerHandler;
 
+	private RemoteControlClient mRemoteControlClient;
 	// Image cache
 	private ImageFetcher mImageFetcher;
 	// Used to build the notification
@@ -206,7 +206,7 @@ public class MediaPlaybackService extends Service {
 		@Override
 		public void onAudioFocusChange(final int focusChange) {
 			if (DEBUG)
-				Log.d(LOGTAG, "Audio focus changed. Status = " + focusChange);
+				Log.d(TAG, "Audio focus changed. Status = " + focusChange);
 			mMediaplayerHandler.obtainMessage(FOCUSCHANGE, focusChange, 0)
 					.sendToTarget();
 		}
@@ -218,7 +218,7 @@ public class MediaPlaybackService extends Service {
 	@Override
 	public void onCreate() {
 		if (DEBUG)
-			Log.d(LOGTAG, "Creating service");
+			Log.d(TAG, "Creating service");
 		super.onCreate();
 
 		// Initialize the favorites and recents databases
@@ -294,13 +294,13 @@ public class MediaPlaybackService extends Service {
 
 		IntentFilter commandFilter = new IntentFilter();
 		commandFilter.addAction(ACTION_APPWIDGET_UPDATE);
-		commandFilter.addAction(ACTION_TOGGLEPAUSE);
-		commandFilter.addAction(ACTION_PAUSE);
-		commandFilter.addAction(ACTION_NEXT);
-		commandFilter.addAction(ACTION_PREVIOUS);
-		commandFilter.addAction(ACTION_STOP);
-		commandFilter.addAction(ACTION_REPEAT);
-		commandFilter.addAction(ACTION_SHUFFLE);
+		commandFilter.addAction(ACTION_PLAYER_TOGGLEPAUSE);
+		commandFilter.addAction(ACTION_PLAYER_PAUSE);
+		commandFilter.addAction(ACTION_PLAYER_NEXT);
+		commandFilter.addAction(ACTION_PLAYER_PREVIOUS);
+		commandFilter.addAction(ACTION_PLAYER_STOP);
+		commandFilter.addAction(ACTION_PLAYER_TOGGLEREPEAT);
+		commandFilter.addAction(ACTION_PLAYER_TOGGLESHUFFLE);
 		registerReceiver(mIntentReceiver, commandFilter);
 
 		PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -318,7 +318,7 @@ public class MediaPlaybackService extends Service {
 	@Override
 	public void onDestroy() {
 		if (DEBUG)
-			Log.d(LOGTAG, "Destroying service");
+			Log.d(TAG, "Destroying service");
 		// release all MediaPlayer resources, including the native player and
 		// wakelocks
 		Intent i = new Intent(
@@ -348,18 +348,18 @@ public class MediaPlaybackService extends Service {
 	@Override
 	public IBinder onBind(final Intent intent) {
 		if (DEBUG)
-			Log.d(LOGTAG, "Service bound, intent = " + intent);
+			Log.d(TAG, "Service bound, intent = " + intent);
 		mDelayedStopHandler.removeCallbacksAndMessages(null);
-		mServiceInUse = true;
+		mIsServiceBound = true;
 		return mBinder;
 	}
 
 	@Override
 	public void onRebind(final Intent intent) {
 		if (DEBUG)
-			Log.d(LOGTAG, "Service rebound, intent = " + intent);
+			Log.d(TAG, "Service rebound, intent = " + intent);
 		mDelayedStopHandler.removeCallbacksAndMessages(null);
-		mServiceInUse = true;
+		mIsServiceBound = true;
 	}
 
 	@Override
@@ -369,9 +369,9 @@ public class MediaPlaybackService extends Service {
 		mDelayedStopHandler.removeCallbacksAndMessages(null);
 
 		if (intent != null) {
-			if (intent.hasExtra(NOW_IN_FOREGROUND)) {
+			if (intent.hasExtra(ACTION_NOTIFICATION_FOREGROUND_STATE)) {
 				mAnyActivityInForeground = intent.getBooleanExtra(
-						NOW_IN_FOREGROUND, false);
+						ACTION_NOTIFICATION_FOREGROUND_STATE, false);
 				updateNotification();
 			}
 
@@ -387,32 +387,32 @@ public class MediaPlaybackService extends Service {
 	private void handleCommandIntent(Intent intent) {
 		String action = intent.getAction();
 		if (DEBUG)
-			Log.d(LOGTAG, "Handling intent. Action = " + action);
+			Log.d(TAG, "Handling intent. Action = " + action);
 
-		if (ACTION_NEXT.equals(action)) {
+		if (ACTION_PLAYER_NEXT.equals(action)) {
 			gotoNext(true);
-		} else if (ACTION_PREVIOUS.equals(action)) {
+		} else if (ACTION_PLAYER_PREVIOUS.equals(action)) {
 			prev();
-		} else if (ACTION_TOGGLEPAUSE.equals(action)) {
+		} else if (ACTION_PLAYER_TOGGLEPAUSE.equals(action)) {
 			if (isPlaying()) {
 				pause();
 				mPausedByTransientLossOfFocus = false;
 			} else {
 				play();
 			}
-		} else if (ACTION_PAUSE.equals(action)) {
+		} else if (ACTION_PLAYER_PAUSE.equals(action)) {
 			pause();
 			mPausedByTransientLossOfFocus = false;
-		} else if (ACTION_PLAY.equals(action)) {
+		} else if (ACTION_PLAYER_PLAY.equals(action)) {
 			play();
-		} else if (ACTION_STOP.equals(action)) {
+		} else if (ACTION_PLAYER_STOP.equals(action)) {
 			pause();
 			mPausedByTransientLossOfFocus = false;
 			seek(0);
 			shutdownImmediate(this);
-		} else if (ACTION_REPEAT.equals(action)) {
+		} else if (ACTION_PLAYER_TOGGLEREPEAT.equals(action)) {
 			cycleRepeat();
-		} else if (ACTION_SHUFFLE.equals(action)) {
+		} else if (ACTION_PLAYER_TOGGLESHUFFLE.equals(action)) {
 			cycleShuffle();
 		}
 	}
@@ -420,8 +420,8 @@ public class MediaPlaybackService extends Service {
 	@Override
 	public boolean onUnbind(final Intent intent) {
 		if (DEBUG)
-			Log.d(LOGTAG, "Service unbound, intent = " + intent);
-		mServiceInUse = false;
+			Log.d(TAG, "Service unbound, intent = " + intent);
+		mIsServiceBound = false;
 
 		if (isPlaying() || mPausedByTransientLossOfFocus) {
 			// something is currently playing, or will be playing once
@@ -458,7 +458,7 @@ public class MediaPlaybackService extends Service {
 					if (Intent.ACTION_MEDIA_EJECT.equals(intent.getAction())) {
 						stop(true);
 					}
-					notifyChange(META_CHANGED);
+					notifyChange(EVENT_META_CHANGED);
 				}
 			};
 			IntentFilter iFilter = new IntentFilter();
@@ -484,7 +484,7 @@ public class MediaPlaybackService extends Service {
 	 */
 	private void notifyChange(final String what) {
 		if (DEBUG)
-			Log.d(LOGTAG, "notifyChange: what = " + what);
+			Log.d(TAG, "notifyChange: what = " + what);
 
 		Intent i = new Intent(what);
 		i.putExtra("id", getAudioId());
@@ -498,9 +498,9 @@ public class MediaPlaybackService extends Service {
 		// Update the lockscreen controls
 		updateRemoteControlClient(what);
 
-		if (what.equals(POSITION_CHANGED)) {
+		if (what.equals(EVENT_POSITION_CHANGED)) {
 			return;
-		} else if (what.equals(META_CHANGED)) {
+		} else if (what.equals(EVENT_META_CHANGED)) {
 			// Increase the play count for favorite songs.
 			if (!mFavoritesCache.isFavoriteSong(getAudioId(), getTrackHost())) {
 				mFavoritesCache.addSong(getAudioId(), getTrackHost(),
@@ -511,13 +511,13 @@ public class MediaPlaybackService extends Service {
 					getAlbumName(), getArtistName(),
 					MusicUtils.getSongCountForAlbum(this, getAlbumId()),
 					MusicUtils.getReleaseDateForAlbum(this, getAlbumId()));
-		} else if (what.equals(QUEUE_CHANGED)) {
+		} else if (what.equals(EVENT_QUEUE_CHANGED)) {
 			if (isPlaying()) {
 				setNextTrack();
 			}
 		}
 
-		if (what.equals(PLAYSTATE_CHANGED)) {
+		if (what.equals(EVENT_PLAYSTATE_CHANGED)) {
 			mNotificationHelper.updatePlayState(isPlaying());
 		}
 
@@ -535,7 +535,7 @@ public class MediaPlaybackService extends Service {
 	 *            The broadcast
 	 */
 	private void updateRemoteControlClient(final String what) {
-		if (what.equals(META_CHANGED) || what.equals(QUEUE_CHANGED)) {
+		if (what.equals(EVENT_META_CHANGED) || what.equals(EVENT_QUEUE_CHANGED)) {
 			RemoteControlClient.MetadataEditor ed = mRemoteControlClient
 					.editMetadata(true);
 			ed.putString(MediaMetadataRetriever.METADATA_KEY_TITLE,
@@ -559,8 +559,8 @@ public class MediaPlaybackService extends Service {
 			}
 			ed.apply();
 		}
-		if (what.equals(PLAYSTATE_CHANGED) || what.equals(POSITION_CHANGED)
-				|| what.equals(META_CHANGED) || what.equals(QUEUE_CHANGED)) {
+		if (what.equals(EVENT_PLAYSTATE_CHANGED) || what.equals(EVENT_POSITION_CHANGED)
+				|| what.equals(EVENT_META_CHANGED) || what.equals(EVENT_QUEUE_CHANGED)) {
 			int playState = isPlaying() ? RemoteControlClient.PLAYSTATE_PLAYING
 					: RemoteControlClient.PLAYSTATE_PAUSED;
 			if (CommonUtils.hasJellyBeanMR2()) {
@@ -618,7 +618,7 @@ public class MediaPlaybackService extends Service {
 		mPlayOrder = concat(mPlayOrder, a);
 		mPlayListLen += addlen;
 		if (mPlayListLen == 0) {
-			notifyChange(META_CHANGED);
+			notifyChange(EVENT_META_CHANGED);
 		}
 	}
 
@@ -636,12 +636,12 @@ public class MediaPlaybackService extends Service {
 		synchronized (this) {
 			if (action == NEXT && mPlayPos + 1 < mPlayListLen) {
 				addToPlayList(list, mPlayPos + 1);
-				notifyChange(QUEUE_CHANGED);
+				notifyChange(EVENT_QUEUE_CHANGED);
 			} else {
 				// action == LAST || action == NOW || mPlayPos + 1 ==
 				// mPlayListLen
 				addToPlayList(list, Integer.MAX_VALUE);
-				notifyChange(QUEUE_CHANGED);
+				notifyChange(EVENT_QUEUE_CHANGED);
 				if (action == NOW) {
 					mPlayPos = mPlayListLen - list.length;
 					prepareAndPlayCurrent();
@@ -679,7 +679,7 @@ public class MediaPlaybackService extends Service {
 			}
 			if (newlist) {
 				addToPlayList(list, -1);
-				notifyChange(QUEUE_CHANGED);
+				notifyChange(EVENT_QUEUE_CHANGED);
 			}
 			if (position >= 0) {
 				mPlayPos = position;
@@ -729,7 +729,7 @@ public class MediaPlaybackService extends Service {
 					mPlayPos++;
 				}
 			}
-			notifyChange(QUEUE_CHANGED);
+			notifyChange(EVENT_QUEUE_CHANGED);
 		}
 	}
 
@@ -767,7 +767,7 @@ public class MediaPlaybackService extends Service {
 				AudioManager.AUDIOFOCUS_GAIN);
 
 		if (DEBUG)
-			Log.d(LOGTAG, "Starting playback: audio focus request status = "
+			Log.d(TAG, "Starting playback: audio focus request status = "
 					+ requestStatus);
 
 		if (requestStatus != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
@@ -794,7 +794,7 @@ public class MediaPlaybackService extends Service {
 
 			if (!mIsSupposedToBePlaying) {
 				mIsSupposedToBePlaying = true;
-				notifyChange(PLAYSTATE_CHANGED);
+				notifyChange(EVENT_PLAYSTATE_CHANGED);
 			}
 
 			updateNotification();
@@ -825,7 +825,7 @@ public class MediaPlaybackService extends Service {
 			gotoIdleState();
 			if (mIsSupposedToBePlaying) {
 				mIsSupposedToBePlaying = false;
-				notifyChange(PLAYSTATE_CHANGED);
+				notifyChange(EVENT_PLAYSTATE_CHANGED);
 			}
 		} else {
 			stopForeground(false);
@@ -842,7 +842,7 @@ public class MediaPlaybackService extends Service {
 				mPlayer.pause();
 				gotoIdleState();
 				mIsSupposedToBePlaying = false;
-				notifyChange(PLAYSTATE_CHANGED);
+				notifyChange(EVENT_PLAYSTATE_CHANGED);
 			}
 		}
 	}
@@ -925,7 +925,7 @@ public class MediaPlaybackService extends Service {
 		synchronized (this) {
 			if (mPlayListLen <= 0) {
 				if (DEBUG)
-					Log.d(LOGTAG, "No play queue");
+					Log.d(TAG, "No play queue");
 				gotoIdleState();
 				return;
 			}
@@ -943,7 +943,7 @@ public class MediaPlaybackService extends Service {
 
 	private void gotoIdleState() {
 		if (DEBUG)
-			Log.d(LOGTAG, "Going to idle state");
+			Log.d(TAG, "Going to idle state");
 		mDelayedStopHandler.removeCallbacksAndMessages(null);
 		Message msg = mDelayedStopHandler.obtainMessage();
 		mDelayedStopHandler.sendMessageDelayed(msg, IDLE_DELAY);
@@ -951,7 +951,7 @@ public class MediaPlaybackService extends Service {
 
 	protected static void shutdownImmediate(final MediaPlaybackService service) {
 		if (DEBUG)
-			Log.d(LOGTAG, "Stoping service.");
+			Log.d(TAG, "Stoping service.");
 		// Check again to make sure nothing is playing right now
 		if (service.isPlaying() || service.mPausedByTransientLossOfFocus
 				|| service.mMediaplayerHandler.hasMessages(TRACK_ENDED)) {
@@ -959,11 +959,11 @@ public class MediaPlaybackService extends Service {
 		}
 
 		if (DEBUG)
-			Log.d(LOGTAG, "Nothing is playing anymore, releasing notification");
+			Log.d(TAG, "Nothing is playing anymore, releasing notification");
 		service.mNotificationHelper.killNotification();
 		service.mAudioManager.abandonAudioFocus(service.mAudioFocusListener);
 
-		if (!service.mServiceInUse) {
+		if (!service.mIsServiceBound) {
 			service.stopSelf(service.mServiceStartId);
 		}
 	}
@@ -982,7 +982,7 @@ public class MediaPlaybackService extends Service {
 	public int removeTracks(int first, int last) {
 		int numremoved = removeTracksInternal(first, last);
 		if (numremoved > 0) {
-			notifyChange(QUEUE_CHANGED);
+			notifyChange(EVENT_QUEUE_CHANGED);
 		}
 		return numremoved;
 	}
@@ -1015,7 +1015,7 @@ public class MediaPlaybackService extends Service {
 				if (mPlayListLen == 0) {
 					stop(true);
 					mPlayPos = -1;
-					notifyChange(META_CHANGED);
+					notifyChange(EVENT_META_CHANGED);
 				} else {
 					if (mPlayPos >= mPlayListLen) {
 						mPlayPos = 0;
@@ -1046,7 +1046,7 @@ public class MediaPlaybackService extends Service {
 			}
 		}
 		if (numremoved > 0) {
-			notifyChange(QUEUE_CHANGED);
+			notifyChange(EVENT_QUEUE_CHANGED);
 		}
 		return numremoved;
 	}
@@ -1061,7 +1061,7 @@ public class MediaPlaybackService extends Service {
 				shuffleArray(mPlayOrder);
 			}
 			mShuffleMode = shufflemode;
-			notifyChange(SHUFFLEMODE_CHANGED);
+			notifyChange(EVENT_SHUFFLEMODE_CHANGED);
 		}
 	}
 
@@ -1073,7 +1073,7 @@ public class MediaPlaybackService extends Service {
 		synchronized (this) {
 			mRepeatMode = repeatmode;
 			setNextTrack();
-			notifyChange(REPEATMODE_CHANGED);
+			notifyChange(EVENT_REPEATMODE_CHANGED);
 		}
 	}
 
@@ -1197,7 +1197,7 @@ public class MediaPlaybackService extends Service {
 			if (pos > mPlayer.duration())
 				pos = mPlayer.duration();
 			long ret = mPlayer.seek(pos);
-			notifyChange(POSITION_CHANGED);
+			notifyChange(EVENT_POSITION_CHANGED);
 			return ret;
 		}
 		return -1;
@@ -1324,7 +1324,7 @@ public class MediaPlaybackService extends Service {
 		@Override
 		public void handleMessage(final Message msg) {
 			if (DEBUG)
-				Log.d(LOGTAG, "Handling media message. Msg = " + msg);
+				Log.d(TAG, "Handling media message. Msg = " + msg);
 			final MediaPlaybackService service = mService.get();
 			if (service == null) {
 				return;
@@ -1362,7 +1362,7 @@ public class MediaPlaybackService extends Service {
 				break;
 			case TRACK_WENT_TO_NEXT:
 				service.mPlayPos = service.mNextPlayPos;
-				service.notifyChange(META_CHANGED);
+				service.notifyChange(EVENT_META_CHANGED);
 				service.updateNotification();
 				service.setNextTrack();
 				break;
@@ -1379,7 +1379,7 @@ public class MediaPlaybackService extends Service {
 				break;
 			case FOCUSCHANGE:
 				if (DEBUG)
-					Log.d(LOGTAG, "Received audio focus change event "
+					Log.d(TAG, "Received audio focus change event "
 							+ msg.arg1);
 				// This code is here so we can better synchronize it with the
 				// code that
@@ -1387,7 +1387,7 @@ public class MediaPlaybackService extends Service {
 				switch (msg.arg1) {
 				case AudioManager.AUDIOFOCUS_LOSS:
 					if (DEBUG)
-						Log.d(LOGTAG, "AudioFocus: received AUDIOFOCUS_LOSS");
+						Log.d(TAG, "AudioFocus: received AUDIOFOCUS_LOSS");
 					if (service.isPlaying()) {
 						service.mPausedByTransientLossOfFocus = false;
 					}
@@ -1399,7 +1399,7 @@ public class MediaPlaybackService extends Service {
 					break;
 				case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
 					if (DEBUG)
-						Log.d(LOGTAG,
+						Log.d(TAG,
 								"AudioFocus: received AUDIOFOCUS_LOSS_TRANSIENT");
 					if (service.isPlaying()) {
 						service.mPausedByTransientLossOfFocus = true;
@@ -1408,7 +1408,7 @@ public class MediaPlaybackService extends Service {
 					break;
 				case AudioManager.AUDIOFOCUS_GAIN:
 					if (DEBUG)
-						Log.d(LOGTAG, "AudioFocus: received AUDIOFOCUS_GAIN");
+						Log.d(TAG, "AudioFocus: received AUDIOFOCUS_GAIN");
 					if (!service.isPlaying()
 							&& service.mPausedByTransientLossOfFocus) {
 						service.mPausedByTransientLossOfFocus = false;
@@ -1422,7 +1422,7 @@ public class MediaPlaybackService extends Service {
 					break;
 				default:
 					if (DEBUG)
-						Log.e(LOGTAG, "Unknown audio focus change code");
+						Log.e(TAG, "Unknown audio focus change code");
 				}
 				break;
 
@@ -1457,7 +1457,7 @@ public class MediaPlaybackService extends Service {
 
 		public void setDataSource(final String path) {
 			if (DEBUG)
-				Log.d(LOGTAG, "Setting current datasource = " + path);
+				Log.d(TAG, "Setting current datasource = " + path);
 			reset();
 			if (path == null) {
 				return;
@@ -1487,15 +1487,15 @@ public class MediaPlaybackService extends Service {
 
 		public void setNextDataSource(final String path) {
 			if (DEBUG)
-				Log.d(LOGTAG, "Setting next datasource = " + path);
+				Log.d(TAG, "Setting next datasource = " + path);
 			resetNext();
 			try {
 				mCurrentMediaPlayer.setNextMediaPlayer(null);
 			} catch (IllegalArgumentException e) {
-				Log.e(LOGTAG, "Failed to initialize next media player.", e);
+				Log.e(TAG, "Failed to initialize next media player.", e);
 				return;
 			} catch (IllegalStateException e) {
-				Log.e(LOGTAG, "Media player not initialized!");
+				Log.e(TAG, "Media player not initialized!");
 				return;
 			}
 			if (path == null) {
@@ -1916,7 +1916,7 @@ public class MediaPlaybackService extends Service {
 				@Override
 				protected void onPostExecute(Song song) {
 					if (song != null) {
-						notifyChange(META_CHANGED);
+						notifyChange(EVENT_META_CHANGED);
 						updateNotification();
 						playFile(song.getLinkPlay());
 					}
@@ -1924,7 +1924,7 @@ public class MediaPlaybackService extends Service {
 			};
 			songTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, song);
 		} else {
-			notifyChange(META_CHANGED);
+			notifyChange(EVENT_META_CHANGED);
 			updateNotification();
 			playFile(song.getLinkPlay());
 		}
@@ -1937,7 +1937,7 @@ public class MediaPlaybackService extends Service {
 	 *            The full path of the file to be played.
 	 */
 	public void playFile(final String path) {
-		Log.d(LOGTAG, "Play file path = " + path);
+		Log.d(TAG, "Play file path = " + path);
 		if (mPlayList == null || mPlayPos < 0) {
 			ContentResolver resolver = getContentResolver();
 			Uri uri;
@@ -1981,7 +1981,7 @@ public class MediaPlaybackService extends Service {
 				mOpenFailedCounter = 0;
 				play();
 				setNextTrack();
-				notifyChange(META_CHANGED);
+				notifyChange(EVENT_META_CHANGED);
 				updateNotification();
 			}
 		});
@@ -1992,7 +1992,7 @@ public class MediaPlaybackService extends Service {
 				// either going to create a new one next, or stop trying
 				if (mOpenFailedCounter < 10 && mPlayListLen > 1) {
 					mOpenFailedCounter++;
-					Log.w(LOGTAG,
+					Log.w(TAG,
 							"Failed to open file for playback. Try count: "
 									+ mOpenFailedCounter);
 					gotoNext(false);

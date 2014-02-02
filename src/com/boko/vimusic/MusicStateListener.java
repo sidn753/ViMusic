@@ -13,7 +13,7 @@ public interface MusicStateListener {
 	public void restartLoader();
 
 	/**
-	 * Called when {@link MediaPlaybackService#META_CHANGED} is invoked
+	 * Called when {@link MediaPlaybackService#EVENT_META_CHANGED} is invoked
 	 */
 	public void onMetaChanged();
 

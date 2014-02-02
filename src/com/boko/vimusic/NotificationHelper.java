@@ -229,25 +229,25 @@ public class NotificationHelper {
 		switch (which) {
 		case 1:
 			// Play and pause
-			action = new Intent(MediaPlaybackService.ACTION_TOGGLEPAUSE);
+			action = new Intent(MediaPlaybackService.ACTION_PLAYER_TOGGLEPAUSE);
 			action.setComponent(serviceName);
 			pendingIntent = PendingIntent.getService(mService, 1, action, 0);
 			return pendingIntent;
 		case 2:
 			// Skip tracks
-			action = new Intent(MediaPlaybackService.ACTION_NEXT);
+			action = new Intent(MediaPlaybackService.ACTION_PLAYER_NEXT);
 			action.setComponent(serviceName);
 			pendingIntent = PendingIntent.getService(mService, 2, action, 0);
 			return pendingIntent;
 		case 3:
 			// Previous tracks
-			action = new Intent(MediaPlaybackService.ACTION_PREVIOUS);
+			action = new Intent(MediaPlaybackService.ACTION_PLAYER_PREVIOUS);
 			action.setComponent(serviceName);
 			pendingIntent = PendingIntent.getService(mService, 3, action, 0);
 			return pendingIntent;
 		case 4:
 			// Stop and collapse the notification
-			action = new Intent(MediaPlaybackService.ACTION_STOP);
+			action = new Intent(MediaPlaybackService.ACTION_PLAYER_STOP);
 			action.setComponent(serviceName);
 			pendingIntent = PendingIntent.getService(mService, 4, action, 0);
 			return pendingIntent;
